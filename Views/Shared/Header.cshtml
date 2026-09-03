@@ -1,0 +1,244 @@
+@using System.Text.Json
+@using YkbClone
+@model LayoutData
+@{
+    var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
+    var tabNodes = Model.HeaderTabs.Where(x => x.Role == NavigationRoles.Tab).ToArray();
+    var customerAction = Model.HeaderTabs.FirstOrDefault(x => x.Role == NavigationRoles.CustomerAcquisition);
+    var internetAction = Model.HeaderTabs.FirstOrDefault(x => x.Role == NavigationRoles.InternetBranch);
+    var mobileQuickLinks = Model.HeaderTabs.FirstOrDefault(x => x.Role == NavigationRoles.MobileQuickLinks);
+    var menuJson = JsonSerializer.Serialize(Model.HeaderTabs);
+}
+
+<header class="ykb-header" data-ykb-header data-home="@isHomePage.ToString().ToLowerInvariant()">
+    <div class="ykb-desktop-header" aria-label="Ana üstbilgi">
+        <div class="ykb-grey-bar">
+            <div class="ykb-container ykb-top-links">
+                @foreach (var link in Model.HeaderTopLinks)
+                {
+                    <a href="@link.Url">@link.Title</a>
+                }
+            </div>
+        </div>
+
+        <div class="ykb-main-row-wrap">
+            <div class="ykb-container ykb-main-row">
+                <a class="ykb-logo" href="/" aria-label="Yapı Kredi ana sayfa">
+                    <img src="~/assets/yapikredi-logo.svg" alt="Yapı Kredi" />
+                </a>
+
+                <nav class="ykb-tabs" aria-label="Müşteri türü">
+                    @for (var index = 0; index < tabNodes.Length; index++)
+                    {
+                        var tab = tabNodes[index];
+                        var desktopLinks = tab.Children
+                            .SelectMany(x => x.PromoteChildrenOnDesktop ? x.Children : new[] { x })
+                            .Where(x => x.DisplayOnDesktop)
+                            .ToArray();
+                        <div class="ykb-tab @(index == 0 ? "is-active" : string.Empty)" data-desktop-tab>
+                            <button type="button" class="ykb-tab-button" aria-expanded="@(index == 0 ? "true" : "false")">
+                                @tab.Title
+                            </button>
+                            <div class="ykb-desktop-subnav" data-desktop-subnav>
+                                <div class="ykb-container">
+                                    @foreach (var child in desktopLinks)
+                                    {
+                                        <a href="@child.Url">@child.Title</a>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </nav>
+
+                <div class="ykb-desktop-tools">
+                    @if (!isHomePage)
+                    {
+                        <form class="ykb-inline-search" role="search" action="/arama" method="get">
+                            <label class="sr-only" for="header-search">Ara</label>
+                            <input id="header-search" name="q" type="search" placeholder="Ara..." maxlength="85" />
+                            <button type="submit" class="icon-search" aria-label="Ara"></button>
+                        </form>
+                    }
+
+                    <div class="ykb-notification-wrap">
+                        <button class="ykb-notification-button icon-notification" type="button" aria-label="Bildirimler" aria-expanded="false" data-header-dropdown="notifications">
+                            @if (Model.HeaderNotifications.Count > 0)
+                            {
+                                <span class="ykb-notification-count">@Model.HeaderNotifications.Count</span>
+                            }
+                        </button>
+                        <div class="ykb-notification-menu" data-dropdown-panel="notifications" hidden>
+                            @if (Model.HeaderNotifications.Count == 0)
+                            {
+                                <p>Şu anda bildiriminiz bulunmamaktadır.</p>
+                            }
+                            else
+                            {
+                                <ul>
+                                    @foreach (var notification in Model.HeaderNotifications)
+                                    {
+                                        <li>
+                                            <a href="@notification.Url">
+                                                @if (!string.IsNullOrWhiteSpace(notification.ImageUrl))
+                                                {
+                                                    <span class="ykb-notification-image"><img src="@notification.ImageUrl" alt="@notification.ImageAlt" /></span>
+                                                }
+                                                <span>@notification.Title</span>
+                                            </a>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                        </div>
+                    </div>
+
+                    @foreach (var action in new[] { customerAction, internetAction }.Where(x => x is not null))
+                    {
+                        var isInternet = action!.Role == NavigationRoles.InternetBranch;
+                        var panelId = isInternet ? "internet-branch" : "become-customer";
+                        <div class="ykb-action-wrap @(isInternet ? "is-red" : "is-blue")">
+                            <button class="ykb-action-button" type="button" aria-expanded="false" data-header-dropdown="@panelId">
+                                <i class="@action.IconCssClass" aria-hidden="true">
+                                    @if (action.IconCssClass == "icon-user-plus-24")
+                                    {
+                                        <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
+                                    }
+                                </i>
+                                <span>@action.Title</span>
+                            </button>
+                            <div class="ykb-action-menu" data-dropdown-panel="@panelId" hidden>
+                                @foreach (var group in action.Children)
+                                {
+                                    <div class="ykb-action-group">
+                                        <a class="ykb-action-primary" href="@group.Url" target="@(group.OpenInNewTab ? "_blank" : null)">
+                                            @if (!string.IsNullOrWhiteSpace(group.IconCssClass))
+                                            {
+                                                <i class="@group.IconCssClass" aria-hidden="true"></i>
+                                            }
+                                            <span>@group.Title</span>
+                                        </a>
+                                        @foreach (var child in group.Children)
+                                        {
+                                            <a class="ykb-action-secondary" href="@child.Url" target="@(child.OpenInNewTab ? "_blank" : null)">@child.Title</a>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="ykb-mobile-header">
+        <div class="ykb-mobile-topbar">
+            <a class="ykb-mobile-logo" href="/" aria-label="Yapı Kredi ana sayfa">
+                <img src="~/assets/yapikredi-logo.svg" alt="Yapı Kredi" />
+            </a>
+            <div class="ykb-mobile-top-actions">
+                <a class="ykb-atm-link" href="https://www.yapikredi.com.tr/sinirsiz-bankacilik/atm/sube-ve-atm-arama">
+                    <img src="~/assets/pin-yapikredi.svg" alt="" />
+                    <span>Şube ve<br />ATM'ler</span>
+                </a>
+                <button class="ykb-mobile-bell icon-notification" type="button" aria-label="Bildirimler" data-mobile-notifications></button>
+                <span class="ykb-mobile-separator" aria-hidden="true"></span>
+                <button class="ykb-menu-toggle" type="button" aria-label="Menüyü aç" aria-expanded="false" data-mobile-menu-toggle>
+                    <span></span><span></span><span></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="ykb-mobile-notification-menu" data-mobile-notification-menu hidden>
+            @if (Model.HeaderNotifications.Count == 0)
+            {
+                <p>Şu anda bildiriminiz bulunmamaktadır.</p>
+            }
+            else
+            {
+                <ul>
+                    @foreach (var notification in Model.HeaderNotifications)
+                    {
+                        <li>
+                            <a href="@notification.Url">
+                                @if (!string.IsNullOrWhiteSpace(notification.ImageUrl))
+                                {
+                                    <span class="ykb-notification-image"><img src="@notification.ImageUrl" alt="@notification.ImageAlt" /></span>
+                                }
+                                <span>@notification.Title</span>
+                            </a>
+                        </li>
+                    }
+                </ul>
+            }
+        </div>
+
+        <div class="ykb-mobile-buttons" data-mobile-buttons>
+            @foreach (var action in new[] { customerAction, internetAction }.Where(x => x is not null))
+            {
+                var isInternet = action!.Role == NavigationRoles.InternetBranch;
+                <button type="button" class="ykb-mobile-action @(isInternet ? "is-red" : "is-blue")" data-mobile-action="@action.Id">
+                    <i class="@action.IconCssClass" aria-hidden="true">
+                        @if (action.IconCssClass == "icon-user-plus-24")
+                        {
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
+                        }
+                    </i>
+                    <span>@action.Title</span>
+                </button>
+            }
+        </div>
+
+        <div class="ykb-mobile-menu" data-mobile-menu hidden>
+            <div class="ykb-mobile-tabs" role="tablist" aria-label="Müşteri türü">
+                @for (var index = 0; index < tabNodes.Length; index++)
+                {
+                    var tab = tabNodes[index];
+                    <button type="button" role="tab" aria-selected="@(index == 0 ? "true" : "false")" class="@(index == 0 ? "is-active" : string.Empty)" data-mobile-tab="@tab.Id">
+                        <i class="@(index == 0 ? "icon-mobile-nav-blue-class" : "icon-mobile-nav-kurumsal")" aria-hidden="true"></i>
+                        <span>@tab.Title</span>
+                    </button>
+                }
+            </div>
+            <div class="ykb-mobile-menu-body">
+                <div class="ykb-mobile-menu-content" data-mobile-menu-content></div>
+                @if (mobileQuickLinks is not null)
+                {
+                    <div class="ykb-mobile-quick-links">
+                        @if (mobileQuickLinks.Children.Count > 0)
+                        {
+                            var download = mobileQuickLinks.Children[0];
+                            <a class="ykb-mobile-download" href="@download.Url">
+                                <i class="@download.IconCssClass" aria-hidden="true"></i>
+                                <span>@download.Title</span>
+                            </a>
+                        }
+                        <div class="ykb-mobile-quick-grid">
+                            @foreach (var quickLink in mobileQuickLinks.Children.Skip(1))
+                            {
+                                <a href="@quickLink.Url">
+                                    <i class="@quickLink.IconCssClass" aria-hidden="true"></i>
+                                    <span>@quickLink.Title</span>
+                                </a>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <script id="ykb-mobile-menu-data" type="application/json">@Html.Raw(menuJson)</script>
+</header>
+
+@if (isHomePage)
+{
+    <section class="ykb-home-search-band" aria-label="Site araması">
+        <form class="ykb-home-search" role="search" action="/arama" method="get">
+            <label class="sr-only" for="home-search">Size nasıl yardımcı olabiliriz?</label>
+            <input id="home-search" name="q" type="search" maxlength="85" autocomplete="off" placeholder="Size Nasıl Yardımcı Olabiliriz?" />
+            <button class="icon-search" type="submit" aria-label="Ara"></button>
+        </form>
+    </section>
+}

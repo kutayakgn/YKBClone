@@ -1,0 +1,28 @@
+@{
+    var layoutData = ViewData["LayoutData"] as YkbClone.LayoutData;
+    layoutData ??= YkbClone.LayoutData.Create(YkbClone.MockLayoutContent.Create());
+    var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+    <meta name="theme-color" content="#ffffff" />
+    <title>@ViewData["Title"] | Yapı Kredi Header Demo</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&amp;display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+</head>
+<body class="@(isHomePage ? "home-page" : "inner-page")">
+    @await Html.PartialAsync("Header", layoutData, ViewData)
+
+    <main class="site-main" role="main">
+        @RenderBody()
+    </main>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
