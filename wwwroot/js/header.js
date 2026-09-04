@@ -103,6 +103,7 @@
   const renderMobileLevel = () => {
     if (!mobileMenuContent || !activeTab) return;
     mobileMenuContent.replaceChildren();
+    if (mobileMenu) mobileMenu.scrollTop = 0;
     const currentNode = navigationStack.at(-1) || activeTab;
     const isRoot = navigationStack.length === 0;
 
@@ -135,18 +136,20 @@
 
     const list = document.createElement("div");
     list.className = `ykb-mobile-menu-list${isRoot ? " is-root" : ""}`;
+    const animateRows = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (animateRows) list.classList.add("is-entering");
 
-    visibleMobileChildren(currentNode).forEach((node) => {
+    visibleMobileChildren(currentNode).forEach((node, index) => {
       const children = visibleMobileChildren(node);
       const element = document.createElement(children.length ? "button" : "a");
       element.className = "ykb-mobile-menu-row";
+      element.style.setProperty("--ykb-row-index", index);
 
       if (children.length) {
         element.type = "button";
         element.addEventListener("click", () => {
           navigationStack.push(node);
           renderMobileLevel();
-          mobileMenuContent.scrollTop = 0;
         });
       } else {
         element.href = node.Url || "#";
@@ -183,6 +186,13 @@
     });
 
     mobileMenuContent.append(list);
+    if (animateRows) {
+      window.requestAnimationFrame(() => {
+        window.requestAnimationFrame(() => {
+          if (list.isConnected) list.classList.remove("is-entering");
+        });
+      });
+    }
   };
 
   const closeMobileOverlays = () => {
@@ -287,3 +297,4 @@
     if (window.innerWidth >= 992) setMobileMenuOpen(false);
   });
 })();
+

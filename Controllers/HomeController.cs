@@ -20,6 +20,14 @@ namespace YKBClone.Controllers
             return View();
         }
 
+        [HttpGet("/header-test")]
+        public IActionResult HeaderTest()
+        {
+            ViewData["LayoutData"] = YkbClone.LayoutData.Create(YkbClone.MockLayoutContent.Create());
+            ViewData["IsHomePage"] = false;
+            return View();
+        }
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
