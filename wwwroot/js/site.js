@@ -7,6 +7,7 @@
   const desktopTabs = [...header.querySelectorAll("[data-desktop-tab]")];
   const dropdownButtons = [...header.querySelectorAll("[data-header-dropdown]")];
   const dropdownPanels = [...header.querySelectorAll("[data-dropdown-panel]")];
+  const desktopHeader = header.querySelector(".ykb-desktop-header");
 
   const closeDesktopTabs = () => {
     desktopTabs.forEach((tab) => {
@@ -24,14 +25,24 @@
   desktopTabs.forEach((tab) => {
     const button = tab.querySelector(".ykb-tab-button");
     tab.addEventListener("mouseenter", () => openDesktopTab(tab));
-    button?.addEventListener("click", () => {
-      const wasOpen = tab.classList.contains("is-open");
-      closeDesktopTabs();
-      if (!wasOpen) openDesktopTab(tab);
-    });
+    tab.addEventListener("mouseleave", closeDesktopTabs);
+    button?.addEventListener("focus", () => openDesktopTab(tab));
+    button?.addEventListener("click", () => openDesktopTab(tab));
   });
 
   header.querySelector(".ykb-desktop-header")?.addEventListener("mouseleave", closeDesktopTabs);
+
+  let scrollFrame = 0;
+  const updateDesktopHeaderState = () => {
+    scrollFrame = 0;
+    desktopHeader?.classList.toggle("is-condensed", window.scrollY >= 32);
+  };
+
+  updateDesktopHeaderState();
+  window.addEventListener("scroll", () => {
+    if (scrollFrame) return;
+    scrollFrame = window.requestAnimationFrame(updateDesktopHeaderState);
+  }, { passive: true });
 
   const closeDesktopDropdowns = (exceptName = "") => {
     dropdownPanels.forEach((panel) => {
@@ -220,15 +231,15 @@
     if (mobileNotificationMenu) mobileNotificationMenu.hidden = !mobileNotificationMenu.hidden;
   });
 
-  const appendActionLink = (parent, node, primary) => {
+  const appendActionLink = (parent, node) => {
     const link = document.createElement("a");
-    link.className = primary ? "ykb-action-primary" : "ykb-action-secondary";
+    link.className = "ykb-action-item";
     link.href = node.Url || "#";
     if (node.OpenInNewTab) {
       link.target = "_blank";
       link.rel = "noopener noreferrer";
     }
-    if (primary && node.IconCssClass) link.append(createIcon(node.IconCssClass));
+    if (node.IconCssClass) link.append(createIcon(node.IconCssClass));
     const label = document.createElement("span");
     label.textContent = node.Title;
     link.append(label);
@@ -248,11 +259,8 @@
       sheet.className = `ykb-mobile-action-sheet ${node.Role === "InternetBranch" ? "is-red" : "is-blue"}`;
       sheet.dataset.actionId = node.Id;
       (node.Children || []).forEach((groupNode) => {
-        const group = document.createElement("div");
-        group.className = "ykb-action-group";
-        appendActionLink(group, groupNode, true);
-        (groupNode.Children || []).forEach((child) => appendActionLink(group, child, false));
-        sheet.append(group);
+        appendActionLink(sheet, groupNode);
+        (groupNode.Children || []).forEach((child) => appendActionLink(sheet, child));
       });
       header.querySelector(".ykb-mobile-header")?.append(sheet);
       mobileActionSheet = sheet;

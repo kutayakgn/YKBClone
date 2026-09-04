@@ -162,7 +162,7 @@ public static class MockLayoutContent
         [
             N("personal-login", "Bireysel Giriş", "https://internetsube.yapikredi.com.tr/ngi/index.do", icon: "icon-user-24", children:
             [
-                N("card-transactions", "Kart İşlemlerim", "https://internetsube.yapikredi.com.tr/ngi/index.do?type=W"),
+                N("card-transactions", "Kart İşlemleri", "https://internetsube.yapikredi.com.tr/ngi/index.do?type=W"),
                 N("personal-password", "Şifre Al / Şifremi Unuttum", "https://internetsube.yapikredi.com.tr/ngi/huoRetailWeb.do")
             ]),
             N("corporate-login", "Kurumsal Giriş", "https://ticari.yapikredi.com.tr/ngc/indexNgc.do", icon: "icon-user-business-24", children:

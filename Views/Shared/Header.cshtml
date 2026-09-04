@@ -36,7 +36,7 @@
                             .Where(x => x.DisplayOnDesktop)
                             .ToArray();
                         <div class="ykb-tab @(index == 0 ? "is-active" : string.Empty)" data-desktop-tab>
-                            <button type="button" class="ykb-tab-button" aria-expanded="@(index == 0 ? "true" : "false")">
+                            <button type="button" class="ykb-tab-button" aria-expanded="false">
                                 @tab.Title
                             </button>
                             <div class="ykb-desktop-subnav" data-desktop-subnav>
@@ -110,19 +110,23 @@
                             <div class="ykb-action-menu" data-dropdown-panel="@panelId" hidden>
                                 @foreach (var group in action.Children)
                                 {
-                                    <div class="ykb-action-group">
-                                        <a class="ykb-action-primary" href="@group.Url" target="@(group.OpenInNewTab ? "_blank" : null)">
-                                            @if (!string.IsNullOrWhiteSpace(group.IconCssClass))
-                                            {
-                                                <i class="@group.IconCssClass" aria-hidden="true"></i>
-                                            }
-                                            <span>@group.Title</span>
-                                        </a>
-                                        @foreach (var child in group.Children)
+                                    <a class="ykb-action-item" href="@group.Url" target="@(group.OpenInNewTab ? "_blank" : null)">
+                                        @if (!string.IsNullOrWhiteSpace(group.IconCssClass))
                                         {
-                                            <a class="ykb-action-secondary" href="@child.Url" target="@(child.OpenInNewTab ? "_blank" : null)">@child.Title</a>
+                                            <i class="@group.IconCssClass" aria-hidden="true"></i>
                                         }
-                                    </div>
+                                        <span>@group.Title</span>
+                                    </a>
+                                    @foreach (var child in group.Children)
+                                    {
+                                        <a class="ykb-action-item" href="@child.Url" target="@(child.OpenInNewTab ? "_blank" : null)">
+                                            @if (!string.IsNullOrWhiteSpace(child.IconCssClass))
+                                            {
+                                                <i class="@child.IconCssClass" aria-hidden="true"></i>
+                                            }
+                                            <span>@child.Title</span>
+                                        </a>
+                                    }
                                 }
                             </div>
                         </div>
@@ -191,7 +195,7 @@
         </div>
 
         <div class="ykb-mobile-menu" data-mobile-menu hidden>
-            <div class="ykb-mobile-tabs" role="tablist" aria-label="Müşteri türü">
+            <div class="ykb-mobile-tabs main-tab-menu" role="tablist" aria-label="Müşteri türü">
                 @for (var index = 0; index < tabNodes.Length; index++)
                 {
                     var tab = tabNodes[index];
