@@ -1126,60 +1126,65 @@ ul {
     .ykb-mobile-back {
         display: flex;
         width: 100%;
-        height: 56px;
+        height: 67px;
         align-items: center;
         gap: 4px;
         padding: 0 16px;
         color: var(--ykb-text);
         background: transparent;
         cursor: pointer;
-        font-size: 11px;
+        letter-spacing: -0.4px;
+        font-size: 12px;
         font-weight: 500;
         text-align: left;
+        border-bottom: 1px solid rgb(216, 224, 237);
     }
 
         .ykb-mobile-back i {
-            width: 16px;
+            width: 24px;
             color: var(--ykb-text);
-            font-size: 18px;
+            font-size: 24px;
         }
 
     .ykb-mobile-level-title {
         display: flex;
-        min-height: 48px;
+        min-height: 67px;
         align-items: center;
-        gap: 10px;
-        padding: 0 23px 5px;
-        font-size: 16px;
+        gap: 16px;
+        padding: 0 15px 0;
+        font-size: 18px;
         font-weight: 500;
     }
 
         .ykb-mobile-level-title i {
             color: var(--ykb-blue);
-            font-size: 21px;
+            font-size: 24px;
         }
 
     .ykb-mobile-menu-list.is-root .ykb-mobile-menu-row {
         min-height: 67px;
         border-bottom: 1px solid var(--ykb-line);
     }
-    .ykb-mobile-menu-list.is-root .ykb-mobile-menu-row:last-child {
-        min-height: 67px;
-        border-bottom:none;
-    }
+
+        .ykb-mobile-menu-list.is-root .ykb-mobile-menu-row:last-child {
+            min-height: 67px;
+            border-bottom: none;
+        }
+
     .ykb-mobile-menu-row {
         display: flex;
         width: 100%;
-        min-height: 39px;
+        min-height: 48px;
         align-items: center;
         gap: 16px;
-        padding: 8px 16px 8px 23px;
+        padding: 8px 16px 8px 32px;
         color: var(--ykb-text);
         background: transparent;
         cursor: pointer;
-        font-size: 14px;
+        font-size: 16px;
         font-weight: 400;
         line-height: 18px;
+        letter-spacing: -0.18px;
         text-align: left;
     }
 
@@ -1265,7 +1270,6 @@ ul {
         margin-bottom: 8px;
         justify-content: center;
         align-items: center;
-
     }
 
         .ykb-mobile-download i {
@@ -1274,7 +1278,7 @@ ul {
 
             .ykb-mobile-download i::before {
                 color: #fff;
-                font-size:24px;
+                font-size: 24px;
             }
 
     .ykb-mobile-quick-grid {
