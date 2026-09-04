@@ -8,29 +8,41 @@
   const dropdownButtons = [...header.querySelectorAll("[data-header-dropdown]")];
   const dropdownPanels = [...header.querySelectorAll("[data-dropdown-panel]")];
   const desktopHeader = header.querySelector(".ykb-desktop-header");
+  let pinnedDesktopTab = null;
 
   const closeDesktopTabs = () => {
+    pinnedDesktopTab = null;
     desktopTabs.forEach((tab) => {
       tab.classList.remove("is-open");
       tab.querySelector(".ykb-tab-button")?.setAttribute("aria-expanded", "false");
     });
   };
 
-  const openDesktopTab = (tab) => {
+  const openDesktopTab = (tab, pin = false) => {
     closeDesktopTabs();
     tab.classList.add("is-open");
     tab.querySelector(".ykb-tab-button")?.setAttribute("aria-expanded", "true");
+    if (pin) pinnedDesktopTab = tab;
   };
 
   desktopTabs.forEach((tab) => {
     const button = tab.querySelector(".ykb-tab-button");
-    tab.addEventListener("mouseenter", () => openDesktopTab(tab));
-    tab.addEventListener("mouseleave", closeDesktopTabs);
+    tab.addEventListener("mouseenter", () => {
+      if (pinnedDesktopTab !== tab) openDesktopTab(tab);
+    });
+    tab.addEventListener("mouseleave", () => {
+      if (pinnedDesktopTab !== tab) closeDesktopTabs();
+    });
     button?.addEventListener("focus", () => openDesktopTab(tab));
-    button?.addEventListener("click", () => openDesktopTab(tab));
+    button?.addEventListener("click", (event) => {
+      event.stopPropagation();
+      openDesktopTab(tab, true);
+    });
   });
 
-  header.querySelector(".ykb-desktop-header")?.addEventListener("mouseleave", closeDesktopTabs);
+  desktopHeader?.addEventListener("mouseleave", () => {
+    if (!pinnedDesktopTab) closeDesktopTabs();
+  });
 
   let scrollFrame = 0;
   const updateDesktopHeaderState = () => {
@@ -297,4 +309,3 @@
     if (window.innerWidth >= 992) setMobileMenuOpen(false);
   });
 })();
-
