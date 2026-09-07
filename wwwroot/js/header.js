@@ -1,8 +1,10 @@
 (() => {
   "use strict";
 
-  const header = document.querySelector("[data-ykb-header]");
-  if (!header) return;
+  const initYkbHeader = () => {
+    const header = document.querySelector("[data-ykb-header]");
+    if (!header || header.dataset.ykbInitialized === "true") return;
+    header.dataset.ykbInitialized = "true";
 
   const desktopTabs = [...header.querySelectorAll("[data-desktop-tab]")];
   const dropdownButtons = [...header.querySelectorAll("[data-header-dropdown]")];
@@ -322,7 +324,17 @@
     setMobileMenuOpen(false);
   });
 
-  window.addEventListener("resize", () => {
-    if (window.innerWidth >= 992) setMobileMenuOpen(false);
-  });
+    window.addEventListener("resize", () => {
+      if (window.innerWidth >= 992) setMobileMenuOpen(false);
+    });
+  };
+
+  window.YkbHeader = window.YkbHeader || {};
+  window.YkbHeader.init = initYkbHeader;
+
+  if (document.readyState === "loading") {
+    document.addEventListener("DOMContentLoaded", initYkbHeader, { once: true });
+  } else {
+    initYkbHeader();
+  }
 })();

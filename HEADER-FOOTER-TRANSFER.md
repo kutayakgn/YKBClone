@@ -435,13 +435,13 @@ Sayfa içeriğini bir ana element içinde tutun:
 ```cshtml
 @await Html.PartialAsync("Footer", layoutData, ViewData)
 
-<script src="~/js/header.js" asp-append-version="true"></script>
-<script src="~/js/footer.js" asp-append-version="true"></script>
+<script src="~/js/header.js" asp-append-version="true" defer></script>
+<script src="~/js/footer.js" asp-append-version="true" defer></script>
 
 @await RenderSectionAsync("Scripts", required: false)
 ```
 
-Script dosyalarını bundle içine ekliyorsanız ayrıca `<script>` etiketiyle yüklemeyin. Her dosya sayfada yalnız bir kez çalışmalıdır.
+Script dosyalarını bundle içine ekliyorsanız ayrıca `<script>` etiketiyle yüklemeyin. Her dosya sayfada yalnız bir kez çalışmalıdır. Hedef projede eski ASP.NET `ScriptBundle`/AjaxMin kullanılıyorsa `header.js` ve `footer.js` dosyalarını bu eski minification pipeline'ına eklemeyin; bağımsız `defer` script olarak yükleyin. Eski minifier modern JavaScript söz dizimini bozarsa butonlar render edilir fakat click handler'ları hiç bağlanmaz.
 
 ### 8.1 Şirket bundle CSS'ine karşı öncelik
 
@@ -659,6 +659,7 @@ Kontrol sırası:
 | CSS görünümü farklı | Header/footer CSS global CSS'den sonra mı, eski kurallar hâlâ bundle'da mı? |
 | Bundle belirli bir property'yi eziyor | Kazanan selector `!important` mı? Root ID ile son yüklenen `header-footer-compat.css` içinde yalnız o property override edildi mi? |
 | Click iki kez çalışıyor | JS dosyası bundle ve script etiketiyle iki kez mi yükleniyor? |
+| Desktop aksiyon butonları tıklanınca açılmıyor | `header.js` isteği 200 dönüyor mu, dosya header markup'ından önceyse `defer` var mı, Console'da syntax/minification hatası var mı ve eski `ScriptBundle` yerine bağımsız mı yükleniyor? Konsolda `window.YkbHeader?.init()` çağrısı ile tekrar başlatılabilir. |
 | Sosyal başlık boş | `Social` menu root'unda `NavigationMenuTitle=Bizi Takip Edin` girildi mi? |
 | Footer görselleri yok | Kentico media field DTO'ya URL/path olarak map ediliyor mu? |
 | Duyuru klasörü boş ama şerit var | Güncel `Footer.cshtml` kopyalandı mı? `announcements.Count > 0` koşulu bulunmalı |
