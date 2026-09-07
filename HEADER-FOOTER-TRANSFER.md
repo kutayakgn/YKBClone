@@ -659,7 +659,7 @@ Kontrol sırası:
 | CSS görünümü farklı | Header/footer CSS global CSS'den sonra mı, eski kurallar hâlâ bundle'da mı? |
 | Bundle belirli bir property'yi eziyor | Kazanan selector `!important` mı? Root ID ile son yüklenen `header-footer-compat.css` içinde yalnız o property override edildi mi? |
 | Click iki kez çalışıyor | JS dosyası bundle ve script etiketiyle iki kez mi yükleniyor? |
-| Desktop aksiyon butonları tıklanınca açılmıyor | `header.js` isteği 200 dönüyor mu, dosya header markup'ından önceyse `defer` var mı, Console'da syntax/minification hatası var mı ve eski `ScriptBundle` yerine bağımsız mı yükleniyor? Konsolda `window.YkbHeader?.init()` çağrısı ile tekrar başlatılabilir. |
+| Desktop aksiyon butonları tıklanınca açılmıyor | `header.js` isteği 200/304 dönüyor mu, dosya header markup'ından önceyse `defer` var mı, Console'da syntax/minification hatası var mı ve eski `ScriptBundle` yerine bağımsız mı yükleniyor? `YkbHeader.status()` aşamayı, `YkbHeader.debug()` bulunan elementleri gösterir. `YkbHeader.initDesktopDropdowns()` yalnız desktop click handler'larını tekrar bağlar. |
 | Sosyal başlık boş | `Social` menu root'unda `NavigationMenuTitle=Bizi Takip Edin` girildi mi? |
 | Footer görselleri yok | Kentico media field DTO'ya URL/path olarak map ediliyor mu? |
 | Duyuru klasörü boş ama şerit var | Güncel `Footer.cshtml` kopyalandı mı? `announcements.Count > 0` koşulu bulunmalı |

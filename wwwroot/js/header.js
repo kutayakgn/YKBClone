@@ -1,168 +1,277 @@
-(() => {
+(function (window, document) {
   "use strict";
 
-  const initYkbHeader = () => {
-    const header = document.querySelector("[data-ykb-header]");
-    if (!header || header.dataset.ykbInitialized === "true") return;
-    header.dataset.ykbInitialized = "true";
-
-  const desktopTabs = [...header.querySelectorAll("[data-desktop-tab]")];
-  const dropdownButtons = [...header.querySelectorAll("[data-header-dropdown]")];
-  const dropdownPanels = [...header.querySelectorAll("[data-dropdown-panel]")];
-  const desktopHeader = header.querySelector(".ykb-desktop-header");
-  let pinnedDesktopTab = null;
-
-  const closeDesktopTabs = () => {
-    pinnedDesktopTab = null;
-    desktopTabs.forEach((tab) => {
-      tab.classList.remove("is-open");
-      tab.querySelector(".ykb-tab-button")?.setAttribute("aria-expanded", "false");
-    });
+  var state = {
+    header: null,
+    desktopHeader: null,
+    desktopTabs: [],
+    dropdownButtons: [],
+    dropdownPanels: [],
+    pinnedDesktopTab: null,
+    scrollFrame: 0,
+    allNodes: [],
+    tabNodes: [],
+    activeTab: null,
+    navigationStack: [],
+    mobileMenu: null,
+    mobileMenuToggle: null,
+    mobileButtons: null,
+    mobileMenuContent: null,
+    mobileTabButtons: [],
+    mobileNotificationButton: null,
+    mobileNotificationMenu: null,
+    mobileActionSheet: null,
+    initialized: false,
+    globalEventsBound: false,
+    phase: "not-started",
+    lastError: null
   };
 
-  const openDesktopTab = (tab, pin = false) => {
+  function toArray(nodeList) {
+    return Array.prototype.slice.call(nodeList || []);
+  }
+
+  function findHeader() {
+    return document.querySelector("[data-ykb-header]");
+  }
+
+  function findDropdownPanel(name) {
+    var result = null;
+    state.dropdownPanels.some(function (panel) {
+      if (panel.getAttribute("data-dropdown-panel") === name) {
+        result = panel;
+        return true;
+      }
+      return false;
+    });
+    return result;
+  }
+
+  function findDropdownButton(name) {
+    var result = null;
+    state.dropdownButtons.some(function (button) {
+      if (button.getAttribute("data-header-dropdown") === name) {
+        result = button;
+        return true;
+      }
+      return false;
+    });
+    return result;
+  }
+
+  function closeDesktopTabs() {
+    state.pinnedDesktopTab = null;
+    state.desktopTabs.forEach(function (tab) {
+      var button = tab.querySelector(".ykb-tab-button");
+      tab.classList.remove("is-open");
+      if (button) button.setAttribute("aria-expanded", "false");
+    });
+  }
+
+  function openDesktopTab(tab, pin) {
+    var button;
+    if (!tab) return false;
     closeDesktopTabs();
     tab.classList.add("is-open");
-    tab.querySelector(".ykb-tab-button")?.setAttribute("aria-expanded", "true");
-    if (pin) pinnedDesktopTab = tab;
-  };
+    button = tab.querySelector(".ykb-tab-button");
+    if (button) button.setAttribute("aria-expanded", "true");
+    if (pin === true) state.pinnedDesktopTab = tab;
+    return true;
+  }
 
-  desktopTabs.forEach((tab) => {
-    const button = tab.querySelector(".ykb-tab-button");
-    tab.addEventListener("mouseenter", () => {
-      if (pinnedDesktopTab !== tab) openDesktopTab(tab);
+  function initDesktopTabs() {
+    state.desktopTabs = toArray(state.header.querySelectorAll("[data-desktop-tab]"));
+    state.desktopHeader = state.header.querySelector(".ykb-desktop-header");
+
+    state.desktopTabs.forEach(function (tab) {
+      var button;
+      if (tab.getAttribute("data-ykb-tab-bound") === "true") return;
+      tab.setAttribute("data-ykb-tab-bound", "true");
+      button = tab.querySelector(".ykb-tab-button");
+      tab.addEventListener("mouseenter", function () {
+        if (state.pinnedDesktopTab !== tab) openDesktopTab(tab, false);
+      });
+      tab.addEventListener("mouseleave", function () {
+        if (state.pinnedDesktopTab !== tab) closeDesktopTabs();
+      });
+      if (button) {
+        button.addEventListener("focus", function () {
+          openDesktopTab(tab, false);
+        });
+        button.addEventListener("click", function (event) {
+          event.stopPropagation();
+          openDesktopTab(tab, true);
+        });
+      }
     });
-    tab.addEventListener("mouseleave", () => {
-      if (pinnedDesktopTab !== tab) closeDesktopTabs();
+
+    if (state.desktopHeader && state.desktopHeader.getAttribute("data-ykb-leave-bound") !== "true") {
+      state.desktopHeader.setAttribute("data-ykb-leave-bound", "true");
+      state.desktopHeader.addEventListener("mouseleave", function () {
+        if (!state.pinnedDesktopTab) closeDesktopTabs();
+      });
+    }
+    return state.desktopTabs.length;
+  }
+
+  function updateDesktopHeaderState() {
+    state.scrollFrame = 0;
+    if (state.desktopHeader) {
+      state.desktopHeader.classList.toggle("is-condensed", window.scrollY >= 32);
+    }
+  }
+
+  function initDesktopScroll() {
+    updateDesktopHeaderState();
+    if (document.documentElement.getAttribute("data-ykb-scroll-bound") === "true") return;
+    document.documentElement.setAttribute("data-ykb-scroll-bound", "true");
+    window.addEventListener("scroll", function () {
+      if (state.scrollFrame) return;
+      state.scrollFrame = window.requestAnimationFrame(updateDesktopHeaderState);
+    }, { passive: true });
+  }
+
+  function closeDesktopDropdowns(exceptName) {
+    var exception = exceptName || "";
+    state.dropdownPanels.forEach(function (panel) {
+      if (panel.getAttribute("data-dropdown-panel") !== exception) panel.hidden = true;
     });
-    button?.addEventListener("focus", () => openDesktopTab(tab));
-    button?.addEventListener("click", (event) => {
-      event.stopPropagation();
-      openDesktopTab(tab, true);
-    });
-  });
-
-  desktopHeader?.addEventListener("mouseleave", () => {
-    if (!pinnedDesktopTab) closeDesktopTabs();
-  });
-
-  let scrollFrame = 0;
-  const updateDesktopHeaderState = () => {
-    scrollFrame = 0;
-    desktopHeader?.classList.toggle("is-condensed", window.scrollY >= 32);
-  };
-
-  updateDesktopHeaderState();
-  window.addEventListener("scroll", () => {
-    if (scrollFrame) return;
-    scrollFrame = window.requestAnimationFrame(updateDesktopHeaderState);
-  }, { passive: true });
-
-  const closeDesktopDropdowns = (exceptName = "") => {
-    dropdownPanels.forEach((panel) => {
-      const matchesException = panel.dataset.dropdownPanel === exceptName;
-      if (!matchesException) panel.hidden = true;
-    });
-    dropdownButtons.forEach((button) => {
-      if (button.dataset.headerDropdown !== exceptName) {
+    state.dropdownButtons.forEach(function (button) {
+      if (button.getAttribute("data-header-dropdown") !== exception) {
         button.setAttribute("aria-expanded", "false");
       }
     });
-  };
-
-  dropdownButtons.forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      closeDesktopTabs();
-      const name = button.dataset.headerDropdown;
-      const panel = header.querySelector(`[data-dropdown-panel="${name}"]`);
-      if (!panel) return;
-      const willOpen = panel.hidden;
-      closeDesktopDropdowns(willOpen ? name : "");
-      panel.hidden = !willOpen;
-      button.setAttribute("aria-expanded", String(willOpen));
-    });
-  });
-
-  const dataElement = document.getElementById("ykb-mobile-menu-data");
-  let allNodes = [];
-  try {
-    allNodes = JSON.parse(dataElement?.textContent || "[]");
-  } catch {
-    allNodes = [];
   }
 
-  const tabNodes = allNodes.filter((node) => node.Role === "Tab");
-  const mobileMenu = header.querySelector("[data-mobile-menu]");
-  const mobileMenuToggle = header.querySelector("[data-mobile-menu-toggle]");
-  const mobileButtons = header.querySelector("[data-mobile-buttons]");
-  const mobileMenuContent = header.querySelector("[data-mobile-menu-content]");
-  const mobileTabButtons = [...header.querySelectorAll("[data-mobile-tab]")];
-  const mobileNotificationButton = header.querySelector("[data-mobile-notifications]");
-  const mobileNotificationMenu = header.querySelector("[data-mobile-notification-menu]");
-  let activeTab = tabNodes[0] || null;
-  let navigationStack = [];
-  let mobileActionSheet = null;
+  function openDesktopDropdown(name) {
+    var panel = findDropdownPanel(name);
+    var button = findDropdownButton(name);
+    if (!panel || !button) return false;
+    closeDesktopTabs();
+    closeDesktopDropdowns(name);
+    panel.hidden = false;
+    button.setAttribute("aria-expanded", "true");
+    return true;
+  }
 
-  const visibleMobileChildren = (node) =>
-    (node?.Children || []).filter((child) => child.DisplayOnMobile !== false);
+  function toggleDesktopDropdown(name) {
+    var panel = findDropdownPanel(name);
+    if (!panel) return false;
+    if (panel.hidden) return openDesktopDropdown(name);
+    closeDesktopDropdowns();
+    return false;
+  }
 
-  const createIcon = (className, extraClass = "") => {
-    const icon = document.createElement("i");
-    icon.className = `${extraClass} ${className || ""}`.trim();
+  function handleDesktopDropdownClick(event) {
+    var button = event.currentTarget;
+    event.preventDefault();
+    event.stopPropagation();
+    toggleDesktopDropdown(button.getAttribute("data-header-dropdown"));
+  }
+
+  function initDesktopDropdowns() {
+    if (!state.header) state.header = findHeader();
+    if (!state.header) {
+      state.phase = "header-not-found";
+      return 0;
+    }
+    state.dropdownButtons = toArray(state.header.querySelectorAll("[data-header-dropdown]"));
+    state.dropdownPanels = toArray(state.header.querySelectorAll("[data-dropdown-panel]"));
+    state.dropdownButtons.forEach(function (button) {
+      if (button.getAttribute("data-ykb-dropdown-bound") === "true") return;
+      button.setAttribute("data-ykb-dropdown-bound", "true");
+      button.addEventListener("click", handleDesktopDropdownClick);
+    });
+    return state.dropdownButtons.length;
+  }
+
+  function parseMobileMenuData() {
+    var dataElement = state.header.querySelector("#ykb-mobile-menu-data");
+    try {
+      state.allNodes = JSON.parse(dataElement ? dataElement.textContent : "[]");
+    } catch (error) {
+      state.allNodes = [];
+      state.lastError = error;
+    }
+    state.tabNodes = state.allNodes.filter(function (node) {
+      return node.Role === "Tab";
+    });
+    state.activeTab = state.tabNodes[0] || null;
+  }
+
+  function visibleMobileChildren(node) {
+    var children = node && node.Children ? node.Children : [];
+    return children.filter(function (child) {
+      return child.DisplayOnMobile !== false;
+    });
+  }
+
+  function createIcon(className, extraClass) {
+    var icon = document.createElement("i");
+    icon.className = ((extraClass || "") + " " + (className || "")).replace(/^\s+|\s+$/g, "");
     icon.setAttribute("aria-hidden", "true");
     return icon;
-  };
+  }
 
-  const renderMobileLevel = () => {
-    if (!mobileMenuContent || !activeTab) return;
-    mobileMenuContent.replaceChildren();
-    if (mobileMenu) mobileMenu.scrollTop = 0;
-    const currentNode = navigationStack.at(-1) || activeTab;
-    const isRoot = navigationStack.length === 0;
+  function clearElement(element) {
+    while (element && element.firstChild) element.removeChild(element.firstChild);
+  }
+
+  function renderMobileLevel() {
+    var currentNode;
+    var isRoot;
+    var list;
+    var animateRows;
+    if (!state.mobileMenuContent || !state.activeTab) return;
+    clearElement(state.mobileMenuContent);
+    if (state.mobileMenu) state.mobileMenu.scrollTop = 0;
+    currentNode = state.navigationStack.length
+      ? state.navigationStack[state.navigationStack.length - 1]
+      : state.activeTab;
+    isRoot = state.navigationStack.length === 0;
 
     if (!isRoot) {
-      const back = document.createElement("button");
+      var back = document.createElement("button");
+      var backLabel = document.createElement("span");
+      var title = document.createElement("div");
+      var titleText = document.createElement("span");
       back.type = "button";
       back.className = "ykb-mobile-back";
-      back.append(createIcon("icon-chevron-left"));
-      const backLabel = document.createElement("span");
-      backLabel.textContent = navigationStack.length === 1
+      back.appendChild(createIcon("icon-chevron-left"));
+      backLabel.textContent = state.navigationStack.length === 1
         ? "Geri"
-        : navigationStack[navigationStack.length - 2].Title;
-      back.append(backLabel);
-      back.addEventListener("click", () => {
-        navigationStack.pop();
+        : state.navigationStack[state.navigationStack.length - 2].Title;
+      back.appendChild(backLabel);
+      back.addEventListener("click", function () {
+        state.navigationStack.pop();
         renderMobileLevel();
       });
-      mobileMenuContent.append(back);
+      state.mobileMenuContent.appendChild(back);
 
-      const title = document.createElement("div");
       title.className = "ykb-mobile-level-title";
-      if (navigationStack.length === 1 && currentNode.IconCssClass) {
-        title.append(createIcon(currentNode.IconCssClass));
+      if (state.navigationStack.length === 1 && currentNode.IconCssClass) {
+        title.appendChild(createIcon(currentNode.IconCssClass));
       }
-      const titleText = document.createElement("span");
       titleText.textContent = currentNode.Title;
-      title.append(titleText);
-      mobileMenuContent.append(title);
+      title.appendChild(titleText);
+      state.mobileMenuContent.appendChild(title);
     }
 
-    const list = document.createElement("div");
-    list.className = `ykb-mobile-menu-list${isRoot ? " is-root" : ""}`;
-    const animateRows = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    list = document.createElement("div");
+    list.className = "ykb-mobile-menu-list" + (isRoot ? " is-root" : "");
+    animateRows = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (animateRows) list.classList.add("is-entering");
 
-    visibleMobileChildren(currentNode).forEach((node, index) => {
-      const children = visibleMobileChildren(node);
-      const element = document.createElement(children.length ? "button" : "a");
+    visibleMobileChildren(currentNode).forEach(function (node, index) {
+      var children = visibleMobileChildren(node);
+      var element = document.createElement(children.length ? "button" : "a");
+      var label = document.createElement("span");
       element.className = "ykb-mobile-menu-row";
       element.style.setProperty("--ykb-row-index", index);
-
       if (children.length) {
         element.type = "button";
-        element.addEventListener("click", () => {
-          navigationStack.push(node);
+        element.addEventListener("click", function () {
+          state.navigationStack.push(node);
           renderMobileLevel();
         });
       } else {
@@ -172,169 +281,291 @@
           element.rel = "noopener noreferrer";
         }
       }
-
       if (isRoot && node.IconCssClass) {
-        element.append(createIcon(node.IconCssClass, "ykb-row-icon"));
+        element.appendChild(createIcon(node.IconCssClass, "ykb-row-icon"));
       } else if (isRoot) {
-        const spacer = document.createElement("span");
+        var spacer = document.createElement("span");
         spacer.className = "ykb-row-icon";
-        element.append(spacer);
+        element.appendChild(spacer);
       }
-
-      const label = document.createElement("span");
       label.className = "ykb-row-title";
       label.textContent = node.Title;
       if (node.BadgeText) {
-        const badge = document.createElement("span");
+        var badge = document.createElement("span");
         badge.className = "ykb-mobile-badge";
         badge.textContent = node.BadgeText;
-        label.append(" ", badge);
+        label.appendChild(document.createTextNode(" "));
+        label.appendChild(badge);
       }
-      element.append(label);
-
-      if (children.length) {
-        element.append(createIcon("icon-chevron-right", "ykb-chevron"));
-      }
-
-      list.append(element);
+      element.appendChild(label);
+      if (children.length) element.appendChild(createIcon("icon-chevron-right", "ykb-chevron"));
+      list.appendChild(element);
     });
 
-    mobileMenuContent.append(list);
+    state.mobileMenuContent.appendChild(list);
     if (animateRows) {
-      window.requestAnimationFrame(() => {
-        window.requestAnimationFrame(() => {
-          if (list.isConnected) list.classList.remove("is-entering");
+      window.requestAnimationFrame(function () {
+        window.requestAnimationFrame(function () {
+          if (document.documentElement.contains(list)) list.classList.remove("is-entering");
         });
       });
     }
-  };
+  }
 
-  const closeMobileOverlays = () => {
-    if (mobileNotificationMenu) mobileNotificationMenu.hidden = true;
-    mobileActionSheet?.remove();
-    mobileActionSheet = null;
-    header.querySelectorAll("[data-mobile-action]").forEach((button) => {
-      button.setAttribute("aria-expanded", "false");
-    });
-  };
+  function closeMobileOverlays() {
+    if (state.mobileNotificationMenu) state.mobileNotificationMenu.hidden = true;
+    if (state.mobileActionSheet && state.mobileActionSheet.parentNode) {
+      state.mobileActionSheet.parentNode.removeChild(state.mobileActionSheet);
+    }
+    state.mobileActionSheet = null;
+    if (state.header) {
+      toArray(state.header.querySelectorAll("[data-mobile-action]")).forEach(function (button) {
+        button.setAttribute("aria-expanded", "false");
+      });
+    }
+  }
 
-  const setMobileMenuOpen = (open) => {
-    if (!mobileMenu || !mobileMenuToggle) return;
+  function setMobileMenuOpen(open) {
+    if (!state.mobileMenu || !state.mobileMenuToggle) return false;
     closeMobileOverlays();
-    mobileMenu.hidden = !open;
-    if (mobileButtons) mobileButtons.hidden = open;
-    mobileMenuToggle.setAttribute("aria-expanded", String(open));
-    mobileMenuToggle.setAttribute("aria-label", open ? "Menüyü kapat" : "Menüyü aç");
+    state.mobileMenu.hidden = !open;
+    if (state.mobileButtons) state.mobileButtons.hidden = open;
+    state.mobileMenuToggle.setAttribute("aria-expanded", String(open));
+    state.mobileMenuToggle.setAttribute("aria-label", open ? "Menüyü kapat" : "Menüyü aç");
     document.body.classList.toggle("ykb-menu-open", open);
     if (open) {
-      navigationStack = [];
+      state.navigationStack = [];
       renderMobileLevel();
     }
-  };
+    return open;
+  }
 
-  mobileMenuToggle?.addEventListener("click", () => {
-    setMobileMenuOpen(mobileMenu?.hidden ?? true);
-  });
-
-  mobileTabButtons.forEach((button) => {
-    button.addEventListener("click", () => {
-      const nextTab = tabNodes.find((tab) => tab.Id === button.dataset.mobileTab);
-      if (!nextTab) return;
-      activeTab = nextTab;
-      navigationStack = [];
-      mobileTabButtons.forEach((item) => {
-        const selected = item === button;
-        item.classList.toggle("is-active", selected);
-        item.setAttribute("aria-selected", String(selected));
-      });
-      renderMobileLevel();
-    });
-  });
-
-  mobileNotificationButton?.addEventListener("click", (event) => {
-    event.stopPropagation();
-    const willOpen = mobileNotificationMenu?.hidden ?? false;
-    closeMobileOverlays();
-    if (mobileNotificationMenu) mobileNotificationMenu.hidden = !willOpen;
-  });
-
-  const appendActionLink = (parent, node, modifier) => {
-    const link = document.createElement("a");
-    link.className = `ykb-action-item ykb-action-item--${modifier}`;
+  function appendActionLink(parent, node, modifier) {
+    var link = document.createElement("a");
+    var label = document.createElement("span");
+    link.className = "ykb-action-item ykb-action-item--" + modifier;
     link.href = node.Url || "#";
     if (node.OpenInNewTab) {
       link.target = "_blank";
       link.rel = "noopener noreferrer";
     }
-    if (node.IconCssClass) link.append(createIcon(node.IconCssClass));
-    const label = document.createElement("span");
+    if (node.IconCssClass) link.appendChild(createIcon(node.IconCssClass));
     label.textContent = node.Title;
-    link.append(label);
-    parent.append(link);
-  };
+    link.appendChild(label);
+    parent.appendChild(link);
+  }
 
-  const appendActionGroup = (parent, groupNode) => {
-    const group = document.createElement("div");
+  function appendActionGroup(parent, groupNode) {
+    var group = document.createElement("div");
+    var children = visibleMobileChildren(groupNode);
     group.className = "ykb-action-group";
     appendActionLink(group, groupNode, "primary");
-
-    const children = visibleMobileChildren(groupNode);
     if (children.length) {
-      const childList = document.createElement("div");
+      var childList = document.createElement("div");
       childList.className = "ykb-action-children";
-      children.forEach((child) => appendActionLink(childList, child, "child"));
-      group.append(childList);
+      children.forEach(function (child) {
+        appendActionLink(childList, child, "child");
+      });
+      group.appendChild(childList);
+    }
+    parent.appendChild(group);
+  }
+
+  function findNodeById(id) {
+    var result = null;
+    state.allNodes.some(function (node) {
+      if (String(node.Id) === String(id)) {
+        result = node;
+        return true;
+      }
+      return false;
+    });
+    return result;
+  }
+
+  function closestActionWrap(element) {
+    var current = element;
+    while (current && current !== state.header) {
+      if (current.hasAttribute && current.hasAttribute("data-mobile-action-wrap")) return current;
+      current = current.parentNode;
+    }
+    return null;
+  }
+
+  function initMobileHeader() {
+    parseMobileMenuData();
+    state.mobileMenu = state.header.querySelector("[data-mobile-menu]");
+    state.mobileMenuToggle = state.header.querySelector("[data-mobile-menu-toggle]");
+    state.mobileButtons = state.header.querySelector("[data-mobile-buttons]");
+    state.mobileMenuContent = state.header.querySelector("[data-mobile-menu-content]");
+    state.mobileTabButtons = toArray(state.header.querySelectorAll("[data-mobile-tab]"));
+    state.mobileNotificationButton = state.header.querySelector("[data-mobile-notifications]");
+    state.mobileNotificationMenu = state.header.querySelector("[data-mobile-notification-menu]");
+
+    if (state.mobileMenuToggle && state.mobileMenuToggle.getAttribute("data-ykb-bound") !== "true") {
+      state.mobileMenuToggle.setAttribute("data-ykb-bound", "true");
+      state.mobileMenuToggle.addEventListener("click", function () {
+        setMobileMenuOpen(state.mobileMenu ? state.mobileMenu.hidden : true);
+      });
     }
 
-    parent.append(group);
-  };
-
-  header.querySelectorAll("[data-mobile-action]").forEach((button) => {
-    button.addEventListener("click", (event) => {
-      event.stopPropagation();
-      const node = allNodes.find((item) => item.Id === button.dataset.mobileAction);
-      if (!node) return;
-      const wasSame = mobileActionSheet?.dataset.actionId === node.Id;
-      closeMobileOverlays();
-      if (wasSame) return;
-
-      const sheet = document.createElement("div");
-      sheet.className = `ykb-mobile-action-sheet ${node.Role === "InternetBranch" ? "is-red" : "is-blue"}`;
-      sheet.dataset.actionId = node.Id;
-      visibleMobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
-      button.closest("[data-mobile-action-wrap]")?.append(sheet);
-      button.setAttribute("aria-expanded", "true");
-      mobileActionSheet = sheet;
+    state.mobileTabButtons.forEach(function (button) {
+      if (button.getAttribute("data-ykb-bound") === "true") return;
+      button.setAttribute("data-ykb-bound", "true");
+      button.addEventListener("click", function () {
+        var nextTab = null;
+        state.tabNodes.some(function (tab) {
+          if (String(tab.Id) === String(button.getAttribute("data-mobile-tab"))) {
+            nextTab = tab;
+            return true;
+          }
+          return false;
+        });
+        if (!nextTab) return;
+        state.activeTab = nextTab;
+        state.navigationStack = [];
+        state.mobileTabButtons.forEach(function (item) {
+          var selected = item === button;
+          item.classList.toggle("is-active", selected);
+          item.setAttribute("aria-selected", String(selected));
+        });
+        renderMobileLevel();
+      });
     });
-  });
 
-  document.addEventListener("click", (event) => {
-    if (!header.contains(event.target)) {
+    if (state.mobileNotificationButton && state.mobileNotificationButton.getAttribute("data-ykb-bound") !== "true") {
+      state.mobileNotificationButton.setAttribute("data-ykb-bound", "true");
+      state.mobileNotificationButton.addEventListener("click", function (event) {
+        var willOpen = state.mobileNotificationMenu ? state.mobileNotificationMenu.hidden : false;
+        event.stopPropagation();
+        closeMobileOverlays();
+        if (state.mobileNotificationMenu) state.mobileNotificationMenu.hidden = !willOpen;
+      });
+    }
+
+    toArray(state.header.querySelectorAll("[data-mobile-action]")).forEach(function (button) {
+      if (button.getAttribute("data-ykb-bound") === "true") return;
+      button.setAttribute("data-ykb-bound", "true");
+      button.addEventListener("click", function (event) {
+        var node = findNodeById(button.getAttribute("data-mobile-action"));
+        var wasSame;
+        var sheet;
+        var wrap;
+        event.stopPropagation();
+        if (!node) return;
+        wasSame = state.mobileActionSheet && state.mobileActionSheet.getAttribute("data-action-id") === String(node.Id);
+        closeMobileOverlays();
+        if (wasSame) return;
+        sheet = document.createElement("div");
+        sheet.className = "ykb-mobile-action-sheet " + (node.Role === "InternetBranch" ? "is-red" : "is-blue");
+        sheet.setAttribute("data-action-id", String(node.Id));
+        visibleMobileChildren(node).forEach(function (groupNode) {
+          appendActionGroup(sheet, groupNode);
+        });
+        wrap = closestActionWrap(button);
+        if (!wrap) return;
+        wrap.appendChild(sheet);
+        button.setAttribute("aria-expanded", "true");
+        state.mobileActionSheet = sheet;
+      });
+    });
+  }
+
+  function bindGlobalEvents() {
+    if (state.globalEventsBound) return;
+    state.globalEventsBound = true;
+    document.addEventListener("click", function (event) {
+      if (state.header && !state.header.contains(event.target)) {
+        closeDesktopDropdowns();
+        closeDesktopTabs();
+        closeMobileOverlays();
+      }
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key !== "Escape" && event.keyCode !== 27) return;
       closeDesktopDropdowns();
       closeDesktopTabs();
       closeMobileOverlays();
-    }
-  });
-
-  document.addEventListener("keydown", (event) => {
-    if (event.key !== "Escape") return;
-    closeDesktopDropdowns();
-    closeDesktopTabs();
-    closeMobileOverlays();
-    setMobileMenuOpen(false);
-  });
-
-    window.addEventListener("resize", () => {
+      setMobileMenuOpen(false);
+    });
+    window.addEventListener("resize", function () {
       if (window.innerWidth >= 992) setMobileMenuOpen(false);
     });
+  }
+
+  function getStatus() {
+    return {
+      phase: state.phase,
+      initialized: state.initialized,
+      headerFound: Boolean(state.header || findHeader()),
+      dropdownButtonCount: state.dropdownButtons.length,
+      dropdownPanelCount: state.dropdownPanels.length,
+      lastError: state.lastError ? String(state.lastError.message || state.lastError) : null
+    };
+  }
+
+  function getDebugInfo() {
+    return {
+      status: getStatus(),
+      header: state.header || findHeader(),
+      dropdownButtons: state.dropdownButtons,
+      dropdownPanels: state.dropdownPanels
+    };
+  }
+
+  function initYkbHeader() {
+    if (state.initialized) return true;
+    state.phase = "finding-header";
+    state.header = findHeader();
+    if (!state.header) {
+      state.phase = "header-not-found";
+      return false;
+    }
+    try {
+      state.phase = "desktop-tabs";
+      initDesktopTabs();
+      state.phase = "desktop-dropdowns";
+      initDesktopDropdowns();
+      state.phase = "desktop-scroll";
+      initDesktopScroll();
+      state.phase = "mobile";
+      initMobileHeader();
+      state.phase = "global-events";
+      bindGlobalEvents();
+      state.initialized = true;
+      state.phase = "ready";
+      state.header.setAttribute("data-ykb-initialized", "true");
+      return true;
+    } catch (error) {
+      state.lastError = error;
+      state.phase = "error";
+      state.initialized = false;
+      state.header.removeAttribute("data-ykb-initialized");
+      if (window.console && window.console.error) {
+        window.console.error("YKB header başlatılamadı:", error);
+      }
+      return false;
+    }
+  }
+
+  window.YkbHeader = {
+    init: initYkbHeader,
+    initDesktopDropdowns: initDesktopDropdowns,
+    openDropdown: openDesktopDropdown,
+    toggleDropdown: toggleDesktopDropdown,
+    closeDropdowns: closeDesktopDropdowns,
+    closeTabs: closeDesktopTabs,
+    status: getStatus,
+    debug: getDebugInfo
   };
 
-  window.YkbHeader = window.YkbHeader || {};
-  window.YkbHeader.init = initYkbHeader;
+  function startYkbHeader() {
+    window.YkbHeader.init();
+  }
 
   if (document.readyState === "loading") {
-    document.addEventListener("DOMContentLoaded", initYkbHeader, { once: true });
+    document.addEventListener("DOMContentLoaded", startYkbHeader);
   } else {
-    initYkbHeader();
+    startYkbHeader();
   }
-})();
+})(window, document);
