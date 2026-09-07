@@ -1,0 +1,268 @@
+@using YkbYapikredi.Application.Layout
+@model LayoutData
+
+@{
+    var desktopColumns = Model.FooterColumns.Where(column => column.DisplayOnDesktop).ToList();
+    var mobileColumns = Model.FooterColumns.Where(column => column.DisplayOnMobile).ToList();
+    var socialLinks = Model.Social.Links.Where(link => link.DisplayOnDesktop || link.DisplayOnMobile).ToList();
+    var brandLinks = Model.FooterBrandLinks.Where(link => link.DisplayOnDesktop || link.DisplayOnMobile).ToList();
+    var appLinks = Model.FooterAppLinks.Where(link => link.DisplayOnMobile).ToList();
+    var announcements = Model.Announcements.ToList();
+    const string announcementsTitle = "Duyurular";
+    const string allAnnouncementsTitle = "Tüm Duyurular";
+    const string allAnnouncementsUrl = "/yapi-kredi-hakkinda/haberler";
+    const int announcementRotationIntervalMilliseconds = 5000;
+    var copyrightText = $"©{DateTime.Now.Year} Yapı ve Kredi Bankası A.Ş.";
+}
+
+<footer class="footer ykb-footer">
+    <section class="announcements ykb-announcements"
+             aria-label="@announcementsTitle"
+             data-ykb-announcements
+             data-interval-ms="@announcementRotationIntervalMilliseconds">
+        <div class="container d-flex p-lg-0 ykb-footer-container ykb-announcements__inner">
+            <span class="megaphone ykb-announcements__title" data-href="#">
+                <i class="icon-megaphone" aria-hidden="true"></i>
+                @announcementsTitle
+            </span>
+
+            @if (announcements.Count > 0)
+            {
+                <div class="announce ykb-announcements__ticker" aria-live="polite">
+                    @for (var index = 0; index < announcements.Count; index++)
+                    {
+                        var announcement = announcements[index];
+                        <a class="duyuru item ykb-announcements__item @(index == 0 ? "is-active" : null)"
+                           href="@announcement.Url"
+                           target="@(announcement.OpenInNewTab ? "_blank" : null)"
+                           rel="@(announcement.OpenInNewTab ? "noopener noreferrer" : null)"
+                           aria-hidden="@(index == 0 ? "false" : "true")"
+                           tabindex="@(index == 0 ? null : "-1")">
+                            @announcement.Title
+                        </a>
+                    }
+                </div>
+
+                @if (announcements.Count > 1)
+                {
+                    <div class="announce-nav ykb-announcements__nav" aria-label="Duyuru gezinme">
+                        <button class="announce-nav__btn prev" type="button" data-announcement-prev aria-label="Önceki duyuru">
+                            <span class="icon-chevron-left" aria-hidden="true"></span>
+                        </button>
+                        <button class="announce-nav__btn next" type="button" data-announcement-next aria-label="Sonraki duyuru">
+                            <span class="icon-chevron-right" aria-hidden="true"></span>
+                        </button>
+                    </div>
+                }
+            }
+            else
+            {
+                <span class="ykb-announcements__spacer" aria-hidden="true"></span>
+            }
+
+            <a class="allBtn ykb-announcements__all" href="@allAnnouncementsUrl">
+                @allAnnouncementsTitle
+            </a>
+        </div>
+    </section>
+
+    <div class="footer-m ykb-footer-desktop">
+        <div class="ykb-footer-container ykb-footer-desktop__grid">
+            @for (var columnIndex = 0; columnIndex < desktopColumns.Count; columnIndex++)
+            {
+                var column = desktopColumns[columnIndex];
+                <section class="ykb-footer-column" aria-labelledby="footer-column-@column.Id">
+                    <h2 id="footer-column-@column.Id">@column.Title</h2>
+                    <ul>
+                        @foreach (var link in column.Children.Where(link => link.DisplayOnDesktop))
+                        {
+                            <li>
+                                <a href="@link.Url"
+                                   target="@(link.OpenInNewTab ? "_blank" : null)"
+                                   rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
+                            </li>
+                        }
+                    </ul>
+
+                    @if (columnIndex == 0)
+                    {
+                        <div class="social ykb-footer-social">
+                            <h3>@Model.Social.Title</h3>
+                            <div class="social-links ykb-footer-social__links">
+                                @foreach (var social in socialLinks.Where(link => link.DisplayOnDesktop))
+                                {
+                                    <a href="@social.Url"
+                                       target="@(social.OpenInNewTab ? "_blank" : null)"
+                                       rel="@(social.OpenInNewTab ? "noopener noreferrer nofollow" : "nofollow")"
+                                       aria-label="@social.Title">
+                                        <span class="@social.IconCssClass" aria-hidden="true">
+                                            <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
+                                        </span>
+                                    </a>
+                                }
+                            </div>
+                            <div class="blog-box ykb-footer-brands__primary">
+                                @foreach (var brand in brandLinks.Take(2).Where(link => link.DisplayOnDesktop))
+                                {
+                                    <a href="@brand.Url"
+                                       target="@(brand.OpenInNewTab ? "_blank" : null)"
+                                       rel="@(brand.OpenInNewTab ? "noopener noreferrer nofollow" : null)">
+                                        <img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
+                                    </a>
+                                }
+                            </div>
+                            @foreach (var brand in brandLinks.Skip(2).Where(link => link.DisplayOnDesktop))
+                            {
+                                if (string.IsNullOrWhiteSpace(brand.Url))
+                                {
+                                    <picture class="ykb-footer-brand-mark">
+                                        @if (!string.IsNullOrWhiteSpace(brand.MobileImageUrl))
+                                        {
+                                            <source media="(max-width: 991.98px)" srcset="@brand.MobileImageUrl" />
+                                        }
+                                        <img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
+                                    </picture>
+                                }
+                                else
+                                {
+                                    <a class="ykb-footer-brand-mark" href="@brand.Url"
+                                       target="@(brand.OpenInNewTab ? "_blank" : null)"
+                                       rel="@(brand.OpenInNewTab ? "noopener noreferrer nofollow" : null)">
+                                        <img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
+                                    </a>
+                                }
+                            }
+                        </div>
+                    }
+                </section>
+            }
+        </div>
+
+        <div class="footer-b ykb-footer-desktop__bottom">
+            <div class="ykb-footer-container">
+                <strong>@copyrightText</strong>
+                <nav aria-label="Yasal bağlantılar">
+                    @foreach (var link in Model.FooterBottomLinks.Where(link => link.DisplayOnDesktop))
+                    {
+                        <a href="@link.Url"
+                           target="@(link.OpenInNewTab ? "_blank" : null)"
+                           rel="@(link.OpenInNewTab ? "noopener noreferrer nofollow" : null)">@link.Title</a>
+                    }
+                </nav>
+            </div>
+        </div>
+    </div>
+
+    <div class="footer-mobile ykb-footer-mobile">
+        <div class="ykb-footer-mobile__columns">
+            @foreach (var column in mobileColumns)
+            {
+                var mobileLinks = column.Children.Where(link => link.DisplayOnMobile).ToList();
+                var splitIndex = (mobileLinks.Count + 1) / 2;
+                <section class="ykb-footer-mobile__column" aria-labelledby="mobile-footer-column-@column.Id">
+                    <h2 id="mobile-footer-column-@column.Id">@column.Title</h2>
+                    <div class="ykb-footer-mobile__link-grid">
+                        <ul>
+                            @foreach (var link in mobileLinks.Take(splitIndex))
+                            {
+                                <li>
+                                    <a href="@link.Url"
+                                       target="@(link.OpenInNewTab ? "_blank" : null)"
+                                       rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
+                                </li>
+                            }
+                        </ul>
+                        <ul>
+                            @foreach (var link in mobileLinks.Skip(splitIndex))
+                            {
+                                <li>
+                                    <a href="@link.Url"
+                                       target="@(link.OpenInNewTab ? "_blank" : null)"
+                                       rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                </section>
+            }
+        </div>
+
+        <section class="social ykb-footer-mobile__social" aria-label="@Model.Social.Title">
+            <h2>@Model.Social.Title</h2>
+            <div class="social-links ykb-footer-social__links">
+                @foreach (var social in socialLinks.Where(link => link.DisplayOnMobile))
+                {
+                    <a href="@social.Url"
+                       target="@(social.OpenInNewTab ? "_blank" : null)"
+                       rel="@(social.OpenInNewTab ? "noopener noreferrer nofollow" : "nofollow")"
+                       aria-label="@social.Title">
+                        <span class="@social.IconCssClass" aria-hidden="true">
+                            <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
+                        </span>
+                    </a>
+                }
+            </div>
+
+            <div class="ykb-footer-mobile__brands">
+                <div class="blog-box ykb-footer-brands__primary">
+                    @foreach (var brand in brandLinks.Take(2).Where(link => link.DisplayOnMobile))
+                    {
+                        <a href="@brand.Url"
+                           target="@(brand.OpenInNewTab ? "_blank" : null)"
+                           rel="@(brand.OpenInNewTab ? "noopener noreferrer nofollow" : null)">
+                            <img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
+                        </a>
+                    }
+                </div>
+                @foreach (var brand in brandLinks.Skip(2).Where(link => link.DisplayOnMobile))
+                {
+                    if (string.IsNullOrWhiteSpace(brand.Url))
+                    {
+                        <picture class="ykb-footer-brand-mark">
+                            @if (!string.IsNullOrWhiteSpace(brand.MobileImageUrl))
+                            {
+                                <source media="(max-width: 991.98px)" srcset="@brand.MobileImageUrl" />
+                            }
+                            <img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
+                        </picture>
+                    }
+                    else
+                    {
+                        <a class="ykb-footer-brand-mark" href="@brand.Url"
+                           target="@(brand.OpenInNewTab ? "_blank" : null)"
+                           rel="@(brand.OpenInNewTab ? "noopener noreferrer nofollow" : null)">
+                            <img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
+                        </a>
+                    }
+                }
+            </div>
+        </section>
+
+        <nav class="bottom-links ykb-footer-mobile__legal" aria-label="Yasal ve yardımcı bağlantılar">
+            @foreach (var link in Model.FooterBottomLinks.Where(link => link.DisplayOnMobile))
+            {
+                <a href="@link.Url"
+                   target="@(link.OpenInNewTab ? "_blank" : null)"
+                   rel="@(link.OpenInNewTab ? "noopener noreferrer nofollow" : null)">@link.Title</a>
+            }
+        </nav>
+
+        @if (appLinks.Count > 0)
+        {
+            <div class="downloadapp ykb-footer-mobile__apps" id="mobil-uygulama">
+                @foreach (var app in appLinks)
+                {
+                    <a href="@app.Url"
+                       target="@(app.OpenInNewTab ? "_blank" : null)"
+                       rel="@(app.OpenInNewTab ? "noopener noreferrer nofollow" : null)">
+                        <img src="@app.ImageUrl" alt="@app.ImageAlt" loading="lazy" />
+                    </a>
+                }
+            </div>
+        }
+
+        <div class="copyright-f ykb-footer-mobile__copyright">
+            <strong>@copyrightText</strong>
+        </div>
+    </div>
+</footer>

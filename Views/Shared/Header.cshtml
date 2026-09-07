@@ -1,5 +1,6 @@
 @using System.Text.Json
-@using YkbClone
+@using YkbYapikredi.Application.Layout
+@using YkbYapikredi.Application.Navigation
 @model LayoutData
 @{
     var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
@@ -16,7 +17,9 @@
             <div class="ykb-container ykb-top-links">
                 @foreach (var link in Model.HeaderTopLinks)
                 {
-                    <a href="@link.Url">@link.Title</a>
+                    <a href="@link.Url"
+                       target="@(link.OpenInNewTab ? "_blank" : null)"
+                       rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
                 }
             </div>
         </div>
@@ -43,7 +46,9 @@
                                 <div class="ykb-container">
                                     @foreach (var child in desktopLinks)
                                     {
-                                        <a href="@child.Url">@child.Title</a>
+                                        <a href="@child.Url"
+                                           target="@(child.OpenInNewTab ? "_blank" : null)"
+                                           rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">@child.Title</a>
                                     }
                                 </div>
                             </div>
@@ -79,7 +84,9 @@
                                     @foreach (var notification in Model.HeaderNotifications)
                                     {
                                         <li>
-                                            <a href="@notification.Url">
+                                            <a href="@notification.Url"
+                                               target="@(notification.OpenInNewTab ? "_blank" : null)"
+                                               rel="@(notification.OpenInNewTab ? "noopener noreferrer" : null)">
                                                 @if (!string.IsNullOrWhiteSpace(notification.ImageUrl))
                                                 {
                                                     <span class="ykb-notification-image"><img src="@notification.ImageUrl" alt="@notification.ImageAlt" /></span>
@@ -110,7 +117,9 @@
                             <div class="ykb-action-menu" data-dropdown-panel="@panelId" hidden>
                                 @foreach (var group in action.Children)
                                 {
-                                    <a class="ykb-action-item" href="@group.Url" target="@(group.OpenInNewTab ? "_blank" : null)">
+                                    <a class="ykb-action-item" href="@group.Url"
+                                       target="@(group.OpenInNewTab ? "_blank" : null)"
+                                       rel="@(group.OpenInNewTab ? "noopener noreferrer" : null)">
                                         @if (!string.IsNullOrWhiteSpace(group.IconCssClass))
                                         {
                                             <i class="@group.IconCssClass" aria-hidden="true"></i>
@@ -119,7 +128,9 @@
                                     </a>
                                     @foreach (var child in group.Children)
                                     {
-                                        <a class="ykb-action-item" href="@child.Url" target="@(child.OpenInNewTab ? "_blank" : null)">
+                                        <a class="ykb-action-item" href="@child.Url"
+                                           target="@(child.OpenInNewTab ? "_blank" : null)"
+                                           rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">
                                             @if (!string.IsNullOrWhiteSpace(child.IconCssClass))
                                             {
                                                 <i class="@child.IconCssClass" aria-hidden="true"></i>
@@ -165,7 +176,9 @@
                     @foreach (var notification in Model.HeaderNotifications)
                     {
                         <li>
-                            <a href="@notification.Url">
+                            <a href="@notification.Url"
+                               target="@(notification.OpenInNewTab ? "_blank" : null)"
+                               rel="@(notification.OpenInNewTab ? "noopener noreferrer" : null)">
                                 @if (!string.IsNullOrWhiteSpace(notification.ImageUrl))
                                 {
                                     <span class="ykb-notification-image"><img src="@notification.ImageUrl" alt="@notification.ImageAlt" /></span>
@@ -200,7 +213,10 @@
                 {
                     var tab = tabNodes[index];
                     <button type="button" role="tab" aria-selected="@(index == 0 ? "true" : "false")" class="@(index == 0 ? "is-active" : string.Empty)" data-mobile-tab="@tab.Id">
-                        <i class="@(index == 0 ? "icon-mobile-nav-blue-class" : "icon-mobile-nav-kurumsal")" aria-hidden="true"></i>
+                        @if (!string.IsNullOrWhiteSpace(tab.IconCssClass))
+                        {
+                            <i class="@tab.IconCssClass" aria-hidden="true"></i>
+                        }
                         <span>@tab.Title</span>
                     </button>
                 }
@@ -213,7 +229,9 @@
                         @if (mobileQuickLinks.Children.Count > 0)
                         {
                             var download = mobileQuickLinks.Children[0];
-                            <a class="ykb-mobile-download" href="@download.Url">
+                            <a class="ykb-mobile-download" href="@download.Url"
+                               target="@(download.OpenInNewTab ? "_blank" : null)"
+                               rel="@(download.OpenInNewTab ? "noopener noreferrer" : null)">
                                 <i class="@download.IconCssClass" aria-hidden="true"></i>
                                 <span>@download.Title</span>
                             </a>
@@ -221,7 +239,9 @@
                         <div class="ykb-mobile-quick-grid">
                             @foreach (var quickLink in mobileQuickLinks.Children.Skip(1))
                             {
-                                <a href="@quickLink.Url">
+                                <a href="@quickLink.Url"
+                                   target="@(quickLink.OpenInNewTab ? "_blank" : null)"
+                                   rel="@(quickLink.OpenInNewTab ? "noopener noreferrer" : null)">
                                     <i class="@quickLink.IconCssClass" aria-hidden="true"></i>
                                     <span>@quickLink.Title</span>
                                 </a>

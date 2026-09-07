@@ -1,3 +1,5 @@
+using YkbYapikredi.Application.Navigation;
+
 namespace YkbClone;
 
 /// <summary>
@@ -25,9 +27,53 @@ public static class MockLayoutContent
             {
                 Items = BuildHeaderTree()
             },
-            [MenuKeys.Footer] = new(),
-            [MenuKeys.FooterLegal] = new(),
-            [MenuKeys.Social] = new() { Title = "Sosyal Medya" }
+            [MenuKeys.Footer] = new()
+            {
+                Items = BuildFooterColumns()
+            },
+            [MenuKeys.FooterLegal] = new()
+            {
+                Items =
+                [
+                    N("time-barred-lists", "TMSF ve YTM Zaman Aşımı Listesi", $"{YkbRoot}/zaman-asimi-listeleri"),
+                    N("information-society", "Bilgi Toplumu Hizmetleri", "https://e-sirket.mkk.com.tr/esir/Dashboard.jsp#/sirketbilgileri/10466", newTab: true),
+                    N("personal-data", "Kişisel Verilerin Korunması", $"{YkbRoot}/yapi-kredi-hakkinda/kvkk"),
+                    N("privacy-policy", "Gizlilik Politikası", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/gizlilik"),
+                    N("cookie-policy", "Çerez Aydınlatma Metni", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/cerez-politikasi"),
+                    N("footer-contact", "İletişim", $"{YkbRoot}/yapi-kredi-hakkinda/iletisim", desktop: false),
+                    N("footer-english", "English", $"{YkbRoot}/en", desktop: false)
+                ]
+            },
+            [MenuKeys.FooterBrands] = new()
+            {
+                Items =
+                [
+                    N("footer-blog", "Blog", $"{YkbRoot}/blog/", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/blog-logo.svg", imageAlt: "Blog", newTab: true),
+                    N("footer-frwrd", "FRWRD", "https://www.yapikredifrwrd.com/", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/frwrd-logo.svg", imageAlt: "FRWRD", newTab: true),
+                    N("footer-koc-100", "Koç 100. Yıl", string.Empty, image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/100_yil_koc.svg", mobileImage: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/100_yil_koc_mobile.svg", imageAlt: "Koç 100. Yıl")
+                ]
+            },
+            [MenuKeys.FooterApps] = new()
+            {
+                Items =
+                [
+                    N("footer-app-store", "App Store'dan İndirin", "https://itunes.apple.com/tr/app/yap-kredi-mobil-bankac-l-k/id458627086?mt=8", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-store-f.png", imageAlt: "App Store'dan indirin", desktop: false, newTab: true),
+                    N("footer-google-play", "Google Play'den Alın", "https://play.google.com/store/apps/details?id=com.ykb.android&hl=tr&gl=US", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/google-play-f.png", imageAlt: "Google Play'den alın", desktop: false, newTab: true),
+                    N("footer-app-gallery", "AppGallery'den İndirin", "https://appgallery.huawei.com/#/app/C101430581", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-gallery-f.png", imageAlt: "AppGallery'den indirin", desktop: false, newTab: true)
+                ]
+            },
+            [MenuKeys.Social] = new()
+            {
+                Title = "Bizi Takip Edin",
+                Items =
+                [
+                    N("social-facebook", "Facebook", "https://www.facebook.com/YapiKredi/", icon: "icon-facebook1", newTab: true),
+                    N("social-x", "X", "https://twitter.com/YapiKredi", icon: "icon-icon-twitter-new", newTab: true),
+                    N("social-instagram", "Instagram", "https://www.instagram.com/yapikredi/", icon: "icon-instagram1", newTab: true),
+                    N("social-linkedin", "LinkedIn", "https://www.linkedin.com/company/yapikredi", icon: "icon-linkedin1", newTab: true),
+                    N("social-youtube", "YouTube", "https://www.youtube.com/channel/UCnAFL68slzVjJkOiNHweojQ", icon: "icon-youtube1", newTab: true)
+                ]
+            }
         };
 
         return new LayoutContent(
@@ -58,6 +104,81 @@ public static class MockLayoutContent
                 }
             ]);
     }
+
+    private static IReadOnlyList<NavigationNodeDto> BuildFooterColumns() =>
+    [
+        N("footer-contact-column", "Bize Ulaşın", "#", mobile: false, children:
+        [
+            N("footer-satisfaction", "Memnuniyetiniz İçin", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/"),
+            N("footer-contact-link", "İletişim", $"{YkbRoot}/yapi-kredi-hakkinda/iletisim")
+        ]),
+        N("footer-interesting", "İlginizi Çekebilir", "#", children:
+        [
+            N("footer-retirement-promotion", "Emekli Promosyon", $"{YkbRoot}/bireysel-bankacilik/odemeler-ve-hizmetler/sgk-emekli-maas-promosyonu"),
+            N("footer-app-market", "Uygulama Marketi", $"{YkbRoot}/sinirsiz-bankacilik/mobil-bankacilik/uygulama-marketi"),
+            N("footer-demand-deposit", "Vadesiz Mevduat", $"{YkbRoot}/mevduat-urunleri/vadesiz-mevduat"),
+            N("footer-time-deposit", "Vadeli Mevduat", $"{YkbRoot}/mevduat-urunleri/e-mevduat"),
+            N("footer-about", "Yapı Kredi Hakkında", $"{YkbRoot}/yapi-kredi-hakkinda/"),
+            N("footer-sustainability", "Sürdürülebilirlik", $"{YkbRoot}/yapi-kredi-hakkinda/surdurulebilirlik/"),
+            N("footer-news", "Haberler", $"{YkbRoot}/yapi-kredi-hakkinda/haberler", newTab: true),
+            N("footer-press", "Basın Bültenleri", $"{YkbRoot}/yapi-kredi-hakkinda/basin-bultenleri"),
+            N("footer-human-resources", "İnsan Kaynakları", $"{YkbRoot}/yapi-kredi-hakkinda/insan-kaynaklari/"),
+            N("footer-eyt", "EYT", $"{YkbRoot}/bireysel-bankacilik/odemeler-ve-hizmetler/eyt-emeklilikte-yasa-takilanlar")
+        ]),
+        N("footer-investment", "Yatırım & Finans", "#", children:
+        [
+            N("footer-live-fx", "Canlı Döviz", $"{YkbRoot}/yatirimci-kosesi/doviz-kurlari/"),
+            N("footer-funds", "Yatırım Fonları", $"{YkbRoot}/bireysel-bankacilik/yatirim-urunleri/yatirim-fonlari/"),
+            N("footer-gold-deposit", "Altın Mevduat", $"{YkbRoot}/bireysel-bankacilik/mevduat-urunleri/altin-mevduati"),
+            N("footer-gold", "Altın", $"{YkbRoot}/yatirimci-kosesi/altin-bilgileri"),
+            N("footer-ipo", "Halka Arz", $"{YkbRoot}/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/hisse-senedi-halka-arz"),
+            N("footer-stocks", "Hisse Senedi", $"{YkbRoot}/yatirimci-kosesi/hisse-senedi-bilgileri"),
+            N("footer-deposit-rates", "Vadeli Mevduat Oranları", $"{YkbRoot}/yatirimci-kosesi/vadeli-mevduat-oranlari"),
+            N("footer-foreign-markets", "Yurt Dışı Piyasaları", $"{YkbRoot}/yatirimci-kosesi/fon-bilgileri/"),
+            N("footer-investor-corner", "Yatırımcı Köşesi", $"{YkbRoot}/yatirimci-kosesi"),
+            N("footer-dollar", "Dolar Kaç TL", $"{YkbRoot}/bireysel-bankacilik/hesaplama-araclari/doviz-hesaplama")
+        ]),
+        N("footer-cards", "Kartlar & Başvurular", "#", children:
+        [
+            N("footer-open-bank-account", "Banka Hesabı Aç", $"{YkbRoot}/banka-hesabi-ac"),
+            N("footer-open-commercial-account", "Ticari Hesap Aç", $"{YkbRoot}/ticari-hesap-acma"),
+            N("footer-card-application", "Kredi Kartı Başvuru", $"{YkbRoot}/basvuru-merkezi/kredi-karti-basvurusu"),
+            N("footer-debit-card", "Banka Kartı", $"{YkbRoot}/bireysel-bankacilik/kartlar/banka-kartlari/"),
+            N("footer-credit-card", "Kredi Kartı", $"{YkbRoot}/kartlar/kredi-kartlari/"),
+            N("footer-worldcard", "Worldcard", $"{YkbRoot}/kartlar/kredi-kartlari/worldcard"),
+            N("footer-commercial-cards", "Ticari Kartlar", $"{YkbRoot}/kartlar/ticari-kartlar"),
+            N("footer-minimum-payment", "Kredi Kartı Asgari Hesaplama", $"{YkbRoot}/bireysel-bankacilik/kartlar/akdi-ve-gecikme-faizi-hesaplama-ornekleri"),
+            N("footer-secure-vehicle", "Güvenli Araç Alım Satım", $"{YkbRoot}/basvuru-merkezi/guvenli-alim-satim"),
+            N("footer-rent", "Kiram Hesabımda", $"{YkbRoot}/basvuru-merkezi/kiram-hesabimda")
+        ]),
+        N("footer-loans", "Krediler", "#", children:
+        [
+            N("footer-mortgage", "Konut Kredisi", $"{YkbRoot}/kredi/konut-kredisi/"),
+            N("footer-consumer-loan", "İhtiyaç Kredisi", $"{YkbRoot}/kredi/ihtiyac-kredisi/"),
+            N("footer-loan", "Kredi", $"{YkbRoot}/bireysel-bankacilik/krediler/"),
+            N("footer-vehicle-loan", "Taşıt Kredisi", $"{YkbRoot}/bireysel-bankacilik/krediler/tasit-kredisi/"),
+            N("footer-loan-application", "Kredi Başvurusu", $"{YkbRoot}/basvuru-merkezi/bireysel-ihtiyac-kredisi"),
+            N("footer-deferred-loan", "3 Ay Ertelemeli Kredi", $"{YkbRoot}/kredi/ihtiyac-kredisi/3-ay-ertelemeli-ihtiyac-kredisi"),
+            N("footer-flex-account", "Esnek Hesap/Kredili Mevduat Hesabı", $"{YkbRoot}/bireysel-bankacilik/krediler/esnek-hesap/"),
+            N("footer-eyt-loan", "EYT Kredisi", $"{YkbRoot}/kredi/ihtiyac-kredisi/sgk-prim-borcuna-ozel-ihtiyac-kredisi"),
+            N("footer-shopping-loan", "Alışveriş Kredisi", $"{YkbRoot}/kredi/ihtiyac-kredisi/alisveris-kredisi/"),
+            N("footer-used-car-loan", "2. El Araç Kredisi", $"{YkbRoot}/bireysel-bankacilik/krediler/tasit-kredisi/")
+        ]),
+        N("footer-useful-pages", "Faydalı Sayfalar", "#", children:
+        [
+            N("footer-investor-relations", "Yatırımcı İlişkileri", "https://www.yapikrediinvestorrelations.com/tr/"),
+            N("footer-loan-calculation", "Kredi Hesaplama", $"{YkbRoot}/bireysel-bankacilik/hesaplama-araclari/kredi-hesaplama"),
+            N("footer-fx-calculation", "Döviz Hesaplama", $"{YkbRoot}/bireysel-bankacilik/hesaplama-araclari/doviz-hesaplama"),
+            N("footer-deposit-calculation", "Mevduat Hesaplama", $"{YkbRoot}/bireysel-bankacilik/hesaplama-araclari/e-mevduat-faizi-hesaplama"),
+            N("footer-bill-payment", "Fatura Ödeme", $"{YkbRoot}/odeme-merkezi/"),
+            N("footer-hgs", "HGS", $"{YkbRoot}/bireysel-bankacilik/odemeler-ve-hizmetler/hizli-gecis-sistemi"),
+            N("footer-mtv", "MTV Ödeme", $"{YkbRoot}/odeme-merkezi/mtv-odeme"),
+            N("footer-traffic-insurance", "Trafik Sigortası", $"{YkbRoot}/bireysel-bankacilik/sigorta-ve-emeklilik/zorunlu-trafik-sigortalari"),
+            N("footer-casco", "Kasko", $"{YkbRoot}/bireysel-bankacilik/sigorta-ve-emeklilik/kasko-sigortalari"),
+            N("footer-faq", "Sıkça Sorulan Sorular", $"{YkbRoot}/kendim-icin/sinirsiz-bankacilik/sikca-sorulan-sorular/"),
+            N("footer-site-map", "Site Haritası", $"{YkbRoot}/site-haritasi")
+        ])
+    ];
 
     private static IReadOnlyList<NavigationNodeDto> BuildHeaderTree()
     {
@@ -124,7 +245,7 @@ public static class MockLayoutContent
                 N("unlimited-desktop", "Sınırsız Bankacılık", $"{YkbRoot}/kendim-icin/sinirsiz-bankacilik/", mobile: false)
             ]);
 
-        var personalTab = N("personal-tab", "Kendim İçin", "#", role: NavigationRoles.Tab, children:
+        var personalTab = N("personal-tab", "Kendim İçin", "#", icon: "icon-mobile-nav-bireysel-bankaclk", role: NavigationRoles.Tab, children:
         [
             N("home", "Ana Sayfa", "/", icon: "icon-mobile-nav-ana-sayfa", desktop: false),
             retailBanking,
@@ -192,15 +313,23 @@ public static class MockLayoutContent
         bool desktop = true,
         bool mobile = true,
         bool promoteChildrenOnDesktop = false,
-        IReadOnlyList<NavigationNodeDto>? children = null) =>
+        IReadOnlyList<NavigationNodeDto>? children = null,
+        string image = "",
+        string mobileImage = "",
+        string imageAlt = "",
+        bool newTab = false) =>
         new()
         {
             Id = id,
             Title = title,
             Url = url,
             IconCssClass = icon,
+            ImageUrl = image,
+            MobileImageUrl = mobileImage,
+            ImageAlt = imageAlt,
             BadgeText = badge,
             Role = role,
+            OpenInNewTab = newTab,
             DisplayOnDesktop = desktop,
             DisplayOnMobile = mobile,
             PromoteChildrenOnDesktop = promoteChildrenOnDesktop,

@@ -2,7 +2,7 @@
 
 @font-face {
     font-family: "YkbIcons";
-    src: url("/assets/icomoon.woff2") format("woff2");
+    src: url("../assets/icomoon.woff2") format("woff2");
     font-weight: normal;
     font-style: normal;
     font-display: block;
@@ -20,24 +20,21 @@
     --ykb-container: 1168px;
 }
 
-*,
-*::before,
-*::after {
+.ykb-header,
+.ykb-header *,
+.ykb-header *::before,
+.ykb-header *::after,
+.ykb-home-search-band,
+.ykb-home-search-band *,
+.ykb-home-search-band *::before,
+.ykb-home-search-band *::after {
     box-sizing: border-box;
 }
 
-html {
+.ykb-header,
+.ykb-home-search-band {
     min-width: 320px;
-    min-height: 100%;
-    font-size: 10px;
-}
-
-body {
-    min-width: 320px;
-    min-height: 100%;
-    margin: 0;
     color: var(--ykb-text);
-    background: #fff;
     font-family: "Ubuntu", Arial, sans-serif;
     font-size: 14px;
     line-height: 1.35;
@@ -48,46 +45,46 @@ body {
         overflow: hidden;
     }
 
-button,
-input {
+:is(.ykb-header, .ykb-home-search-band) button,
+:is(.ykb-header, .ykb-home-search-band) input {
     font: inherit;
 }
 
-button,
-a {
+:is(.ykb-header, .ykb-home-search-band) button,
+:is(.ykb-header, .ykb-home-search-band) a {
     -webkit-tap-highlight-color: transparent;
 }
 
-button {
+:is(.ykb-header, .ykb-home-search-band) button {
     border: 0;
 }
 
-a {
+:is(.ykb-header, .ykb-home-search-band) a {
     color: inherit;
     text-decoration: none;
 }
 
-img {
+:is(.ykb-header, .ykb-home-search-band) img {
     display: block;
     max-width: 100%;
 }
 
-ul,
-p,
-h1 {
+:is(.ykb-header, .ykb-home-search-band) ul,
+:is(.ykb-header, .ykb-home-search-band) p,
+:is(.ykb-header, .ykb-home-search-band) h1 {
     margin: 0;
     padding: 0;
 }
 
-ul {
+:is(.ykb-header, .ykb-home-search-band) ul {
     list-style: none;
 }
 
-[hidden] {
+:is(.ykb-header, .ykb-home-search-band) [hidden] {
     display: none !important;
 }
 
-.sr-only {
+:is(.ykb-header, .ykb-home-search-band) .sr-only {
     position: absolute !important;
     width: 1px !important;
     height: 1px !important;
@@ -99,8 +96,8 @@ ul {
     border: 0 !important;
 }
 
-[class^="icon-"],
-[class*=" icon-"] {
+:is(.ykb-header, .ykb-home-search-band) [class^="icon-"],
+:is(.ykb-header, .ykb-home-search-band) [class*=" icon-"] {
     font-family: "YkbIcons" !important;
     speak: never;
     font-style: normal;
@@ -112,27 +109,27 @@ ul {
     -moz-osx-font-smoothing: grayscale;
 }
 
-.icon-search::before {
+:is(.ykb-header, .ykb-home-search-band) .icon-search::before {
     content: "\e900";
 }
 
-.icon-pin::before {
+:is(.ykb-header, .ykb-home-search-band) .icon-pin::before {
     content: "\e903";
 }
 
-.icon-close::before {
+:is(.ykb-header, .ykb-home-search-band) .icon-close::before {
     content: "\e906";
 }
 
-.icon-chevron-right::before {
+:is(.ykb-header, .ykb-home-search-band) .icon-chevron-right::before {
     content: "\e90f";
 }
 
-.icon-chevron-left::before {
+:is(.ykb-header, .ykb-home-search-band) .icon-chevron-left::before {
     content: "\e918";
 }
 
-.icon-notification::before {
+:is(.ykb-header, .ykb-home-search-band) .icon-notification::before {
     display: inline-block;
     content: "\e9d8";
     color: #1366b2;
@@ -163,123 +160,123 @@ ul {
     }
 }
 
-.icon-user-24::before {
+.ykb-header .icon-user-24::before {
     content: "\ea76";
     color: #fff;
 }
 
-.icon-pointer-click-24::before {
+.ykb-header .icon-pointer-click-24::before {
     content: "\ea77";
     color: #fff;
 }
 
-.icon-user-plus-24 .path1::before {
+.ykb-header .icon-user-plus-24 .path1::before {
     content: "\ea78";
     color: #fff;
 }
 
-.icon-user-plus-24 .path2::before {
+.ykb-header .icon-user-plus-24 .path2::before {
     content: "\ea79";
     margin-left: -1em;
     color: #fff;
 }
 
-.icon-user-plus-24 .path3::before {
+.ykb-header .icon-user-plus-24 .path3::before {
     content: "\ea7a";
     margin-left: -1em;
     color: #22a9f1;
 }
 
-.icon-user-plus-24 .path4::before {
+.ykb-header .icon-user-plus-24 .path4::before {
     content: "\ea7b";
     margin-left: -1em;
     color: #22a9f1;
 }
 
-.icon-user-business-24::before {
+.ykb-header .icon-user-business-24::before {
     content: "\ea7c";
     color: #fff;
 }
 
-.icon-user-plus-40::before {
+.ykb-header .icon-user-plus-40::before {
     content: "\ea6d";
     color: #fff;
 }
 
-.icon-business-plus-40::before {
+.ykb-header .icon-business-plus-40::before {
     content: "\ea6c";
     color: #fff;
 }
 
-.icon-mobile-nav-ana-sayfa::before {
+.ykb-header .icon-mobile-nav-ana-sayfa::before {
     content: "\ea37";
 }
 
-.icon-mobile-nav-bireysel-bankaclk::before {
+.ykb-header .icon-mobile-nav-bireysel-bankaclk::before {
     content: "\ea38";
 }
 
-.icon-mobile-nav-blue-class::before {
+.ykb-header .icon-mobile-nav-blue-class::before {
     content: "\ea39";
 }
 
-.icon-mobile-nav-ozel-bankacilik::before {
+.ykb-header .icon-mobile-nav-ozel-bankacilik::before {
     content: "\ea3a";
 }
 
-.icon-mobile-nav-kobi::before {
+.ykb-header .icon-mobile-nav-kobi::before {
     content: "\ea3b";
 }
 
-.icon-mobile-nav-kurumsal::before {
+.ykb-header .icon-mobile-nav-kurumsal::before {
     content: "\ea3c";
 }
 
-.icon-mobile-nav-ticari::before {
+.ykb-header .icon-mobile-nav-ticari::before {
     content: "\ea3d";
 }
 
-.icon-mobile-nav-fatura-odeme::before {
+.ykb-header .icon-mobile-nav-fatura-odeme::before {
     content: "\ea3e";
 }
 
-.icon-mobile-nav-basvuru-merkezi::before {
+.ykb-header .icon-mobile-nav-basvuru-merkezi::before {
     content: "\ea3f";
 }
 
-.icon-mobile-nav-sinirsiz-bankacilik::before {
+.ykb-header .icon-mobile-nav-sinirsiz-bankacilik::before {
     content: "\ea40";
 }
 
-.icon-mobile-nav-yatirimci-kosesi::before {
+.ykb-header .icon-mobile-nav-yatirimci-kosesi::before {
     content: "\ea41";
 }
 
-.icon-mobile-nav-yk-hakkinda::before {
+.ykb-header .icon-mobile-nav-yk-hakkinda::before {
     content: "\ea42";
 }
 
-.icon-mobile-nav-memnuniyet::before {
+.ykb-header .icon-mobile-nav-memnuniyet::before {
     content: "\ea43";
 }
 
-.icon-mobile-nav-english::before {
+.ykb-header .icon-mobile-nav-english::before {
     content: "\ea44";
 }
 
-.icon-mobile-nav-paper-search::before {
+.ykb-header .icon-mobile-nav-paper-search::before {
     content: "\ea46";
 }
 
-.icon-mobile-nav-pin::before {
+.ykb-header .icon-mobile-nav-pin::before {
     content: "\ea47";
 }
 
-.icon-mobile-nav-sifre-merkezi::before {
+.ykb-header .icon-mobile-nav-sifre-merkezi::before {
     content: "\ea48";
 }
 
-.icon-mobile-nav-mobil-indir::before {
+.ykb-header .icon-mobile-nav-mobil-indir::before {
     content: "\ea49";
 }
 
@@ -1314,15 +1311,19 @@ ul {
 }
 
 @media (prefers-reduced-motion: reduce) {
-    *,
-    *::before,
-    *::after {
+    .ykb-header,
+    .ykb-header *,
+    .ykb-header *::before,
+    .ykb-header *::after,
+    .ykb-home-search-band,
+    .ykb-home-search-band *,
+    .ykb-home-search-band *::before,
+    .ykb-home-search-band *::after {
         scroll-behavior: auto !important;
         transition-duration: 0.01ms !important;
     }
 
-    .icon-notification::before {
+    :is(.ykb-header, .ykb-home-search-band) .icon-notification::before {
         animation: none;
     }
 }
-

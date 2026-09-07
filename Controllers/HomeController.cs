@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using System.Diagnostics;
 using YKBClone.Models;
+using YkbYapikredi.Application.Layout;
 
 namespace YKBClone.Controllers
 {
@@ -8,14 +9,14 @@ namespace YKBClone.Controllers
     {
         public IActionResult Index()
         {
-            ViewData["LayoutData"] = YkbClone.LayoutData.Create(YkbClone.MockLayoutContent.Create());
+            ViewData["LayoutData"] = LayoutData.Create(YkbClone.MockLayoutContent.Create());
             ViewData["IsHomePage"] = true;
             return View();
         }
 
         public IActionResult Privacy()
         {
-            ViewData["LayoutData"] = YkbClone.LayoutData.Create(YkbClone.MockLayoutContent.Create());
+            ViewData["LayoutData"] = LayoutData.Create(YkbClone.MockLayoutContent.Create());
             ViewData["IsHomePage"] = false;
             return View();
         }
@@ -23,7 +24,7 @@ namespace YKBClone.Controllers
         [HttpGet("/header-test")]
         public IActionResult HeaderTest()
         {
-            ViewData["LayoutData"] = YkbClone.LayoutData.Create(YkbClone.MockLayoutContent.Create());
+            ViewData["LayoutData"] = LayoutData.Create(YkbClone.MockLayoutContent.Create());
             ViewData["IsHomePage"] = false;
             return View();
         }
@@ -31,7 +32,7 @@ namespace YKBClone.Controllers
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
-            ViewData["LayoutData"] = YkbClone.LayoutData.Create(YkbClone.MockLayoutContent.Create());
+            ViewData["LayoutData"] = LayoutData.Create(YkbClone.MockLayoutContent.Create());
             ViewData["IsHomePage"] = false;
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }

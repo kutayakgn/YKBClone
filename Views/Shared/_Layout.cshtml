@@ -1,6 +1,6 @@
 @{
-    var layoutData = ViewData["LayoutData"] as YkbClone.LayoutData;
-    layoutData ??= YkbClone.LayoutData.Create(YkbClone.MockLayoutContent.Create());
+    var layoutData = ViewData["LayoutData"] as YkbYapikredi.Application.Layout.LayoutData;
+    layoutData ??= YkbYapikredi.Application.Layout.LayoutData.Create(YkbClone.MockLayoutContent.Create());
     var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
 }
 <!DOCTYPE html>
@@ -11,6 +11,7 @@
     <meta name="theme-color" content="#ffffff" />
     <title>@ViewData["Title"] | Yapı Kredi Header Demo</title>
     <link rel="stylesheet" href="~/css/header.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
 </head>
 <body class="@(isHomePage ? "home-page" : "inner-page")">
@@ -20,7 +21,10 @@
         @RenderBody()
     </main>
 
+    @await Html.PartialAsync("Footer", layoutData, ViewData)
+
     <script src="~/js/header.js" asp-append-version="true"></script>
+    <script src="~/js/footer.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
