@@ -2,6 +2,8 @@
 
 Bu belge son ve birleştirilmiş modeldir. `YKB.HeaderSettings` veya `YKB.FooterSettings` oluşturulmaz. Logo yolları, arama URL'si, “Duyurular”, “Tüm Duyurular”, dönüş süresi ve copyright gibi sabitler koddan yönetilir.
 
+Kentico'ya yalnız ekranları çalıştıracak 2–3 örnek içerikle başlangıç verisi girmek için `KENTICO-13-MINIMUM-WORKING-PAGE-TREE.md` belgesini kullanın. Bu belge ise genişletilmiş üretim ağacını ve tam page type sözleşmesini korur.
+
 Menüler ağaç yoluyla aranmaz. Her menü kökü `YKB.NavigationMenu.MenuKey` ile bulunur; node başka klasöre taşınsa bile repository aynı anahtarla içeriği bulur.
 
 ## Tam page tree
@@ -209,7 +211,131 @@ Menüler ağaç yoluyla aranmaz. Her menü kökü `YKB.NavigationMenu.MenuKey` i
     /Duyuru 2                                                  (YKB.Announcement)
 ```
 
-`Header Notifications` ve `Announcements` klasörleri boş kalabilir. Duyuru klasörü boşsa şeritte yalnızca “Duyurular” ve “Tüm Duyurular” gösterilir.
+`Header Notifications` ve `Announcements` klasörleri boş kalabilir. Duyuru klasörü boşsa duyuru şeridi HTML'e hiç render edilmez; footer doğrudan kolonlarla başlar.
+
+## Page tree oluştururken seçilecek kesin değerler
+
+Bu bölüm yukarıdaki tam ağacın kurulum reçetesidir. Tablolarda `Açık` checkbox'ın işaretli, `Kapalı` işaretsiz olduğunu ifade eder. Aşağıdaki istisna tablolarında bulunmayan **bütün** `YKB.NavigationNode` sayfalarında şu değerler seçilir:
+
+| Alan | Seçilecek değer |
+|---|---|
+| `NavigationRole` | `MenuItem` |
+| `NavigationIconCssClass` | `İkon yok` (kaydedilen değer boş string) |
+| `NavigationOpenInNewTab` | Kapalı |
+| `NavigationDisplayOnDesktop` | Açık |
+| `NavigationDisplayOnMobile` | Açık |
+| `NavigationPromoteChildrenOnDesktop` | Kapalı |
+| `NavigationBadgeText` | Boş |
+| `NavigationImage`, `NavigationMobileImage`, `NavigationImageAlt` | Boş |
+
+Bu varsayılan kural sayesinde üstteki ağaçta yer alan her yaprak için aynı yedi seçimi tekrar etmeye gerek yoktur. Aşağıdaki tablolar varsayılandan ayrılan **tüm** düğümleri eksiksiz listeler.
+
+### Menü kökleri
+
+`/Shared` ve `/Shared/Navigation` için page type `CMS.Folder` seçilir. Menü kökleri için değerler şöyledir:
+
+| Tam path | Page type | `NavigationMenuTitle` | `NavigationMenuKey` dropdown |
+|---|---|---|---|
+| `/Shared/Navigation/Header Top` | `YKB.NavigationMenu` | `Header üst bağlantıları` | `HeaderTop` |
+| `/Shared/Navigation/Header Main` | `YKB.NavigationMenu` | `Header ana menü` | `HeaderMain` |
+| `/Shared/Navigation/Footer Columns` | `YKB.NavigationMenu` | `Footer kolonları` | `Footer` |
+| `/Shared/Navigation/Footer Legal` | `YKB.NavigationMenu` | `Footer yasal bağlantıları` | `FooterLegal` |
+| `/Shared/Navigation/Footer Brands` | `YKB.NavigationMenu` | `Footer marka görselleri` | `FooterBrands` |
+| `/Shared/Navigation/Footer Apps` | `YKB.NavigationMenu` | `Footer uygulama mağazaları` | `FooterApps` |
+| `/Shared/Navigation/Social` | `YKB.NavigationMenu` | `Bizi Takip Edin` | `Social` |
+
+`NavigationMenuKey` site ve kültür içinde tekil olmalıdır. Özellikle `Social` menüsünün başlığı ekranda kullanıldığı için `NavigationMenuTitle=Bizi Takip Edin` girilmelidir.
+
+### Header Main — varsayılandan farklı düğümler
+
+| `Header Main` altındaki path | `NavigationRole` | `NavigationIconCssClass` dropdown | Desktop | Mobile | Promote children | New tab | Badge |
+|---|---|---|---:|---:|---:|---:|---|
+| `Kendim İçin` | `Tab` | `icon-mobile-nav-bireysel-bankaclk` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Ana Sayfa` | `MenuItem` | `icon-mobile-nav-ana-sayfa` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık` | `MenuItem` | `icon-mobile-nav-bireysel-bankaclk` | Açık | Açık | Açık | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık/Şimdi Yapı Kredili Olun` | `MenuItem` | `İkon yok` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık/Merkezi Hizmet` | `MenuItem` | `İkon yok` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık/Çocuk Bankacılığı` | `MenuItem` | `İkon yok` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık/Gençlik Bankacılığı` | `MenuItem` | `İkon yok` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık/Hesaplama Araçları` | `MenuItem` | `İkon yok` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık/Sözleşmeler ve Formlar` | `MenuItem` | `İkon yok` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık/Sınırsız Bankacılık` | `MenuItem` | `İkon yok` | Açık | Kapalı | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Bireysel Bankacılık/Krediler/Hazır Limitim` | `MenuItem` | `İkon yok` | Açık | Açık | Kapalı | Kapalı | `YENİ` |
+| `Kendim İçin/Yapı Kredi Blue Class` | `MenuItem` | `icon-mobile-nav-blue-class` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Özel Bankacılık` | `MenuItem` | `icon-mobile-nav-ozel-bankacilik` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Fatura Ödeme` | `MenuItem` | `icon-mobile-nav-fatura-odeme` | Kapalı | Açık | Kapalı | Kapalı | `Hemen Öde` |
+| `Kendim İçin/Başvuru Merkezi` | `MenuItem` | `icon-mobile-nav-basvuru-merkezi` | Kapalı | Açık | Kapalı | Kapalı | `Hemen Başvur` |
+| `Kendim İçin/Yatırımcı Köşesi: Piyasa Analizleri` | `MenuItem` | `icon-mobile-nav-yatirimci-kosesi` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Yapı Kredi Hakkında` | `MenuItem` | `icon-mobile-nav-yk-hakkinda` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Memnuniyetiniz İçin Buradayız` | `MenuItem` | `icon-mobile-nav-memnuniyet` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/Sınırsız Bankacılık` | `MenuItem` | `icon-mobile-nav-sinirsiz-bankacilik` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Kendim İçin/English` | `MenuItem` | `icon-mobile-nav-english` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `İşim İçin` | `Tab` | `icon-mobile-nav-kurumsal` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `İşim İçin/KOBİ` | `MenuItem` | `icon-mobile-nav-kobi` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `İşim İçin/Ticari` | `MenuItem` | `icon-mobile-nav-ticari` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `İşim İçin/Kurumsal` | `MenuItem` | `icon-mobile-nav-kurumsal` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Yapı Kredili Ol` | `CustomerAcquisition` | `icon-user-plus-24` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Yapı Kredili Ol/Bireysel Müşteri` | `MenuItem` | `icon-user-plus-40` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Yapı Kredili Ol/Tüzel Müşteri` | `MenuItem` | `icon-business-plus-40` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `İnternet Şubesi` | `InternetBranch` | `icon-pointer-click-24` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `İnternet Şubesi/Bireysel Giriş` | `MenuItem` | `icon-user-24` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `İnternet Şubesi/Kurumsal Giriş` | `MenuItem` | `icon-user-business-24` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Mobil Kısayollar` | `MobileQuickLinks` | `İkon yok` | Kapalı | Açık | Kapalı | Kapalı | Boş |
+| `Mobil Kısayollar/Yapı Kredi Mobil'i İndir` | `MenuItem` | `icon-mobile-nav-mobil-indir` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Mobil Kısayollar/Ürün ve Hizmet Ücretleri` | `MenuItem` | `icon-mobile-nav-paper-search` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Mobil Kısayollar/Şube ve ATM'ler` | `MenuItem` | `icon-mobile-nav-pin` | Açık | Açık | Kapalı | Kapalı | Boş |
+| `Mobil Kısayollar/Şifre Merkezi` | `MenuItem` | `icon-mobile-nav-sifre-merkezi` | Açık | Açık | Kapalı | Kapalı | Boş |
+
+İki ayrı `Sınırsız Bankacılık` düğümü bilinçlidir: `Bireysel Bankacılık` altındaki sürüm sadece desktop, `Kendim İçin` altındaki doğrudan çocuk ise sadece mobil görünür.
+
+### Header Top
+
+`Header Top` altındaki dört düğümün tamamında varsayılan değerler seçilir: `Role=MenuItem`, ikon yok, Desktop ve Mobile açık; Promote children ve New tab kapalıdır. `EN` dahil mevcut tasarımda yeni sekme kapalıdır.
+
+### Footer — varsayılandan farklı düğümler
+
+| Menü / düğüm path'i | `NavigationRole` | İkon | Desktop | Mobile | Promote children | New tab |
+|---|---|---|---:|---:|---:|---:|
+| `Footer Columns/Bize Ulaşın` | `MenuItem` | İkon yok | Açık | Kapalı | Kapalı | Kapalı |
+| `Footer Columns/İlginizi Çekebilir/Haberler` | `MenuItem` | İkon yok | Açık | Açık | Kapalı | Açık |
+| `Footer Legal/Bilgi Toplumu Hizmetleri` | `MenuItem` | İkon yok | Açık | Açık | Kapalı | Açık |
+| `Footer Legal/İletişim` | `MenuItem` | İkon yok | Kapalı | Açık | Kapalı | Kapalı |
+| `Footer Legal/English` | `MenuItem` | İkon yok | Kapalı | Açık | Kapalı | Kapalı |
+| `Footer Brands/Blog` | `MenuItem` | İkon yok | Açık | Açık | Kapalı | Açık |
+| `Footer Brands/FRWRD` | `MenuItem` | İkon yok | Açık | Açık | Kapalı | Açık |
+| `Footer Brands/Koç 100. Yıl` | `MenuItem` | İkon yok | Açık | Açık | Kapalı | Kapalı |
+| `Footer Apps/App Store` | `MenuItem` | İkon yok | Kapalı | Açık | Kapalı | Açık |
+| `Footer Apps/Google Play` | `MenuItem` | İkon yok | Kapalı | Açık | Kapalı | Açık |
+| `Footer Apps/AppGallery` | `MenuItem` | İkon yok | Kapalı | Açık | Kapalı | Açık |
+| `Social/Facebook` | `MenuItem` | `icon-facebook1` | Açık | Açık | Kapalı | Açık |
+| `Social/X` | `MenuItem` | `icon-icon-twitter-new` | Açık | Açık | Kapalı | Açık |
+| `Social/Instagram` | `MenuItem` | `icon-instagram1` | Açık | Açık | Kapalı | Açık |
+| `Social/LinkedIn` | `MenuItem` | `icon-linkedin1` | Açık | Açık | Kapalı | Açık |
+| `Social/YouTube` | `MenuItem` | `icon-youtube1` | Açık | Açık | Kapalı | Açık |
+
+Footer'ın diğer bütün kolon, grup ve link düğümlerinde genel varsayılanlar kullanılır.
+
+### Görsel alanları zorunlu olan footer düğümleri
+
+| Düğüm | `NavigationImage` | `NavigationMobileImage` | `NavigationImageAlt` |
+|---|---|---|---|
+| `Footer Brands/Blog` | Blog logo SVG/medya dosyası | Boş | `Blog` |
+| `Footer Brands/FRWRD` | FRWRD logo SVG/medya dosyası | Boş | `FRWRD` |
+| `Footer Brands/Koç 100. Yıl` | Koç 100. yıl desktop SVG/medya dosyası | Koç 100. yıl mobile SVG/medya dosyası | `Koç 100. Yıl` |
+| `Footer Apps/App Store` | App Store badge PNG/medya dosyası | Boş | `App Store'dan indirin` |
+| `Footer Apps/Google Play` | Google Play badge PNG/medya dosyası | Boş | `Google Play'den alın` |
+| `Footer Apps/AppGallery` | AppGallery badge PNG/medya dosyası | Boş | `AppGallery'den indirin` |
+
+Footer Brands ve Footer Apps içindeki bu altı düğüm dışında görsel alanları boş bırakılır.
+
+### Header Notifications ve Announcements seçimleri
+
+| Klasör / page type | Checkbox | Seçim |
+|---|---|---|
+| `Header Notifications/YKB.HeaderNotification` | `HeaderNotificationOpenInNewTab` | Mevcut bildirimlerde Kapalı; yalnız hedef özellikle yeni sekmede açılacaksa Açık |
+| `Announcements/YKB.Announcement` | `AnnouncementOpenInNewTab` | İç sayfa duyurularında Kapalı; yalnız harici hedef özellikle yeni sekmede açılacaksa Açık |
+
+Bu iki klasör `CMS.Folder` tipindedir. `Announcements` altında yayınlanmış `YKB.Announcement` yoksa duyuru bandı render edilmez. Klasöre örnek olması için görünen `Duyuru 1` ve `Duyuru 2` düğümleri zorunlu değildir; gerçek duyuru yoksa oluşturmayın veya yayınlamayın.
 
 ## Page type 1 — `YKB.NavigationMenu`
 
