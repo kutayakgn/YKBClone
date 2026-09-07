@@ -1,0 +1,37 @@
+@using YkbYapikredi.Application.Layout
+@{
+    var layoutData = ViewData["LayoutData"] as LayoutData
+        ?? throw new InvalidOperationException("LayoutData hazırlanmadı.");
+
+    var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
+    ViewData["IsHomePage"] = isHomePage;
+}
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+
+    @* Şirketin mevcut global/framework CSS dosyaları önce yüklenir. *@
+    <link rel="stylesheet" href="~/css/header.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
+
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body>
+    @await Html.PartialAsync("Header", layoutData, ViewData)
+
+    <main class="ykb-page-content" role="main">
+        @RenderBody()
+    </main>
+
+    @await Html.PartialAsync("Footer", layoutData, ViewData)
+
+    @* Şirketin mevcut vendor/global scriptleri bundan önce veya sonra kalabilir.
+       Header/footer dosyalarının her biri yalnız bir kez yüklenmelidir. *@
+    <script src="~/js/header.js" asp-append-version="true"></script>
+    <script src="~/js/footer.js" asp-append-version="true"></script>
+
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>

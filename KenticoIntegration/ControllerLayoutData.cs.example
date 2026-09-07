@@ -1,0 +1,58 @@
+using System.Globalization;
+using System.Threading;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Mvc;
+using YkbYapikredi.Application.Layout;
+
+namespace YkbYapikredi.Web.Controllers;
+
+/// <summary>
+/// View döndüren controller'ların ortak LayoutData hazırlama davranışı.
+/// </summary>
+public abstract class SiteController : Controller
+{
+    private readonly ILayoutContentProvider _layoutContentProvider;
+
+    protected SiteController(ILayoutContentProvider layoutContentProvider)
+    {
+        _layoutContentProvider = layoutContentProvider;
+    }
+
+    protected async Task LoadLayoutDataAsync(
+        bool isHomePage,
+        CancellationToken cancellationToken)
+    {
+        var content = await _layoutContentProvider.GetAsync(
+            CultureInfo.CurrentUICulture.Name,
+            cancellationToken);
+
+        ViewData["LayoutData"] = LayoutData.Create(content);
+        ViewData["IsHomePage"] = isHomePage;
+    }
+}
+
+public sealed class HomeController : SiteController
+{
+    public HomeController(ILayoutContentProvider layoutContentProvider)
+        : base(layoutContentProvider)
+    {
+    }
+
+    public async Task<IActionResult> Index(CancellationToken cancellationToken)
+    {
+        await LoadLayoutDataAsync(
+            isHomePage: true,
+            cancellationToken: cancellationToken);
+
+        return View();
+    }
+
+    public async Task<IActionResult> Detail(CancellationToken cancellationToken)
+    {
+        await LoadLayoutDataAsync(
+            isHomePage: false,
+            cancellationToken: cancellationToken);
+
+        return View();
+    }
+}

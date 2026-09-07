@@ -1,0 +1,184 @@
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using CMS.DocumentEngine;
+using Kentico.Content.Web.Mvc;
+using Microsoft.Extensions.Logging;
+using YkbYapikredi.Application.Layout;
+using YkbYapikredi.Application.Navigation;
+
+// Bu dört alias'ı Kentico'nun sizin projenizde ürettiği namespace/class adlarına göre düzenleyin.
+using NavigationMenuPage = CMS.DocumentEngine.Types.YKB.NavigationMenu;
+using NavigationNodePage = CMS.DocumentEngine.Types.YKB.NavigationNode;
+using HeaderNotificationPage = CMS.DocumentEngine.Types.YKB.HeaderNotification;
+using AnnouncementPage = CMS.DocumentEngine.Types.YKB.Announcement;
+
+namespace YkbYapikredi.Infrastructure.Kentico;
+
+/// <summary>
+/// Kentico page tree içeriğini Razor'dan bağımsız LayoutContent paketine dönüştürür.
+/// IPageRetriever geçerli site, culture, preview ve yayın bağlamını uygular.
+/// </summary>
+public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
+{
+    private const string HeaderNotificationsPath = "/Shared/Header Notifications";
+    private const string AnnouncementsPath = "/Shared/Announcements";
+
+    private static readonly string[] RequiredMenuKeys =
+    {
+        MenuKeys.HeaderTop,
+        MenuKeys.HeaderMain,
+        MenuKeys.Footer,
+        MenuKeys.FooterLegal,
+        MenuKeys.FooterBrands,
+        MenuKeys.FooterApps,
+        MenuKeys.Social
+    };
+
+    private readonly IPageRetriever _pageRetriever;
+    private readonly ILogger<KenticoLayoutContentProvider> _logger;
+
+    public KenticoLayoutContentProvider(
+        IPageRetriever pageRetriever,
+        ILogger<KenticoLayoutContentProvider> logger)
+    {
+        _pageRetriever = pageRetriever;
+        _logger = logger;
+    }
+
+    public Task<LayoutContent> GetAsync(
+        string culture,
+        CancellationToken cancellationToken = default)
+    {
+        cancellationToken.ThrowIfCancellationRequested();
+
+        // IPageRetriever culture'ı request context'ten belirler. Parametre provider cache key'i
+        // veya projeye özel culture override'ı için sözleşmede tutulmaktadır.
+        _ = culture;
+
+        var roots = _pageRetriever.Retrieve<NavigationMenuPage>(query => query
+                .WhereIn("NavigationMenuKey", RequiredMenuKeys)
+                .OrderBy("NodeOrder"))
+            .ToList();
+
+        var rootsByKey = new Dictionary<string, NavigationMenuPage>(StringComparer.Ordinal);
+
+        foreach (var group in roots.GroupBy(
+                     root => root.NavigationMenuKey ?? string.Empty,
+                     StringComparer.Ordinal))
+        {
+            var matches = group.ToList();
+
+            if (matches.Count > 1)
+            {
+                _logger.LogError(
+                    "NavigationMenuKey '{MenuKey}' için {Count} menu root bulundu.",
+                    group.Key,
+                    matches.Count);
+            }
+
+            if (!string.IsNullOrWhiteSpace(group.Key))
+            {
+                rootsByKey[group.Key] = matches[0];
+            }
+        }
+
+        var menus = new Dictionary<string, MenuContent>(StringComparer.Ordinal);
+
+        foreach (var menuKey in RequiredMenuKeys)
+        {
+            cancellationToken.ThrowIfCancellationRequested();
+
+            if (!rootsByKey.TryGetValue(menuKey, out var root))
+            {
+                _logger.LogWarning(
+                    "NavigationMenuKey '{MenuKey}' için menu root bulunamadı.",
+                    menuKey);
+
+                menus[menuKey] = new MenuContent();
+                continue;
+            }
+
+            var flatNodes = _pageRetriever.Retrieve<NavigationNodePage>(query => query
+                    .Path(root.NodeAliasPath, PathTypeEnum.Children)
+                    .OrderByAscending("NodeLevel", "NodeOrder"))
+                .ToList();
+
+            var childrenByParent = flatNodes.ToLookup(node => node.NodeParentID);
+
+            menus[menuKey] = new MenuContent
+            {
+                Title = Clean(root.NavigationMenuTitle),
+                Items = childrenByParent[root.NodeID]
+                    .OrderBy(node => node.NodeOrder)
+                    .Select(node => MapNode(node, childrenByParent))
+                    .ToArray()
+            };
+        }
+
+        var headerNotifications = _pageRetriever
+            .Retrieve<HeaderNotificationPage>(query => query
+                .Path(HeaderNotificationsPath, PathTypeEnum.Children)
+                .NestingLevel(1)
+                .OrderBy("NodeOrder"))
+            .Select(page => new HeaderNotificationDto
+            {
+                Title = Clean(page.HeaderNotificationTitle),
+                Url = Clean(page.HeaderNotificationUrl),
+                ImageUrl = Clean(page.HeaderNotificationImage),
+                ImageAlt = Clean(page.HeaderNotificationImageAlt),
+                OpenInNewTab = page.HeaderNotificationOpenInNewTab
+            })
+            .ToArray();
+
+        var announcements = _pageRetriever
+            .Retrieve<AnnouncementPage>(query => query
+                .Path(AnnouncementsPath, PathTypeEnum.Children)
+                .NestingLevel(1)
+                .OrderBy("NodeOrder"))
+            .Select(page => new AnnouncementDto
+            {
+                Title = Clean(page.AnnouncementTitle),
+                Url = Clean(page.AnnouncementUrl),
+                OpenInNewTab = page.AnnouncementOpenInNewTab
+            })
+            .ToArray();
+
+        return Task.FromResult(new LayoutContent(
+            menus,
+            announcements,
+            headerNotifications));
+    }
+
+    private static NavigationNodeDto MapNode(
+        NavigationNodePage page,
+        ILookup<int, NavigationNodePage> childrenByParent)
+    {
+        var role = Clean(page.NavigationRole);
+
+        return new NavigationNodeDto
+        {
+            Id = page.NodeGUID.ToString("N"),
+            Title = Clean(page.NavigationTitle),
+            Url = Clean(page.NavigationUrl),
+            IconCssClass = Clean(page.NavigationIconCssClass),
+            ImageUrl = Clean(page.NavigationImage),
+            MobileImageUrl = Clean(page.NavigationMobileImage),
+            ImageAlt = Clean(page.NavigationImageAlt),
+            BadgeText = Clean(page.NavigationBadgeText),
+            Role = string.IsNullOrEmpty(role) ? NavigationRoles.MenuItem : role,
+            OpenInNewTab = page.NavigationOpenInNewTab,
+            DisplayOnDesktop = page.NavigationDisplayOnDesktop,
+            DisplayOnMobile = page.NavigationDisplayOnMobile,
+            PromoteChildrenOnDesktop = page.NavigationPromoteChildrenOnDesktop,
+            Children = childrenByParent[page.NodeID]
+                .OrderBy(child => child.NodeOrder)
+                .Select(child => MapNode(child, childrenByParent))
+                .ToArray()
+        };
+    }
+
+    private static string Clean(string? value) => value?.Trim() ?? string.Empty;
+}
