@@ -84,6 +84,10 @@
     display: none !important;
 }
 
+.ykb-header .ykb-desktop-header [data-dropdown-panel]:not([hidden]) {
+    display: block !important;
+}
+
 :is(.ykb-header, .ykb-home-search-band) .sr-only {
     position: absolute !important;
     width: 1px !important;
