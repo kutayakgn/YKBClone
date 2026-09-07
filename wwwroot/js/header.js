@@ -211,6 +211,9 @@
     if (mobileNotificationMenu) mobileNotificationMenu.hidden = true;
     mobileActionSheet?.remove();
     mobileActionSheet = null;
+    header.querySelectorAll("[data-mobile-action]").forEach((button) => {
+      button.setAttribute("aria-expanded", "false");
+    });
   };
 
   const setMobileMenuOpen = (open) => {
@@ -248,14 +251,14 @@
 
   mobileNotificationButton?.addEventListener("click", (event) => {
     event.stopPropagation();
-    mobileActionSheet?.remove();
-    mobileActionSheet = null;
-    if (mobileNotificationMenu) mobileNotificationMenu.hidden = !mobileNotificationMenu.hidden;
+    const willOpen = mobileNotificationMenu?.hidden ?? false;
+    closeMobileOverlays();
+    if (mobileNotificationMenu) mobileNotificationMenu.hidden = !willOpen;
   });
 
-  const appendActionLink = (parent, node) => {
+  const appendActionLink = (parent, node, modifier) => {
     const link = document.createElement("a");
-    link.className = "ykb-action-item";
+    link.className = `ykb-action-item ykb-action-item--${modifier}`;
     link.href = node.Url || "#";
     if (node.OpenInNewTab) {
       link.target = "_blank";
@@ -266,6 +269,22 @@
     label.textContent = node.Title;
     link.append(label);
     parent.append(link);
+  };
+
+  const appendActionGroup = (parent, groupNode) => {
+    const group = document.createElement("div");
+    group.className = "ykb-action-group";
+    appendActionLink(group, groupNode, "primary");
+
+    const children = visibleMobileChildren(groupNode);
+    if (children.length) {
+      const childList = document.createElement("div");
+      childList.className = "ykb-action-children";
+      children.forEach((child) => appendActionLink(childList, child, "child"));
+      group.append(childList);
+    }
+
+    parent.append(group);
   };
 
   header.querySelectorAll("[data-mobile-action]").forEach((button) => {
@@ -280,11 +299,9 @@
       const sheet = document.createElement("div");
       sheet.className = `ykb-mobile-action-sheet ${node.Role === "InternetBranch" ? "is-red" : "is-blue"}`;
       sheet.dataset.actionId = node.Id;
-      (node.Children || []).forEach((groupNode) => {
-        appendActionLink(sheet, groupNode);
-        (groupNode.Children || []).forEach((child) => appendActionLink(sheet, child));
-      });
-      header.querySelector(".ykb-mobile-header")?.append(sheet);
+      visibleMobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
+      button.closest("[data-mobile-action-wrap]")?.append(sheet);
+      button.setAttribute("aria-expanded", "true");
       mobileActionSheet = sheet;
     });
   });

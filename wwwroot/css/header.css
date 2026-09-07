@@ -509,6 +509,14 @@
     flex: 0 0 auto;
 }
 
+.ykb-header .ykb-action-wrap {
+    width: 164px;
+}
+
+.ykb-header .ykb-action-wrap.is-red {
+    width: 172px;
+}
+
 .ykb-notification-button {
     position: relative;
     display: flex;
@@ -597,10 +605,11 @@
         object-fit: cover;
     }
 
-.ykb-action-button {
+.ykb-header .ykb-action-button {
     display: flex;
+    width: 100%;
     height: 40px;
-    min-width: 164px;
+    min-width: 0;
     align-items: center;
     justify-content: center;
     gap: 10px;
@@ -618,49 +627,75 @@
         font-size: 24px;
     }
 
-.ykb-action-wrap.is-blue .ykb-action-button,
-.ykb-action-wrap.is-blue .ykb-action-menu {
+.ykb-header .ykb-action-wrap.is-blue .ykb-action-button,
+.ykb-header .ykb-action-wrap.is-blue .ykb-action-menu {
     background: var(--ykb-blue);
 }
 
-.ykb-action-wrap.is-red .ykb-action-button,
-.ykb-action-wrap.is-red .ykb-action-menu {
+.ykb-header .ykb-action-wrap.is-red .ykb-action-button,
+.ykb-header .ykb-action-wrap.is-red .ykb-action-menu {
     background: var(--ykb-red);
 }
 
-.ykb-action-wrap.is-red .ykb-action-button {
-    min-width: 172px;
-}
-
-.ykb-action-button[aria-expanded="true"] {
+.ykb-header .ykb-action-button[aria-expanded="true"] {
     border-radius: 8px 8px 0 0;
 }
 
-.ykb-action-menu {
+.ykb-header .ykb-action-menu {
     position: absolute;
     z-index: 5;
     top: 40px;
     right: 0;
-    min-width: 100%;
+    left: 0;
+    width: 100%;
+    min-width: 0;
     overflow: hidden;
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 0 0 8px 8px;
     color: #fff;
 }
 
-.ykb-action-item {
+.ykb-header .ykb-action-group {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ykb-header .ykb-action-group:last-child {
+    border-bottom: 0;
+}
+
+.ykb-header .ykb-action-item {
     display: flex;
     min-height: 43px;
     align-items: center;
     gap: 9px;
     padding: 8px 16px;
-    border-top: 1px solid rgba(255, 255, 255, 0.2);
+    color: #fff;
     font-size: 14px;
     font-weight: 500;
     line-height: 18px;
-    white-space: nowrap;
+    letter-spacing: -0.14px;
+    white-space: normal;
+    overflow-wrap: break-word;
 }
 
-    .ykb-action-item i {
+.ykb-header .ykb-action-item--primary {
+    padding-block: 8px;
+}
+
+.ykb-header .ykb-action-children {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+.ykb-header .ykb-action-item--child {
+    min-height: 34px;
+    padding: 7px 12px 7px 53px;
+}
+
+.ykb-header .ykb-action-item--child + .ykb-action-item--child {
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+    .ykb-header .ykb-action-item i {
         width: 24px;
         flex: 0 0 24px;
         font-size: 24px;
@@ -674,7 +709,7 @@
     left: 0;
     height: 94px;
     padding-top: 35px;
-    background: var(--ykb-mid-blue);
+    background: transparent;
 }
 
 .ykb-home-search {
@@ -730,13 +765,16 @@
         gap: 12px;
     }
 
-    .ykb-action-button {
-        min-width: 150px;
-        padding: 13px 21px;
+    .ykb-header .ykb-action-wrap {
+        width: 150px;
     }
 
-    .ykb-action-wrap.is-red .ykb-action-button {
-        min-width: 160px;
+    .ykb-header .ykb-action-wrap.is-red {
+        width: 160px;
+    }
+
+    .ykb-action-button {
+        padding: 13px 21px;
     }
 
     .ykb-desktop-subnav .ykb-container {
@@ -772,9 +810,12 @@
         height: 42px;
     }
 
-    .ykb-action-button,
-    .ykb-action-wrap.is-red .ykb-action-button {
-        min-width: 140px;
+    .ykb-header .ykb-action-wrap,
+    .ykb-header .ykb-action-wrap.is-red {
+        width: 140px;
+    }
+
+    .ykb-action-button {
         gap: 7px;
         font-size: 14px;
     }
@@ -902,12 +943,19 @@
         padding: 0px 15px 16px 15px;
     }
 
+    .ykb-header .ykb-mobile-action-wrap {
+        position: relative;
+        width: auto;
+        min-width: 0;
+        flex: 1 1 0;
+    }
+
     .ykb-mobile-action {
         display: flex;
+        width: 100%;
         padding: 14px 0px;
         height: 42px;
         min-width: 0;
-        flex: 1;
         align-items: center;
         justify-content: center;
         gap: 7px;
@@ -919,16 +967,20 @@
         white-space: nowrap;
     }
 
-        .ykb-mobile-action.is-blue {
+        .ykb-header .ykb-mobile-action.is-blue {
             background: var(--ykb-blue);
         }
 
-        .ykb-mobile-action.is-red {
+        .ykb-header .ykb-mobile-action.is-red {
             background: var(--ykb-red);
         }
 
         .ykb-mobile-action i {
             font-size: 22px;
+        }
+
+        .ykb-mobile-action[aria-expanded="true"] {
+            border-radius: 6px 6px 0 0;
         }
 
     .ykb-home-search-band {
@@ -1233,8 +1285,7 @@
             font-size: 24px;
         }
 
-    .ykb-mobile-notification-menu,
-    .ykb-mobile-action-sheet {
+    .ykb-mobile-notification-menu {
         position: fixed;
         z-index: 12;
         top: 53px;
@@ -1264,23 +1315,36 @@
             border-top: 1px solid rgba(96, 100, 108, 0.15);
         }
 
-    .ykb-mobile-action-sheet {
-        top: 102px;
-        padding: 8px 16px;
+    .ykb-header .ykb-mobile-action-sheet {
+        position: absolute;
+        z-index: 12;
+        top: 100%;
+        right: 0;
+        left: 0;
+        width: 100%;
+        max-height: calc(100vh - 118px);
+        overflow-x: hidden;
+        overflow-y: auto;
+        border-radius: 0 0 8px 8px;
         color: #fff;
+        box-shadow: 0 10px 30px rgba(0, 45, 88, 0.22);
     }
 
-        .ykb-mobile-action-sheet.is-blue {
+        .ykb-header .ykb-mobile-action-sheet.is-blue {
             background: var(--ykb-blue);
         }
 
-        .ykb-mobile-action-sheet.is-red {
+        .ykb-header .ykb-mobile-action-sheet.is-red {
             background: var(--ykb-red);
         }
 
-        .ykb-mobile-action-sheet .ykb-action-item {
-            min-height: 43px;
-            padding-inline: 0;
+        .ykb-mobile-action-sheet .ykb-action-item--primary {
+            padding-inline: 12px;
+        }
+
+        .ykb-mobile-action-sheet .ykb-action-item--child {
+            padding-right: 10px;
+            padding-left: 52px;
         }
 }
 

@@ -443,6 +443,90 @@ Sayfa içeriğini bir ana element içinde tutun:
 
 Script dosyalarını bundle içine ekliyorsanız ayrıca `<script>` etiketiyle yüklemeyin. Her dosya sayfada yalnız bir kez çalışmalıdır.
 
+### 8.1 Şirket bundle CSS'ine karşı öncelik
+
+CSS cascade sırası önem, cascade layer, selector specificity ve en son kaynak sırasına göre belirlenir. İlk olarak dosya sırasını düzeltin; şirket bundle'ı her zaman header/footer dosyalarından önce gelmelidir:
+
+```cshtml
+@* Önce mevcut şirket/vendor bundle'ları *@
+<link rel="stylesheet" href="~/css/company.bundle.min.css" />
+
+@* Sonra taşınan component CSS'leri *@
+<link rel="stylesheet" href="~/css/header.css" asp-append-version="true" />
+<link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
+
+@* Yalnız hedef projedeki gerçek çakışmalar için; en son *@
+<link rel="stylesheet" href="~/css/header-footer-compat.css" asp-append-version="true" />
+```
+
+Bundle, layout section veya başka bir partial tarafından sayfanın sonunda tekrar yüklenmemelidir. Aynı specificity seviyesinde en son yüklenen kural kazanır.
+
+Header ve footer tekil component olduğu için root elementlere stabil ID ekleyebilirsiniz:
+
+```cshtml
+<header id="ykb-site-header"
+        class="ykb-header"
+        data-ykb-header
+        data-home="@isHomePage.ToString().ToLowerInvariant()">
+```
+
+```cshtml
+<footer id="ykb-site-footer" class="footer ykb-footer">
+```
+
+Mevcut class ve `data-*` alanlarını silmeyin. ID'ler yalnız hedef projedeki uyumluluk override'larına güçlü ve güvenli bir scope verir.
+
+`header-footer-compat.css` içine bütün header/footer CSS'ini kopyalamayın. Tarayıcı geliştirici araçlarında bundle tarafından ezilen property'yi bulun ve yalnız o property için root ID ile override yazın:
+
+```css
+/* company.bundle.min.css içindeki header button/a kurallarına karşı örnekler */
+#ykb-site-header.ykb-header .ykb-tab-button {
+    padding: 0 0 12px;
+    border: 0;
+    color: #004990;
+    background: transparent;
+    line-height: 1.35;
+}
+
+#ykb-site-header.ykb-header .ykb-action-button {
+    box-sizing: border-box;
+    text-decoration: none;
+}
+
+#ykb-site-footer.ykb-footer .ykb-footer-column h2 {
+    margin: 0;
+    padding: 0;
+    color: #1f1f1f;
+}
+
+#ykb-site-footer.ykb-footer a {
+    text-decoration: none;
+}
+```
+
+Bu selector'larda ID + component class bulunduğu için `button`, `header button`, `.navbar button`, `.footer a` gibi bundle kurallarından daha yüksek specificity oluşur.
+
+Bundle kuralında `!important` varsa normal bir override, ID kullansa bile kazanamaz. Öncelik sırası:
+
+1. Mümkünse bundle'daki gereksiz `!important` kuralını kaldırın veya scope'unu daraltın.
+2. Bundle değiştirilemiyorsa yalnız çakışan property'de, son yüklenen compat dosyasında hedefli `!important` kullanın.
+
+```css
+#ykb-site-header.ykb-header .ykb-tab-button {
+    color: #004990 !important;
+}
+```
+
+Tüm component'e `all: unset`, `all: initial` veya yüzlerce `!important` uygulamayın. Bunlar erişilebilirlik, form kontrolleri, responsive davranış ve ikon fontu mirasını bozabilir.
+
+Geliştirici araçlarında kontrol yöntemi:
+
+1. Bozuk elementi Inspect ile seçin.
+2. **Computed** panelinde yanlış görünen property'yi açın.
+3. Kazanan `company.bundle.min.css` selector'ını ve `!important` durumunu görün.
+4. Aynı property'yi root ID ile `header-footer-compat.css` içine yazın.
+5. Compat dosyasının Network ve Sources panelinde bundle'dan sonra geldiğini doğrulayın.
+
 ## 9. Sabit header için içerik boşluğunu ayarlayın
 
 Header `position: fixed` kullandığı için hedef projenin global/layout CSS dosyasına aşağıdaki host kuralını ekleyin:
@@ -573,6 +657,7 @@ Kontrol sırası:
 | Header içeriğin üstünü kapatıyor | `.ykb-page-content` offset'i var mı? |
 | Header'dan sonra büyük boşluk var | Eski page-shell offset'i ile yeni offset birlikte mi uygulanıyor? |
 | CSS görünümü farklı | Header/footer CSS global CSS'den sonra mı, eski kurallar hâlâ bundle'da mı? |
+| Bundle belirli bir property'yi eziyor | Kazanan selector `!important` mı? Root ID ile son yüklenen `header-footer-compat.css` içinde yalnız o property override edildi mi? |
 | Click iki kez çalışıyor | JS dosyası bundle ve script etiketiyle iki kez mi yükleniyor? |
 | Sosyal başlık boş | `Social` menu root'unda `NavigationMenuTitle=Bizi Takip Edin` girildi mi? |
 | Footer görselleri yok | Kentico media field DTO'ya URL/path olarak map ediliyor mu? |

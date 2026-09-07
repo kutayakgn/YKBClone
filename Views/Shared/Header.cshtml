@@ -117,27 +117,34 @@
                             <div class="ykb-action-menu" data-dropdown-panel="@panelId" hidden>
                                 @foreach (var group in action.Children)
                                 {
-                                    <a class="ykb-action-item" href="@group.Url"
-                                       target="@(group.OpenInNewTab ? "_blank" : null)"
-                                       rel="@(group.OpenInNewTab ? "noopener noreferrer" : null)">
-                                        @if (!string.IsNullOrWhiteSpace(group.IconCssClass))
-                                        {
-                                            <i class="@group.IconCssClass" aria-hidden="true"></i>
-                                        }
-                                        <span>@group.Title</span>
-                                    </a>
-                                    @foreach (var child in group.Children)
-                                    {
-                                        <a class="ykb-action-item" href="@child.Url"
-                                           target="@(child.OpenInNewTab ? "_blank" : null)"
-                                           rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">
-                                            @if (!string.IsNullOrWhiteSpace(child.IconCssClass))
+                                    <div class="ykb-action-group">
+                                        <a class="ykb-action-item ykb-action-item--primary" href="@group.Url"
+                                           target="@(group.OpenInNewTab ? "_blank" : null)"
+                                           rel="@(group.OpenInNewTab ? "noopener noreferrer" : null)">
+                                            @if (!string.IsNullOrWhiteSpace(group.IconCssClass))
                                             {
-                                                <i class="@child.IconCssClass" aria-hidden="true"></i>
+                                                <i class="@group.IconCssClass" aria-hidden="true"></i>
                                             }
-                                            <span>@child.Title</span>
+                                            <span>@group.Title</span>
                                         </a>
-                                    }
+                                        @if (group.Children.Count > 0)
+                                        {
+                                            <div class="ykb-action-children">
+                                                @foreach (var child in group.Children)
+                                                {
+                                                    <a class="ykb-action-item ykb-action-item--child" href="@child.Url"
+                                                       target="@(child.OpenInNewTab ? "_blank" : null)"
+                                                       rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">
+                                                        @if (!string.IsNullOrWhiteSpace(child.IconCssClass))
+                                                        {
+                                                            <i class="@child.IconCssClass" aria-hidden="true"></i>
+                                                        }
+                                                        <span>@child.Title</span>
+                                                    </a>
+                                                }
+                                            </div>
+                                        }
+                                    </div>
                                 }
                             </div>
                         </div>
@@ -195,15 +202,18 @@
             @foreach (var action in new[] { customerAction, internetAction }.Where(x => x is not null))
             {
                 var isInternet = action!.Role == NavigationRoles.InternetBranch;
-                <button type="button" class="ykb-mobile-action @(isInternet ? "is-red" : "is-blue")" data-mobile-action="@action.Id">
-                    <i class="@action.IconCssClass" aria-hidden="true">
-                        @if (action.IconCssClass == "icon-user-plus-24")
-                        {
-                            <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
-                        }
-                    </i>
-                    <span>@action.Title</span>
-                </button>
+                <div class="ykb-mobile-action-wrap @(isInternet ? "is-red" : "is-blue")" data-mobile-action-wrap>
+                    <button type="button" class="ykb-mobile-action @(isInternet ? "is-red" : "is-blue")"
+                            aria-expanded="false" data-mobile-action="@action.Id">
+                        <i class="@action.IconCssClass" aria-hidden="true">
+                            @if (action.IconCssClass == "icon-user-plus-24")
+                            {
+                                <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
+                            }
+                        </i>
+                        <span>@action.Title</span>
+                    </button>
+                </div>
             }
         </div>
 
