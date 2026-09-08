@@ -135,8 +135,10 @@
 
 :is(.ykb-header, .ykb-home-search-band) .icon-notification::before {
     display: inline-block;
-    content: "\e9d8";
-    color: #1366b2;
+    width: 36px;
+    height: 36px;
+    content: "";
+    background: url("../assets/notification-bell.svg") center / contain no-repeat;
     transform-origin: 50% 12%;
     animation: ykb-notification-ring 3s ease-in-out infinite;
     will-change: transform;
@@ -1323,15 +1325,43 @@
         position: absolute;
         z-index: 12;
         top: 100%;
+        width: calc(200% + 16px);
+        max-height: 0;
+        overflow-x: hidden;
+        overflow-y: hidden;
+        color: #fff;
+        opacity: 0;
+        box-shadow: 0 10px 30px rgba(0, 45, 88, 0.22);
+        pointer-events: none;
+        transform: translateY(-8px);
+        transition: max-height 320ms ease, opacity 180ms ease, transform 240ms ease;
+    }
+
+    .ykb-header .ykb-mobile-action-wrap:first-child .ykb-mobile-action-sheet {
+        right: auto;
+        left: 0;
+        border-radius: 0 8px 8px 8px;
+    }
+
+    .ykb-header .ykb-mobile-action-wrap:last-child .ykb-mobile-action-sheet {
+        right: 0;
+        left: auto;
+        border-radius: 8px 0 8px 8px;
+    }
+
+    .ykb-header .ykb-mobile-action-wrap:only-child .ykb-mobile-action-sheet {
         right: 0;
         left: 0;
         width: 100%;
-        max-height: calc(100vh - 118px);
-        overflow-x: hidden;
-        overflow-y: auto;
         border-radius: 0 0 8px 8px;
-        color: #fff;
-        box-shadow: 0 10px 30px rgba(0, 45, 88, 0.22);
+    }
+
+    .ykb-header .ykb-mobile-action-sheet.is-open {
+        max-height: calc(100vh - 118px);
+        overflow-y: auto;
+        opacity: 1;
+        pointer-events: auto;
+        transform: translateY(0);
     }
 
         .ykb-header .ykb-mobile-action-sheet.is-blue {

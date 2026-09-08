@@ -314,15 +314,30 @@
 
   function closeMobileOverlays() {
     if (state.mobileNotificationMenu) state.mobileNotificationMenu.hidden = true;
-    if (state.mobileActionSheet && state.mobileActionSheet.parentNode) {
-      state.mobileActionSheet.parentNode.removeChild(state.mobileActionSheet);
-    }
+    closeMobileActionSheet();
+  }
+
+  function closeMobileActionSheet() {
+    var sheet = state.mobileActionSheet;
+    var removed = false;
+    var removeSheet;
     state.mobileActionSheet = null;
     if (state.header) {
       toArray(state.header.querySelectorAll("[data-mobile-action]")).forEach(function (button) {
         button.setAttribute("aria-expanded", "false");
       });
     }
+    if (!sheet || !sheet.parentNode) return;
+    sheet.classList.remove("is-open");
+    removeSheet = function (event) {
+      if (event && (event.target !== sheet || event.propertyName !== "max-height")) return;
+      if (removed) return;
+      removed = true;
+      sheet.removeEventListener("transitionend", removeSheet);
+      if (sheet.parentNode) sheet.parentNode.removeChild(sheet);
+    };
+    sheet.addEventListener("transitionend", removeSheet);
+    window.setTimeout(removeSheet, 360);
   }
 
   function setMobileMenuOpen(open) {
@@ -467,6 +482,9 @@
         wrap.appendChild(sheet);
         button.setAttribute("aria-expanded", "true");
         state.mobileActionSheet = sheet;
+        window.requestAnimationFrame(function () {
+          if (sheet.parentNode && state.mobileActionSheet === sheet) sheet.classList.add("is-open");
+        });
       });
     });
   }
