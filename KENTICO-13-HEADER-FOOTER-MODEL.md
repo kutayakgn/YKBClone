@@ -53,7 +53,7 @@ Menüler ağaç yoluyla aranmaz. Her menü kökü `YKB.NavigationMenu.MenuKey` i
             /Findeks Paketleri                                 (YKB.NavigationNode)
           /Kartlar                                             (YKB.NavigationNode)
             /Kredi Kartları                                    (YKB.NavigationNode)
-          /Mevduat Ürünleri                                    (YKB.NavigationNode)
+          /Mevduat Ürünleri                                    (YKB.NavigationNode / NavigationDesktopName=Mevduat)
             /Altın Bankacılığı                                 (YKB.NavigationNode)
           /Yapı Kredi Yatırım Ürünleri                         (YKB.NavigationNode)
             /Yatırım Fonları                                   (YKB.NavigationNode)
@@ -225,10 +225,13 @@ Bu bölüm yukarıdaki tam ağacın kurulum reçetesidir. Tablolarda `Açık` ch
 | `NavigationDisplayOnDesktop` | Açık |
 | `NavigationDisplayOnMobile` | Açık |
 | `NavigationPromoteChildrenOnDesktop` | Kapalı |
+| `NavigationDesktopName` | Boş; yalnız desktop adı farklıysa doldurun |
 | `NavigationBadgeText` | Boş |
 | `NavigationImage`, `NavigationMobileImage`, `NavigationImageAlt` | Boş |
 
-Bu varsayılan kural sayesinde üstteki ağaçta yer alan her yaprak için aynı yedi seçimi tekrar etmeye gerek yoktur. Aşağıdaki tablolar varsayılandan ayrılan **tüm** düğümleri eksiksiz listeler.
+Bu varsayılan kural sayesinde üstteki ağaçta yer alan her yaprak için aynı seçimleri tekrar etmeye gerek yoktur. Aşağıdaki tablolar varsayılandan ayrılan **tüm** düğümleri eksiksiz listeler.
+
+Desktop ve mobil adı farklı olan örnek kayıt: `Kendim İçin/Bireysel Bankacılık/Mevduat Ürünleri` düğümünde `NavigationTitle=Mevduat Ürünleri`, `NavigationDesktopName=Mevduat`, Desktop=`Açık`, Mobile=`Açık` seçilir. Mobil menü `NavigationTitle`, desktop header ise dolu olduğu için `NavigationDesktopName` gösterir.
 
 ### Menü kökleri
 
@@ -358,6 +361,9 @@ FooterApps;Footer uygulama mağazaları
 Social;Sosyal medya
 ```
 
+- `NavigationMenuTitle`, menünün editör tarafından okunabilen başlığıdır. `Social` kaydında “Bizi Takip Edin” olarak ekranda da kullanılır; diğer menülerde ağırlıklı olarak yönetim ve loglama içindir.
+- `NavigationMenuKey`, repository'nin menüyü path'ten bağımsız bulduğu teknik kimliktir. İçerik editörü mevcut bir menünün key'ini sonradan değiştirmemeli ve aynı key'i ikinci kez oluşturmamalıdır.
+
 Kurallar:
 
 - Alan serbest metin olmamalıdır.
@@ -381,8 +387,42 @@ Header sekmeleri, nested mobil menü, aksiyonlar, footer kolonları, footer link
 | `NavigationRole` | Text / Drop-down list | 40 | Evet | `MenuItem` | `Role` |
 | `NavigationOpenInNewTab` | Boolean / Check box | — | Evet | `false` | `OpenInNewTab` |
 | `NavigationDisplayOnDesktop` | Boolean / Check box | — | Evet | `true` | `DisplayOnDesktop` |
+| `NavigationDesktopName` | Text / Text input | 200 | Hayır | Trim; HTML yok; boşsa `NavigationTitle`; yalnız `NavigationDisplayOnDesktop=true` iken formda gösterin | `DesktopName` |
 | `NavigationDisplayOnMobile` | Boolean / Check box | — | Evet | `true` | `DisplayOnMobile` |
 | `NavigationPromoteChildrenOnDesktop` | Boolean / Check box | — | Evet | `false` | `PromoteChildrenOnDesktop` |
+
+Kentico form ayarında `NavigationDisplayOnDesktop` alanını **Has depending fields / Bağımlı alanları var** olarak işaretleyin. `NavigationDesktopName` için visibility condition olarak `NavigationDisplayOnDesktop = true` tanımlayın. Bu yalnız editör ekranını sadeleştirir; repository yine de alanı opsiyonel okuyup boş değerde `NavigationTitle` fallback'i kullanmalıdır.
+
+### `YKB.NavigationNode` alanları neyi yönetir?
+
+| Alan | Ekrandaki karşılığı | Ne zaman doldurulur/seçilir? |
+|---|---|---|
+| `NavigationTitle` | Mobilde görünen ad ve desktop adının varsayılanı | Her node'da zorunlu. İki görünümde ad aynıysa yalnız bunu doldurun. |
+| `NavigationDesktopName` | Desktop header/footer etiketi | Sadece desktop adı farklıysa doldurun. Örnek: mobil `Mevduat Ürünleri`, desktop `Mevduat`. Boş bırakılırsa desktop da `NavigationTitle` kullanır. |
+| `NavigationUrl` | Linkin `href` değeri | Tıklanabilir satırlarda doldurun. Sadece kapsayıcı/grup olan node'larda boş veya `#` olabilir. `javascript:` kullanmayın. |
+| `NavigationIconCssClass` | Header/mobile satırının sol ikonu | Yalnız tasarımda ikon bulunan node'larda dropdown'dan seçin; diğerlerinde `İkon yok`. Serbest CSS class yazmayın. |
+| `NavigationImage` | Footer marka/app görseli veya ilgili desktop görseli | Yalnız görsel tabanlı footer node'larında seçin. Normal metin linklerinde boş bırakın. |
+| `NavigationMobileImage` | Aynı node'un mobil alternatifi | Desktop görselinden farklı mobil asset varsa doldurun; yoksa boş bırakın ve ana görseli kullanın. |
+| `NavigationImageAlt` | Görselin erişilebilir açıklaması | `NavigationImage` doluysa zorunlu; dekoratif olmayan görselin ne olduğunu kısa yazın. |
+| `NavigationBadgeText` | `YENİ`, `Hemen Öde` gibi kısa rozet | Yalnız tasarımda rozet gösterilecek öğelerde doldurun. |
+| `NavigationRole` | Node'un header içindeki davranış türü | Normal link/grup için `MenuItem`; yalnız tanımlı teknik köklerde diğer roller seçilir. |
+| `NavigationOpenInNewTab` | Linke `target="_blank"` ekler | Harici site/uygulama gerçekten yeni sekmede açılacaksa işaretleyin. Aynı site içi normal gezinmede kapalı tutun. |
+| `NavigationDisplayOnDesktop` | Node'un desktop çıktısına katılmasını sağlar | Desktopta görünmesi gereken link/kolon/satırda açık; yalnız mobil öğelerde kapalı. Teknik aksiyon kökleri role göre ayrıca render edildiği için dokümandaki özel değerleri izleyin. |
+| `NavigationDisplayOnMobile` | Node'un mobil çıktıya ve mobil JSON ağacına katılmasını sağlar | Mobilde görünmesi gereken node'da açık; yalnız desktop öğelerde kapalı. Bir ebeveyn kapatılırsa alt ağaca mobil arayüzden ulaşılamayacağını unutmayın. |
+| `NavigationPromoteChildrenOnDesktop` | Desktopta ebeveyn yerine doğrudan çocuklarını üst menü satırına taşır | Yalnız `Bireysel Bankacılık` gibi desktopta ara başlığı göstermeden çocukları açmak istediğiniz kapsayıcıda işaretleyin. Leaf linklerde ve mobil yapı için işaretlemeyin. |
+
+### Checkbox karar tablosu
+
+| İstenen davranış | Desktop | Mobile | Promote children | New tab |
+|---|---:|---:|---:|---:|
+| Her iki görünümde normal link | Açık | Açık | Kapalı | Genellikle Kapalı |
+| Yalnız desktop linki | Açık | Kapalı | Kapalı | Hedefe göre |
+| Yalnız mobil linki | Kapalı | Açık | Kapalı | Hedefe göre |
+| Desktopta ebeveyn gizlenip çocukları gösterilsin, mobilde ağaç korunsun | Açık | Açık | Açık | Kapalı |
+| Harici hedef yeni sekmede açılsın | Görünüm ihtiyacına göre | Görünüm ihtiyacına göre | Kapalı | Açık |
+| Sadece gruplama yapan, tıklanmayan node | Görünüm ihtiyacına göre | Görünüm ihtiyacına göre | Genellikle Kapalı | Kapalı |
+
+Checkbox'ların hiçbiri node'u CMS'ten veya page tree'den silmez; yalnız render/map davranışını kontrol eder. `DisplayOnDesktop=false` iken `NavigationDesktopName` değerinin ekranda etkisi yoktur.
 
 `NavigationRole` dropdown data source:
 
@@ -456,6 +496,11 @@ DTO'daki `Id` için ayrıca field açılmaz. Repository bunu stabil olması içi
 
 Önerilen medya sınırı 1 MB, önerilen boyut en az 84×84 pikseldir. Liste `NodeOrder` ile sıralanır. Yayın aralığı için yerleşik `DocumentPublishFrom` ve `DocumentPublishTo` kullanılır.
 
+- `HeaderNotificationTitle`, çan panelindeki görünen metindir.
+- `HeaderNotificationUrl`, bildirime tıklanınca gidilecek adrestir.
+- `HeaderNotificationImage`, satırın solundaki opsiyonel küçük görseldir; doluysa `HeaderNotificationImageAlt` da doldurulur.
+- `HeaderNotificationOpenInNewTab`, yalnız hedefin yeni sekmede açılması isteniyorsa işaretlenir; standart site içi bildirimlerde kapalıdır.
+
 ## Page type 4 — `YKB.Announcement`
 
 Mevcut bir duyuru tipi varsa yenisini açmayın; aşağıdaki alanları DTO'ya map edin.
@@ -467,6 +512,11 @@ Mevcut bir duyuru tipi varsa yenisini açmayın; aşağıdaki alanları DTO'ya m
 | `AnnouncementOpenInNewTab` | Boolean / Check box | — | Evet | `false` | `OpenInNewTab` |
 
 Yayın aralığı için yerleşik `DocumentPublishFrom` / `DocumentPublishTo`, sıralama için `NodeOrder` kullanılır. Duyuru sayısı için teknik sınır yoktur; editör performansı ve içerik kalitesi için aynı anda en fazla 10 aktif kayıt önerilir.
+
+- `AnnouncementTitle`, duyuru şeridinde kayan/görünen metindir.
+- `AnnouncementUrl`, duyuruya tıklanınca açılacak sayfadır.
+- `AnnouncementOpenInNewTab`, yalnız harici hedef veya iş gereği yeni sekme isteniyorsa işaretlenir.
+- `DocumentPublishFrom` ve `DocumentPublishTo` CMS'in yerleşik yayın alanlarıdır; duyurunun hangi tarih aralığında sorguya gireceğini belirler. Yayında kayıt yoksa duyuru şeridi render edilmez.
 
 ## Allowed child types
 

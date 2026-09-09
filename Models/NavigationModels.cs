@@ -8,6 +8,7 @@ public sealed class NavigationNodeDto
 {
     public string Id { get; init; } = string.Empty;
     public string Title { get; init; } = string.Empty;
+    public string DesktopName { get; init; } = string.Empty;
     public string Url { get; init; } = string.Empty;
     public string IconCssClass { get; init; } = string.Empty;
     public string ImageUrl { get; init; } = string.Empty;

@@ -13,6 +13,8 @@
     const string allAnnouncementsUrl = "/yapi-kredi-hakkinda/haberler";
     const int announcementRotationIntervalMilliseconds = 5000;
     var copyrightText = $"©{DateTime.Now.Year} Yapı ve Kredi Bankası A.Ş.";
+    string DesktopLabel(YkbYapikredi.Application.Navigation.NavigationNodeDto node) =>
+        string.IsNullOrWhiteSpace(node.DesktopName) ? node.Title : node.DesktopName;
 }
 
 <footer class="footer ykb-footer">
@@ -72,14 +74,14 @@
             {
                 var column = desktopColumns[columnIndex];
                 <section class="ykb-footer-column" aria-labelledby="footer-column-@column.Id">
-                    <h2 id="footer-column-@column.Id">@column.Title</h2>
+                    <h2 id="footer-column-@column.Id">@DesktopLabel(column)</h2>
                     <ul>
                         @foreach (var link in column.Children.Where(link => link.DisplayOnDesktop))
                         {
                             <li>
                                 <a href="@link.Url"
                                    target="@(link.OpenInNewTab ? "_blank" : null)"
-                                   rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
+                                   rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@DesktopLabel(link)</a>
                             </li>
                         }
                     </ul>
@@ -94,7 +96,7 @@
                                     <a href="@social.Url"
                                        target="@(social.OpenInNewTab ? "_blank" : null)"
                                        rel="@(social.OpenInNewTab ? "noopener noreferrer nofollow" : "nofollow")"
-                                       aria-label="@social.Title">
+                                       aria-label="@DesktopLabel(social)">
                                         <span class="@social.IconCssClass" aria-hidden="true">
                                             <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
                                         </span>
@@ -146,7 +148,7 @@
                     {
                         <a href="@link.Url"
                            target="@(link.OpenInNewTab ? "_blank" : null)"
-                           rel="@(link.OpenInNewTab ? "noopener noreferrer nofollow" : null)">@link.Title</a>
+                           rel="@(link.OpenInNewTab ? "noopener noreferrer nofollow" : null)">@DesktopLabel(link)</a>
                     }
                 </nav>
             </div>

@@ -233,7 +233,7 @@ public static class MockLayoutContent
                 N("become-customer", "Şimdi Yapı Kredili Olun", $"{YkbRoot}/banka-hesabi-ac", desktop: false),
                 loans,
                 N("cards", "Kartlar", $"{YkbRoot}/bireysel-bankacilik/kartlar/", children: [N("credit-cards", "Kredi Kartları", "#")]),
-                N("deposits", "Mevduat Ürünleri", $"{YkbRoot}/bireysel-bankacilik/mevduat-urunleri/", children: [N("gold", "Altın Bankacılığı", "#")]),
+                N("deposits", "Mevduat Ürünleri", $"{YkbRoot}/bireysel-bankacilik/mevduat-urunleri/", desktopName: "Mevduat", children: [N("gold", "Altın Bankacılığı", "#")]),
                 N("investments", "Yapı Kredi Yatırım Ürünleri", $"{YkbRoot}/bireysel-bankacilik/yatirim-urunleri/", children: [N("funds", "Yatırım Fonları", "#")]),
                 N("payments", "Ödemeler ve Hizmetler", $"{YkbRoot}/bireysel-bankacilik/odemeler-ve-hizmetler/", children: [N("bills", "Fatura Ödemeleri", "#")]),
                 N("central-service", "Merkezi Hizmet", "#", desktop: false),
@@ -317,11 +317,13 @@ public static class MockLayoutContent
         string image = "",
         string mobileImage = "",
         string imageAlt = "",
-        bool newTab = false) =>
+        bool newTab = false,
+        string desktopName = "") =>
         new()
         {
             Id = id,
             Title = title,
+            DesktopName = desktopName,
             Url = url,
             IconCssClass = icon,
             ImageUrl = image,

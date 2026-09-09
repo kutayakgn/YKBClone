@@ -113,6 +113,14 @@ Generated dosyaları elle değiştirmeyin. Ek davranış gerekirse ayrı bir par
 - `MenuKeys`
 - `LayoutContent`
 
+`NavigationNodeDto` içinde opsiyonel desktop etiket alanı da bulunmalıdır:
+
+```csharp
+public string DesktopName { get; init; } = string.Empty;
+```
+
+`NavigationTitle` mobil/varsayılan etikettir. `DesktopName` boş değilse desktop header ve footer bu değeri, boşsa `Title` değerini gösterir.
+
 Mevcut `LayoutData` sınıfınıza özellikle şu iki footer alanını ekleyin:
 
 ```csharp
@@ -232,6 +240,7 @@ private static NavigationNodeDto MapNode(
     {
         Id = page.NodeGUID.ToString("N"),
         Title = page.GetStringValue("NavigationTitle", string.Empty).Trim(),
+        DesktopName = page.GetStringValue("NavigationDesktopName", string.Empty).Trim(),
         Url = page.GetStringValue("NavigationUrl", string.Empty).Trim(),
         IconCssClass = page.GetStringValue("NavigationIconCssClass", string.Empty).Trim(),
         ImageUrl = page.GetStringValue("NavigationImage", string.Empty).Trim(),

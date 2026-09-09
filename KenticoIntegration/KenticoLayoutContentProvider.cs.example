@@ -162,6 +162,7 @@ public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
         {
             Id = page.NodeGUID.ToString("N"),
             Title = Clean(page.NavigationTitle),
+            DesktopName = Clean(page.NavigationDesktopName),
             Url = Clean(page.NavigationUrl),
             IconCssClass = Clean(page.NavigationIconCssClass),
             ImageUrl = Clean(page.NavigationImage),

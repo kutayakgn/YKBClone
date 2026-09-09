@@ -27,6 +27,7 @@ Bu liste, header ve footer ekranlarının bütün farklı bileşenlerini çalı�
             /Hazır Limitim                                    (YKB.NavigationNode / badge=YENİ)
           /Kartlar                                            (YKB.NavigationNode)
             /Kredi Kartları                                   (YKB.NavigationNode)
+          /Mevduat Ürünleri                                   (YKB.NavigationNode / NavigationDesktopName=Mevduat)
         /Fatura Ödeme                                         (YKB.NavigationNode / mobile-only)
           /Tüm Faturalar                                      (YKB.NavigationNode)
 
@@ -115,6 +116,7 @@ Kardeş node'ları yukarıdaki sırayla oluşturun veya Kentico Pages uygulamas�
 Her `YKB.NavigationNode` için aşağıdaki alanların tamamı doldurulur veya tabloda belirtildiği gibi boş bırakılır:
 
 - `Title`: `NavigationTitle`
+- `Desktop Name`: `NavigationDesktopName`; boşsa desktopta `NavigationTitle` kullanılır
 - `URL`: `NavigationUrl`
 - `Role`: `NavigationRole` dropdown seçimi
 - `Icon`: `NavigationIconCssClass` dropdown seçimi; `İkon yok` seçimi veritabanına boş değer yazar
@@ -125,6 +127,8 @@ Her `YKB.NavigationNode` için aşağıdaki alanların tamamı doldurulur veya t
 - `N`: `NavigationOpenInNewTab` checkbox
 
 `✓` işaretli, `—` işaretsiz checkbox demektir. Aşağıdaki bütün satırlarda `NavigationImage`, `NavigationMobileImage` ve `NavigationImageAlt` boş bırakılır; yalnız “Görsel kullanan footer node'ları” tablosundaki altı kayıt bunun dışındadır.
+
+`NavigationDesktopName` bütün satırlarda varsayılan olarak boş bırakılır. Tek örnek istisna: `Kendim İçin/Bireysel Bankacılık/Mevduat Ürünleri` için `NavigationDesktopName=Mevduat`. Böylece mobilde “Mevduat Ürünleri”, desktop headerda “Mevduat” görünür.
 
 ## 4. Header Top node değerleri
 
@@ -154,6 +158,7 @@ Path'ler `/Shared/Navigation/Header Main/` altına göredir.
 | `Kendim İçin/Bireysel Bankacılık/Krediler/Hazır Limitim` | `#` | `MenuItem` | `İkon yok` | `YENİ` | ✓ | ✓ | — | — |
 | `Kendim İçin/Bireysel Bankacılık/Kartlar` | `https://www.yapikredi.com.tr/bireysel-bankacilik/kartlar/` | `MenuItem` | `İkon yok` | — | ✓ | ✓ | — | — |
 | `Kendim İçin/Bireysel Bankacılık/Kartlar/Kredi Kartları` | `#` | `MenuItem` | `İkon yok` | — | ✓ | ✓ | — | — |
+| `Kendim İçin/Bireysel Bankacılık/Mevduat Ürünleri` | `https://www.yapikredi.com.tr/bireysel-bankacilik/mevduat-urunleri/` | `MenuItem` | `İkon yok` | — | ✓ | ✓ | — | — |
 | `Kendim İçin/Fatura Ödeme` | `#` | `MenuItem` | `icon-mobile-nav-fatura-odeme` | `Hemen Öde` | — | ✓ | — | — |
 | `Kendim İçin/Fatura Ödeme/Tüm Faturalar` | `#` | `MenuItem` | `İkon yok` | — | ✓ | ✓ | — | — |
 
@@ -328,5 +333,16 @@ Page type üzerinde aşağıdaki varsayılanları tanımlayın; tablolardaki far
 | `NavigationPromoteChildrenOnDesktop` | Check box | İşaretsiz / `false` |
 | `HeaderNotificationOpenInNewTab` | Check box | İşaretsiz / `false` |
 | `AnnouncementOpenInNewTab` | Check box | İşaretsiz / `false` |
+
+Checkbox anlamları ve seçim zamanı:
+
+- `NavigationDisplayOnDesktop`: Node desktop header/footer içinde görünmeli ise işaretleyin. Yalnız mobil öğede kaldırın.
+- `NavigationDisplayOnMobile`: Node mobil menü/footer içinde görünmeli ise işaretleyin. Yalnız desktop öğede kaldırın.
+- `NavigationPromoteChildrenOnDesktop`: Desktopta bu ara node yerine doğrudan çocukları gösterilecekse işaretleyin. Normal linklerde, leaf node'larda ve yalnız mobil gezinme için işaretlemeyin.
+- `NavigationOpenInNewTab`: Hedef özellikle yeni sekmede açılacaksa işaretleyin. Aynı site içi standart linklerde kaldırın.
+- `HeaderNotificationOpenInNewTab`: Bildirimin hedefi yeni sekme gerektiriyorsa işaretleyin; normalde kaldırın.
+- `AnnouncementOpenInNewTab`: Duyuru hedefi harici/yeni sekme gerektiriyorsa işaretleyin; normalde kaldırın.
+
+`NavigationDisplayOnDesktop` alanında **Has depending fields** seçeneğini açın. `NavigationDesktopName` alanını Text/Text input, 200 karakter, zorunlu değil olarak ekleyin ve visibility condition değerini `NavigationDisplayOnDesktop = true` yapın.
 
 Tam page type alan tanımları, karakter sınırları, validasyonlar ve allowed-child-type kuralları `KENTICO-13-HEADER-FOOTER-MODEL.md` belgesindeki page type bölümlerinde korunmaktadır.

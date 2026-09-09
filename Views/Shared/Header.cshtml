@@ -9,8 +9,9 @@
     var internetAction = Model.HeaderTabs.FirstOrDefault(x => x.Role == NavigationRoles.InternetBranch);
     var mobileQuickLinks = Model.HeaderTabs.FirstOrDefault(x => x.Role == NavigationRoles.MobileQuickLinks);
     var menuJson = JsonSerializer.Serialize(Model.HeaderTabs);
+    string DesktopLabel(NavigationNodeDto node) =>
+        string.IsNullOrWhiteSpace(node.DesktopName) ? node.Title : node.DesktopName;
 }
-
 <header class="ykb-header" data-ykb-header data-home="@isHomePage.ToString().ToLowerInvariant()">
     <div class="ykb-desktop-header" aria-label="Ana üstbilgi">
         <div class="ykb-grey-bar">
@@ -19,17 +20,15 @@
                 {
                     <a href="@link.Url"
                        target="@(link.OpenInNewTab ? "_blank" : null)"
-                       rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
+                       rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@DesktopLabel(link)</a>
                 }
             </div>
         </div>
-
         <div class="ykb-main-row-wrap">
             <div class="ykb-container ykb-main-row">
                 <a class="ykb-logo" href="/" aria-label="Yapı Kredi ana sayfa">
                     <img src="~/assets/yapikredi-logo.svg" alt="Yapı Kredi" />
                 </a>
-
                 <nav class="ykb-tabs" aria-label="Müşteri türü">
                     @for (var index = 0; index < tabNodes.Length; index++)
                     {
@@ -40,7 +39,7 @@
                             .ToArray();
                         <div class="ykb-tab @(index == 0 ? "is-active" : string.Empty)" data-desktop-tab>
                             <button type="button" class="ykb-tab-button" aria-expanded="false">
-                                @tab.Title
+                                @DesktopLabel(tab)
                             </button>
                             <div class="ykb-desktop-subnav" data-desktop-subnav>
                                 <div class="ykb-container">
@@ -48,14 +47,13 @@
                                     {
                                         <a href="@child.Url"
                                            target="@(child.OpenInNewTab ? "_blank" : null)"
-                                           rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">@child.Title</a>
+                                           rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">@DesktopLabel(child)</a>
                                     }
                                 </div>
                             </div>
                         </div>
                     }
                 </nav>
-
                 <div class="ykb-desktop-tools">
                     @if (!isHomePage)
                     {
@@ -65,7 +63,6 @@
                             <button type="submit" class="icon-search" aria-label="Ara"></button>
                         </form>
                     }
-
                     <div class="ykb-notification-wrap">
                         <button class="ykb-notification-button icon-notification" type="button" aria-label="Bildirimler" aria-expanded="false" data-header-dropdown="notifications">
                             @if (Model.HeaderNotifications.Count > 0)
@@ -99,7 +96,6 @@
                             }
                         </div>
                     </div>
-
                     @foreach (var action in new[] { customerAction, internetAction }.Where(x => x is not null))
                     {
                         var isInternet = action!.Role == NavigationRoles.InternetBranch;
@@ -112,7 +108,7 @@
                                         <span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
                                     }
                                 </i>
-                                <span>@action.Title</span>
+                                <span>@DesktopLabel(action)</span>
                             </button>
                             <div class="ykb-action-menu" data-dropdown-panel="@panelId" hidden>
                                 @foreach (var group in action.Children)
@@ -125,7 +121,8 @@
                                             {
                                                 <i class="@group.IconCssClass" aria-hidden="true"></i>
                                             }
-                                            <span>@group.Title</span>
+                                            <span>@DesktopLabel(group)</span>
+                                            <i class="icon-chevron-right ykb-action-item-chevron" aria-hidden="true"></i>
                                         </a>
                                         @if (group.Children.Count > 0)
                                         {
@@ -139,7 +136,8 @@
                                                         {
                                                             <i class="@child.IconCssClass" aria-hidden="true"></i>
                                                         }
-                                                        <span>@child.Title</span>
+                                                        <span>@DesktopLabel(child)</span>
+                                                        <i class="icon-chevron-right ykb-action-item-chevron" aria-hidden="true"></i>
                                                     </a>
                                                 }
                                             </div>
@@ -153,7 +151,6 @@
             </div>
         </div>
     </div>
-
     <div class="ykb-mobile-header">
         <div class="ykb-mobile-topbar">
             <a class="ykb-mobile-logo" href="/" aria-label="Yapı Kredi ana sayfa">
@@ -171,7 +168,6 @@
                 </button>
             </div>
         </div>
-
         <div class="ykb-mobile-notification-menu" data-mobile-notification-menu hidden>
             @if (Model.HeaderNotifications.Count == 0)
             {
@@ -197,7 +193,6 @@
                 </ul>
             }
         </div>
-
         <div class="ykb-mobile-buttons" data-mobile-buttons>
             @foreach (var action in new[] { customerAction, internetAction }.Where(x => x is not null))
             {
@@ -216,7 +211,6 @@
                 </div>
             }
         </div>
-
         <div class="ykb-mobile-menu" data-mobile-menu hidden>
             <div class="ykb-mobile-tabs main-tab-menu" role="tablist" aria-label="Müşteri türü">
                 @for (var index = 0; index < tabNodes.Length; index++)
@@ -262,10 +256,8 @@
             </div>
         </div>
     </div>
-
     <script id="ykb-mobile-menu-data" type="application/json">@Html.Raw(menuJson)</script>
 </header>
-
 @if (isHomePage)
 {
     <section class="ykb-home-search-band" aria-label="Site araması">
