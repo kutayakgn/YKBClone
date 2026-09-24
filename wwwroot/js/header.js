@@ -9,6 +9,7 @@
     const notificationWrap = header.querySelector(".ykb-notification-wrap");
     const notificationButton = notificationWrap?.querySelector('[data-header-dropdown="notifications"]');
     const notificationPanel = notificationWrap?.querySelector('[data-dropdown-panel="notifications"]');
+    const notificationCount = notificationWrap?.querySelector(".ykb-notification-count");
     let pinnedDesktopTab = null;
     const closeDesktopTabs = () => {
         pinnedDesktopTab = null;
@@ -112,10 +113,15 @@
             button.setAttribute("aria-expanded", String(willOpen));
         });
     });
+    const markNotificationsRead = () => {
+        notificationCount?.remove();
+        document.cookie = "isNotificationRead=true; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=Lax";
+    };
     const openNotifications = () => {
         closeDesktopTabs();
         closeDesktopDropdowns("notifications");
         setNotificationOpen(true);
+        markNotificationsRead();
     };
     notificationWrap?.addEventListener("mouseenter", openNotifications);
     notificationWrap?.addEventListener("mouseleave", scheduleNotificationClose);
@@ -301,6 +307,7 @@
         event.stopPropagation();
         closeMobileActionSheet();
         if (mobileNotificationMenu) mobileNotificationMenu.hidden = !mobileNotificationMenu.hidden;
+        if (mobileNotificationMenu && !mobileNotificationMenu.hidden) markNotificationsRead();
     });
     const appendActionLink = (parent, node, modifier) => {
         const link = document.createElement("a");

@@ -20,6 +20,14 @@
 
     var menuJson = JsonSerializer.Serialize(Model.HeaderTabs);
 
+    var isNotificationRead = string.Equals(
+
+        Context.Request.Cookies["isNotificationRead"],
+
+        "true",
+
+        StringComparison.OrdinalIgnoreCase);
+
     string DesktopLabel(NavigationNodeDto node) =>
 
         string.IsNullOrWhiteSpace(node.DesktopName) ? node.Title : node.DesktopName;
@@ -101,7 +109,7 @@
 <div class="ykb-notification-wrap">
 <button class="ykb-notification-button icon-notification" type="button" aria-label="Bildirimler" aria-expanded="false" data-header-dropdown="notifications">
 
-                            @if (Model.HeaderNotifications.Count > 0)
+                            @if (Model.HeaderNotifications.Count > 0 && !isNotificationRead)
 
                             {
 <span class="ykb-notification-count">@Model.HeaderNotifications.Count</span>
@@ -410,4 +418,3 @@
 </section>
 
 }
- 
