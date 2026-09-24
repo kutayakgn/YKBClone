@@ -1,21 +1,25 @@
 @import url("https://fonts.googleapis.com/css2?family=Ubuntu:wght@400;500;700&display=swap");
+/**/
 @font-face {
-    font-family: "YkbIcons";
-    src: url("../assets/icomoon.woff2") format("woff2");
+    font-family: "icomoon";
+    src: url("/css/icons/fonts/icomoon.woff2") format("woff2");
     font-weight: normal;
     font-style: normal;
     font-display: block;
 }
 :root {
-    --ykb-blue: #004990;
+    --ykb-blue: var(--color-brand-primary);
     --ykb-mid-blue: #1366b2;
     --ykb-light-blue: #e6f5fd;
     --ykb-red: #d9322d;
     --ykb-text: #1f1f1f;
-    --ykb-muted: #858a93;
-    --ykb-line: #d8e0ed;
-    --ykb-grey: #f5f5f5;
-    --ykb-container: 1168px;
+    --ykb-muted: var(--color-text-subtle);
+    --ykb-line: var(--primitive-blue-150);
+    --ykb-grey: var(--color-surface-subtle);
+    --ykb-desktop-header-height: 140px;
+    --ykb-desktop-header-condensed-height: 105px;
+    --ykb-desktop-subnav-height: 48px;
+    --ykb-home-search-gap: 35px;
 }
 .ykb-header,
 .ykb-header *,
@@ -31,8 +35,8 @@
 .ykb-home-search-band {
     min-width: 320px;
     color: var(--ykb-text);
-    font-family: "Ubuntu", Arial, sans-serif;
-    font-size: 14px;
+    font-family: var(--font-body), Arial, sans-serif;
+    font-size: var(--text-md);
     line-height: 1.35;
     -webkit-font-smoothing: antialiased;
 }
@@ -81,7 +85,7 @@ body.ykb-menu-open {
 }
 :is(.ykb-header, .ykb-home-search-band) [class^="icon-"],
 :is(.ykb-header, .ykb-home-search-band) [class*=" icon-"] {
-    font-family: "YkbIcons" !important;
+    font-family: "icomoon" !important;
     speak: never;
     font-style: normal;
     font-weight: normal;
@@ -92,21 +96,27 @@ body.ykb-menu-open {
     -moz-osx-font-smoothing: grayscale;
 }
 :is(.ykb-header, .ykb-home-search-band) .icon-search::before {
+    font-family: "icomoon";
     content: "\e900";
 }
 :is(.ykb-header, .ykb-home-search-band) .icon-pin::before {
+    font-family: "icomoon";
     content: "\e903";
 }
 :is(.ykb-header, .ykb-home-search-band) .icon-close::before {
+    font-family: "icomoon";
     content: "\e906";
 }
 :is(.ykb-header, .ykb-home-search-band) .icon-chevron-right::before {
+    font-family: "icomoon";
     content: "\e90f";
 }
 :is(.ykb-header, .ykb-home-search-band) .icon-chevron-left::before {
+    font-family: "icomoon";
     content: "\e918";
 }
 :is(.ykb-header, .ykb-home-search-band) .icon-notification::before {
+    font-family: "icomoon";
     display: inline-block;
     width: 20px;
     height: 20px;
@@ -134,114 +144,140 @@ body.ykb-menu-open {
     }
 }
 .ykb-header .icon-user-24::before {
+    font-family: "icomoon";
     content: "\ea76";
-    color: #fff;
+    color: var(--primitive-white);
 }
 .ykb-header .icon-pointer-click-24::before {
+    font-family: "icomoon";
     content: "\ea77";
-    color: #fff;
+    color: var(--primitive-white);
 }
 .ykb-header .icon-user-plus-24 .path1::before {
+    font-family: "icomoon";
     content: "\ea78";
-    color: #fff;
+    color: var(--primitive-white);
 }
 .ykb-header .icon-user-plus-24 .path2::before {
+    font-family: "icomoon";
     content: "\ea79";
     margin-left: -1em;
-    color: #fff;
+    color: var(--primitive-white);
 }
 .ykb-header .icon-user-plus-24 .path3::before {
+    font-family: "icomoon";
     content: "\ea7a";
     margin-left: -1em;
     color: #22a9f1;
 }
 .ykb-header .icon-user-plus-24 .path4::before {
+    font-family: "icomoon";
     content: "\ea7b";
     margin-left: -1em;
     color: #22a9f1;
 }
 .ykb-header .icon-user-business-24::before {
+    font-family: "icomoon";
     content: "\ea7c";
-    color: #fff;
+    color: var(--primitive-white);
 }
 .ykb-header .icon-user-plus-40::before {
+    font-family: "icomoon";
     content: "\ea6d";
-    color: #fff;
+    color: var(--primitive-white);
 }
 .ykb-header .icon-business-plus-40::before {
+    font-family: "icomoon";
     content: "\ea6c";
-    color: #fff;
+    color: var(--primitive-white);
 }
 .ykb-header .icon-mobile-nav-ana-sayfa::before {
+    font-family: "icomoon";
     content: "\ea37";
 }
 .ykb-header .icon-mobile-nav-bireysel-bankaclk::before {
+    font-family: "icomoon";
     content: "\ea38";
 }
 .ykb-header .icon-mobile-nav-blue-class::before {
+    font-family: "icomoon";
     content: "\ea39";
 }
 .ykb-header .icon-mobile-nav-ozel-bankacilik::before {
+    font-family: "icomoon";
     content: "\ea3a";
 }
 .ykb-header .icon-mobile-nav-kobi::before {
+    font-family: "icomoon";
     content: "\ea3b";
 }
 .ykb-header .icon-mobile-nav-kurumsal::before {
+    font-family: "icomoon";
     content: "\ea3c";
 }
 .ykb-header .icon-mobile-nav-ticari::before {
+    font-family: "icomoon";
     content: "\ea3d";
 }
 .ykb-header .icon-mobile-nav-fatura-odeme::before {
+    font-family: "icomoon";
     content: "\ea3e";
 }
 .ykb-header .icon-mobile-nav-basvuru-merkezi::before {
+    font-family: "icomoon";
     content: "\ea3f";
 }
 .ykb-header .icon-mobile-nav-sinirsiz-bankacilik::before {
+    font-family: "icomoon";
     content: "\ea40";
 }
 .ykb-header .icon-mobile-nav-yatirimci-kosesi::before {
+    font-family: "icomoon";
     content: "\ea41";
 }
 .ykb-header .icon-mobile-nav-yk-hakkinda::before {
+    font-family: "icomoon";
     content: "\ea42";
 }
 .ykb-header .icon-mobile-nav-memnuniyet::before {
+    font-family: "icomoon";
     content: "\ea43";
 }
 .ykb-header .icon-mobile-nav-english::before {
+    font-family: "icomoon";
     content: "\ea44";
 }
 .ykb-header .icon-mobile-nav-paper-search::before {
+    font-family: "icomoon";
     content: "\ea46";
 }
 .ykb-header .icon-mobile-nav-pin::before {
+    font-family: "icomoon";
     content: "\ea47";
 }
 .ykb-header .icon-mobile-nav-sifre-merkezi::before {
+    font-family: "icomoon";
     content: "\ea48";
 }
 .ykb-header .icon-mobile-nav-mobil-indir::before {
+    font-family: "icomoon";
     content: "\ea49";
-}
-.ykb-container {
-    width: min(var(--ykb-container), calc(100% - 56px));
-    margin-inline: auto;
 }
 .ykb-header {
     position: relative;
     z-index: 1000;
+    --ykb-desktop-current-height: var(--ykb-desktop-header-height);
 }
+    .ykb-header:has(.ykb-desktop-header.is-condensed) {
+        --ykb-desktop-current-height: var(--ykb-desktop-header-condensed-height);
+    }
 .ykb-desktop-header {
     position: fixed;
     inset: 0 0 auto;
     z-index: 1000;
-    height: 144px;
-    background: #fff;
-    border-top: 1px solid #363b3d;
-    border-bottom: 1px solid #1689df;
+    height: var(--ykb-desktop-current-height);
+    background: var(--primitive-white);
+    border-bottom: 1px solid var(--primitive-blue-150);
     transition: height 240ms ease;
 }
 .ykb-grey-bar {
@@ -253,13 +289,16 @@ body.ykb-menu-open {
     transition: height 240ms ease, opacity 160ms ease, transform 240ms ease;
 }
 .ykb-desktop-header.is-condensed {
-    height: 105px;
+    height: var(--ykb-desktop-current-height);
 }
-    .ykb-desktop-header.is-condensed .ykb-grey-bar {
-        height: 0;
-        opacity: 0;
-        transform: translateY(-100%);
-    }
+.ykb-desktop-header:has(.ykb-tab.is-open) {
+    height: calc(var(--ykb-desktop-current-height) + var(--ykb-desktop-subnav-height) );
+}
+.ykb-desktop-header.is-condensed .ykb-grey-bar {
+    height: 0;
+    opacity: 0;
+    transform: translateY(-100%);
+}
 .ykb-top-links {
     display: flex;
     height: 100%;
@@ -270,7 +309,7 @@ body.ykb-menu-open {
         position: relative;
         margin-left: 25px;
         color: var(--ykb-muted);
-        font-size: 14px;
+        font-size: var(--text-md);
         font-weight: 400;
         letter-spacing: -0.14px;
         white-space: nowrap;
@@ -286,7 +325,7 @@ body.ykb-menu-open {
         }
 .ykb-main-row-wrap {
     height: 104px;
-    background: #fff;
+    background: var(--primitive-white);
 }
 .ykb-main-row {
     display: flex;
@@ -305,8 +344,8 @@ body.ykb-menu-open {
     display: flex;
     align-self: stretch;
     align-items: center;
-    gap: 24px;
-    margin-left: 32px;
+    gap: var(--space-6);
+    margin-left: var(--space-8);
 }
 .ykb-tab {
     display: flex;
@@ -315,11 +354,11 @@ body.ykb-menu-open {
 }
 .ykb-tab-button {
     position: relative;
-    padding: 0 0 12px;
+    padding: 0 0 var(--space-3);
     color: var(--ykb-blue);
     background: transparent;
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--text-lg);
     font-weight: 500;
     letter-spacing: -0.16px;
     white-space: nowrap;
@@ -343,25 +382,23 @@ body.ykb-menu-open {
 .ykb-header .ykb-desktop-header .ykb-tab.is-open::before {
     position: fixed;
     z-index: 1001;
-    top: 112px;
+    top: calc(var(--ykb-desktop-current-height) );
     right: 0;
     left: 0;
-    height: 24px;
+    height: 32px;
     content: "";
     background: transparent;
 }
 .ykb-desktop-subnav {
     position: fixed;
     z-index: 1001;
-    top: 112px;
+    top: calc(var(--ykb-desktop-current-height) - 14px );
     right: 0;
     left: 0;
     display: flex;
-    margin-top: 24px;
-    height: 48px;
-    align-items: flex-end;
-    background: #fff;
-    border-bottom: 1px solid var(--ykb-line);
+    height: var(--ykb-desktop-subnav-height);
+    align-items: center;
+    background: var(--primitive-white);
     opacity: 0;
     visibility: hidden;
     clip-path: inset(0 0 100% 0);
@@ -377,23 +414,17 @@ body.ykb-menu-open {
     transform: translateY(0);
     transition-delay: 0s;
 }
-.ykb-desktop-header.is-condensed .ykb-desktop-subnav {
-    top: 73px;
-}
-.ykb-header .ykb-desktop-header.is-condensed .ykb-tab.is-open::before {
-    top: 73px;
-}
 .ykb-desktop-subnav .ykb-container {
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: 24px;
+    gap: var(--space-6);
     overflow: hidden;
-    margin-bottom: 24px;
+    margin-bottom: 0;
 }
 .ykb-desktop-subnav a {
     color: var(--ykb-blue);
-    font-size: 16px;
+    font-size: var(--text-lg);
     font-weight: 500;
     line-height: 18px;
     white-space: nowrap;
@@ -402,7 +433,7 @@ body.ykb-menu-open {
     display: flex;
     min-width: 0;
     align-items: center;
-    gap: 16px;
+    gap: var(--space-4);
     margin-left: auto;
 }
 .ykb-inline-search {
@@ -412,7 +443,7 @@ body.ykb-menu-open {
     align-items: center;
     border: 1px solid var(--ykb-line);
     border-radius: 21px;
-    background: #fff;
+    background: var(--primitive-white);
 }
     .ykb-inline-search input {
         min-width: 0;
@@ -422,7 +453,7 @@ body.ykb-menu-open {
         outline: 0;
         color: var(--ykb-blue);
         background: transparent;
-        font-size: 14px;
+        font-size: var(--text-md);
     }
     .ykb-inline-search button {
         width: 40px;
@@ -468,11 +499,11 @@ body.ykb-menu-open {
     height: 17px;
     align-items: center;
     justify-content: center;
-    border: 2px solid #fff;
+    border: 2px solid var(--primitive-white);
     border-radius: 50%;
-    color: #fff;
+    color: var(--primitive-white);
     background: var(--ykb-red);
-    font-family: "Ubuntu", Arial, sans-serif;
+    font-family: var(--font-body), Arial, sans-serif;
     font-size: 9px;
     font-weight: 700;
 }
@@ -482,7 +513,8 @@ body.ykb-menu-open {
     right: -48px;
     width: 330px;
     padding: 17px;
-    border-radius: 6px;
+    border-radius: var(--radius-md);
+    z-index: 10000;
     color: #60646c;
     background: var(--ykb-light-blue);
     box-shadow: 0 10px 30px rgba(0, 45, 88, 0.16);
@@ -506,8 +538,8 @@ body.ykb-menu-open {
     .ykb-notification-menu a {
         display: flex;
         align-items: center;
-        gap: 12px;
-        font-size: 14px;
+        gap: var(--space-3);
+        font-size: var(--text-md);
         line-height: 18px;
     }
 .ykb-notification-image {
@@ -519,7 +551,7 @@ body.ykb-menu-open {
     justify-content: center;
     overflow: hidden;
     border-radius: 50%;
-    background: #fff;
+    background: var(--primitive-white);
 }
     .ykb-notification-image img {
         width: 100%;
@@ -535,10 +567,10 @@ body.ykb-menu-open {
     justify-content: center;
     gap: 10px;
     padding: 0 18px;
-    border-radius: 8px;
-    color: #fff;
+    border-radius: var(--radius-lg);
+    color: var(--primitive-white);
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--text-md);
     font-weight: 500;
     white-space: nowrap;
 }
@@ -555,7 +587,7 @@ body.ykb-menu-open {
     background: var(--ykb-red);
 }
 .ykb-header .ykb-action-button[aria-expanded="true"] {
-    border-radius: 8px 8px 0 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
 }
 .ykb-header .ykb-action-menu {
     position: absolute;
@@ -567,8 +599,8 @@ body.ykb-menu-open {
     min-width: 0;
     overflow: hidden;
     border-top: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 0 0 8px 8px;
-    color: #fff;
+    border-radius: 0 0 var(--radius-lg) var(--radius-lg);
+    color: var(--primitive-white);
 }
 .ykb-header .ykb-action-group {
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
@@ -581,9 +613,9 @@ body.ykb-menu-open {
     min-height: 43px;
     align-items: center;
     gap: 9px;
-    padding: 8px 16px;
-    color: #fff;
-    font-size: 14px;
+    padding: var(--space-2) var(--space-4);
+    color: var(--primitive-white);
+    font-size: var(--text-md);
     font-weight: 500;
     line-height: 18px;
     letter-spacing: -0.14px;
@@ -594,8 +626,8 @@ body.ykb-menu-open {
     display: none;
 }
 .ykb-header .ykb-action-item--primary {
-    padding-block: 8px;
-    font-weight: 700;
+    padding-block: var(--space-2);
+    font-weight: 500;
 }
 .ykb-header .ykb-action-children {
     border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -603,7 +635,7 @@ body.ykb-menu-open {
 .ykb-header .ykb-action-item--child {
     font-weight: 400;
     min-height: 34px;
-    padding: 7px 12px 7px 53px;
+    padding: 7px var(--space-3) 7px 53px;
 }
     .ykb-header .ykb-action-item--child + .ykb-action-item--child {
         border-top: 1px solid rgba(255, 255, 255, 0.2);
@@ -614,14 +646,28 @@ body.ykb-menu-open {
     font-size: 24px;
 }
 .ykb-home-search-band {
-    position: absolute;
+    position: fixed;
     z-index: 900;
-    top: 144px;
+    top: 35px;
     right: 0;
     left: 0;
-    height: 94px;
-    padding-top: 35px;
+    height: 0px;
     background: transparent;
+    transition: top 240ms ease;
+}
+@media (min-width: 992px) {
+    .ykb-header::after {
+        display: block;
+        height: var(--ykb-desktop-current-height);
+        content: "";
+        transition: height 240ms ease;
+    }
+    .ykb-header:has(.ykb-desktop-header .ykb-tab.is-open)::after {
+        height: calc(var(--ykb-desktop-current-height) + var(--ykb-desktop-subnav-height));
+    }
+    .ykb-header:has(.ykb-desktop-header.is-condensed) + .ykb-home-search-band {
+        top: calc(var(--ykb-desktop-header-condensed-height) + var(--ykb-home-search-gap));
+    }
 }
 .ykb-home-search {
     display: flex;
@@ -631,19 +677,19 @@ body.ykb-menu-open {
     margin-inline: auto;
     border: 2px solid #89b3d9;
     border-radius: 28px;
-    background: #fff;
+    background: var(--primitive-white);
 }
     .ykb-home-search input {
         min-width: 0;
         height: 48px;
         flex: 1;
-        padding: 0 20px;
+        padding: 0 var(--space-5);
         border: 0;
         border-radius: 28px;
         outline: 0;
         color: var(--ykb-blue);
         background: transparent;
-        font-size: 16px;
+        font-size: var(--text-lg);
     }
         .ykb-home-search input::placeholder {
             color: var(--ykb-muted);
@@ -667,7 +713,7 @@ body.ykb-menu-open {
         margin-left: 22px;
     }
     .ykb-desktop-tools {
-        gap: 12px;
+        gap: var(--space-3);
     }
     .ykb-header .ykb-action-wrap {
         width: fit-content;
@@ -679,10 +725,10 @@ body.ykb-menu-open {
         padding: 13px 21px;
     }
     .ykb-desktop-subnav .ykb-container {
-        gap: 20px;
+        gap: var(--space-5);
     }
     .ykb-desktop-subnav a {
-        font-size: 14px;
+        font-size: var(--text-md);
     }
 }
 @media (max-width: 1040px) and (min-width: 992px) {
@@ -695,10 +741,10 @@ body.ykb-menu-open {
         width: 135px;
     }
     .ykb-tabs {
-        margin-left: 32px;
+        margin-left: var(--space-8);
     }
     .ykb-tab-button {
-        font-size: 16px;
+        font-size: var(--text-lg);
     }
     .ykb-notification-button {
         width: 42px;
@@ -710,7 +756,7 @@ body.ykb-menu-open {
     }
     .ykb-action-button {
         gap: 7px;
-        font-size: 14px;
+        font-size: var(--text-md);
     }
 }
 @media (max-width: 991.98px) {
@@ -722,15 +768,15 @@ body.ykb-menu-open {
         z-index: 1000;
         inset: 0 0 auto;
         display: block;
-        background: #fff;
+        background: var(--primitive-white);
         border-top: 1px solid #363b3d;
     }
     .ykb-mobile-topbar {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        padding: 16px;
-        background: #fff;
+        padding: var(--space-4);
+        background: var(--primitive-white);
     }
     .ykb-mobile-logo {
         width: 138px;
@@ -744,14 +790,14 @@ body.ykb-menu-open {
         display: flex;
         height: 100%;
         align-items: center;
-        gap: 16px;
+        gap: var(--space-4);
     }
     .ykb-atm-link {
         display: flex;
         align-items: center;
         gap: 0px;
         color: var(--ykb-blue);
-        font-size: 10px;
+        font-size: var(--text-xs);
         font-weight: 400;
         line-height: 1.2;
     }
@@ -812,10 +858,10 @@ body.ykb-menu-open {
         }
     .ykb-mobile-buttons {
         display: flex;
-        gap: 16px;
+        gap: var(--space-4);
         height: 58px;
-        background: #fff;
-        padding: 0px 15px 16px 15px;
+        background: var(--primitive-white);
+        padding: 0px 15px var(--space-4) 15px;
     }
     .ykb-header .ykb-mobile-action-wrap {
         position: relative;
@@ -831,16 +877,16 @@ body.ykb-menu-open {
         align-items: flex-start;
         justify-content: center;
         gap: 7px;
-        border-radius: 6px;
-        color: #fff;
+        border-radius: var(--radius-md);
+        color: var(--primitive-white);
         cursor: pointer;
-        font-size: 14px;
+        font-size: var(--text-md);
         font-weight: 400;
         white-space: nowrap;
         justify-content: center;
     }
         .ykb-mobile-action i {
-            padding-top: 8px;
+            padding-top: var(--space-2);
         }
         .ykb-mobile-action span {
             padding-top: 10px;
@@ -860,10 +906,10 @@ body.ykb-menu-open {
         font-size: 22px;
     }
     .ykb-mobile-action[aria-expanded="true"] {
-        border-radius: 6px 6px 0 0;
+        border-radius: var(--radius-md) var(--radius-md) 0 0;
     }
     .ykb-home-search-band {
-        position: absolute;
+        position: fixed;
         top: 153px;
         height: 52px;
         padding-top: 0px;
@@ -876,8 +922,8 @@ body.ykb-menu-open {
     }
         .ykb-home-search input {
             height: 48px;
-            padding-left: 20px;
-            font-size: 16px;
+            padding-left: var(--space-5);
+            font-size: var(--text-lg);
             line-height: 1.4;
         }
         .ykb-home-search button {
@@ -894,7 +940,7 @@ body.ykb-menu-open {
         top: 70px;
         right: 0;
         bottom: 0;
-        border-top: 1px solid #d8e0ed;
+        border-top: 1px solid var(--primitive-blue-150);
         left: 0;
         overflow-x: hidden;
         overflow-y: auto;
@@ -916,11 +962,11 @@ body.ykb-menu-open {
             flex: 1;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            gap: var(--space-2);
             color: var(--ykb-text);
             background: transparent;
             cursor: pointer;
-            font-size: 18px;
+            font-size: var(--text-2xl);
             font-weight: 500;
         }
             .ykb-mobile-tabs button i {
@@ -930,11 +976,11 @@ body.ykb-menu-open {
                 flex: 0 0 24px;
                 align-items: center;
                 justify-content: center;
-                color: #004990;
+                color: var(--color-brand-primary);
                 font-size: 24px;
             }
                 .ykb-mobile-tabs button i::before {
-                    color: #004990;
+                    color: var(--color-brand-primary);
                 }
             .ykb-mobile-tabs button.is-active::after {
                 position: absolute;
@@ -959,16 +1005,16 @@ body.ykb-menu-open {
         width: 100%;
         height: 67px;
         align-items: center;
-        gap: 4px;
-        padding: 0 16px;
+        gap: var(--space-1);
+        padding: 0 var(--space-4);
         color: var(--ykb-text);
         background: transparent;
         cursor: pointer;
         letter-spacing: -0.4px;
-        font-size: 12px;
+        font-size: var(--text-sm);
         font-weight: 500;
         text-align: left;
-        border-bottom: 1px solid rgb(216, 224, 237);
+        border-bottom: 1px solid var(--primitive-blue-150);
     }
         .ykb-mobile-back i {
             width: 24px;
@@ -979,9 +1025,9 @@ body.ykb-menu-open {
         display: flex;
         min-height: 67px;
         align-items: center;
-        gap: 16px;
+        gap: var(--space-4);
         padding: 0 15px 0;
-        font-size: 18px;
+        font-size: var(--text-2xl);
         font-weight: 500;
     }
         .ykb-mobile-level-title i {
@@ -1001,12 +1047,12 @@ body.ykb-menu-open {
         width: 100%;
         min-height: 48px;
         align-items: center;
-        gap: 16px;
-        padding: 8px 16px 8px 32px;
+        gap: var(--space-4);
+        padding: var(--space-2) var(--space-4) var(--space-2) var(--space-8);
         color: var(--ykb-text);
         background: transparent;
         cursor: pointer;
-        font-size: 16px;
+        font-size: var(--text-lg);
         font-weight: 400;
         line-height: 18px;
         letter-spacing: -0.18px;
@@ -1022,7 +1068,7 @@ body.ykb-menu-open {
     }
     .ykb-mobile-menu-list.is-root .ykb-mobile-menu-row {
         padding: 0 15px;
-        font-size: 18px;
+        font-size: var(--text-2xl);
         font-weight: 500;
         line-height: 20px;
     }
@@ -1033,11 +1079,11 @@ body.ykb-menu-open {
         flex: 0 0 24px;
         align-items: center;
         justify-content: center;
-        color: #004990;
+        color: var(--color-brand-primary);
         font-size: 24px;
     }
         .ykb-mobile-menu-row .ykb-row-icon::before {
-            color: #004990;
+            color: var(--color-brand-primary);
         }
     .ykb-mobile-menu-row .ykb-row-title {
         min-width: 0;
@@ -1059,8 +1105,8 @@ body.ykb-menu-open {
         display: inline-flex;
         height: 15px;
         align-items: center;
-        border-radius: 8px;
-        color: #fff;
+        border-radius: var(--radius-lg);
+        color: var(--primitive-white);
         font-weight: 400;
         white-space: nowrap;
         font-size: 9px;
@@ -1075,39 +1121,39 @@ body.ykb-menu-open {
         flex: 0 0 auto;
         background-color: whitesmoke;
         width: 100%;
-        padding: 36px 16px 0px 16px;
+        padding: 36px var(--space-4) 0px var(--space-4);
         margin-top: 0;
     }
     .ykb-mobile-download {
         display: flex;
-        font-size: 14px;
+        font-size: var(--text-md);
         font-weight: 500;
         font-stretch: normal;
         font-style: normal;
         line-height: 1.29;
         letter-spacing: -0.14px;
         text-align: center;
-        color: #fff;
+        color: var(--primitive-white);
         padding: 14px;
-        border-radius: 8px;
-        background-color: #004990;
-        margin-bottom: 8px;
+        border-radius: var(--radius-lg);
+        background-color: var(--color-brand-primary);
+        margin-bottom: var(--space-2);
         justify-content: center;
         align-items: center;
     }
         .ykb-mobile-download i {
-            font-size: 18px;
+            font-size: var(--text-2xl);
         }
             .ykb-mobile-download i::before {
-                color: #fff;
+                color: var(--primitive-white);
                 font-size: 24px;
             }
     .ykb-mobile-quick-grid {
         display: grid;
         grid-template-columns: repeat(3, minmax(0, 1fr));
-        gap: 8px;
-        margin-top: 8px;
-        margin-bottom: 8px;
+        gap: var(--space-2);
+        margin-top: var(--space-2);
+        margin-bottom: var(--space-2);
     }
         .ykb-mobile-quick-grid a {
             display: flex;
@@ -1117,10 +1163,10 @@ body.ykb-menu-open {
             justify-content: center;
             padding: 14px;
             border: 2px solid #00539b;
-            border-radius: 8px;
+            border-radius: var(--radius-lg);
             color: var(--ykb-blue);
             background: transparent;
-            font-size: 14px;
+            font-size: var(--text-md);
             font-weight: 500;
             line-height: 1.29;
             text-align: center;
@@ -1138,11 +1184,11 @@ body.ykb-menu-open {
         left: 10px;
         max-height: calc(100vh - 64px);
         overflow-y: auto;
-        border-radius: 0 0 8px 8px;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
         box-shadow: 0 10px 30px rgba(0, 45, 88, 0.22);
     }
     .ykb-mobile-notification-menu {
-        padding: 16px;
+        padding: var(--space-4);
         color: #60646c;
         background: var(--ykb-light-blue);
     }
@@ -1152,8 +1198,8 @@ body.ykb-menu-open {
             gap: 10px;
         }
         .ykb-mobile-notification-menu li + li {
-            margin-top: 12px;
-            padding-top: 12px;
+            margin-top: var(--space-3);
+            padding-top: var(--space-3);
             border-top: 1px solid rgba(96, 100, 108, 0.15);
         }
     .ykb-header .ykb-mobile-action-sheet {
@@ -1164,7 +1210,7 @@ body.ykb-menu-open {
         max-height: 0;
         overflow-x: hidden;
         overflow-y: hidden;
-        color: #fff;
+        color: var(--primitive-white);
         opacity: 0;
         box-shadow: 0 10px 30px rgba(0, 45, 88, 0.22);
         pointer-events: none;
@@ -1175,19 +1221,19 @@ body.ykb-menu-open {
         right: auto;
         left: 0;
         top: 58px;
-        border-radius: 0 8px 8px 8px;
+        border-radius: 0 var(--radius-lg) var(--radius-lg) var(--radius-lg);
     }
     .ykb-header .ykb-mobile-action-wrap:last-child .ykb-mobile-action-sheet {
         right: 0;
         top: 58px;
         left: auto;
-        border-radius: 8px 0 8px 8px;
+        border-radius: var(--radius-lg) 0 var(--radius-lg) var(--radius-lg);
     }
     .ykb-header .ykb-mobile-action-wrap:only-child .ykb-mobile-action-sheet {
         right: 0;
         left: 0;
         width: 100%;
-        border-radius: 0 0 8px 8px;
+        border-radius: 0 0 var(--radius-lg) var(--radius-lg);
     }
     .ykb-header .ykb-mobile-action-sheet.is-open {
         max-height: calc(100vh - 118px);
@@ -1203,7 +1249,7 @@ body.ykb-menu-open {
         background: var(--ykb-red);
     }
     .ykb-mobile-action-sheet .ykb-action-item--primary {
-        padding-inline: 12px;
+        padding-inline: var(--space-3);
     }
     .ykb-mobile-action-sheet .ykb-action-item--child {
         padding-right: 10px;
@@ -1217,8 +1263,8 @@ body.ykb-menu-open {
         align-items: center;
         justify-content: center;
         margin-left: auto;
-        color: #fff;
-        font-size: 16px;
+        color: var(--primitive-white);
+        font-size: var(--text-lg);
     }
 }
 @media (max-width: 359px) {
@@ -1232,14 +1278,14 @@ body.ykb-menu-open {
     }
     .ykb-mobile-action {
         gap: 5px;
-        font-size: 11px;
+        font-size: var(--text-2xs);
     }
         .ykb-mobile-action i {
-            font-size: 20px;
+            font-size: var(--primitive-size-20);
         }
     .ykb-mobile-quick-grid a {
         padding-inline: 3px;
-        font-size: 11px;
+        font-size: var(--text-2xs);
     }
 }
 @media (prefers-reduced-motion: reduce) {
@@ -1258,3 +1304,4 @@ body.ykb-menu-open {
         animation: none;
     }
 }
+ 
