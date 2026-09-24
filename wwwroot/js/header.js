@@ -6,6 +6,9 @@
     const dropdownButtons = [...header.querySelectorAll("[data-header-dropdown]")];
     const dropdownPanels = [...header.querySelectorAll("[data-dropdown-panel]")];
     const desktopHeader = header.querySelector(".ykb-desktop-header");
+    const notificationWrap = header.querySelector(".ykb-notification-wrap");
+    const notificationButton = notificationWrap?.querySelector('[data-header-dropdown="notifications"]');
+    const notificationPanel = notificationWrap?.querySelector('[data-dropdown-panel="notifications"]');
     let pinnedDesktopTab = null;
     const closeDesktopTabs = () => {
         pinnedDesktopTab = null;
@@ -47,18 +50,56 @@
         if (scrollFrame) return;
         scrollFrame = window.requestAnimationFrame(updateDesktopHeaderState);
     }, { passive: true });
+    let notificationCloseTimer = 0;
+    let notificationTransitionTimer = 0;
+    const clearNotificationTimers = () => {
+        window.clearTimeout(notificationCloseTimer);
+        window.clearTimeout(notificationTransitionTimer);
+        notificationCloseTimer = 0;
+        notificationTransitionTimer = 0;
+    };
+    const setNotificationOpen = (open, immediate = false) => {
+        if (!notificationButton || !notificationPanel) return;
+        clearNotificationTimers();
+        notificationButton.setAttribute("aria-expanded", String(open));
+        if (open) {
+            notificationPanel.hidden = false;
+            window.requestAnimationFrame(() => {
+                if (!notificationPanel.hidden) notificationPanel.classList.add("is-open");
+            });
+            return;
+        }
+        notificationPanel.classList.remove("is-open");
+        if (immediate) {
+            notificationPanel.hidden = true;
+            return;
+        }
+        notificationTransitionTimer = window.setTimeout(() => {
+            if (notificationButton.getAttribute("aria-expanded") === "false") {
+                notificationPanel.hidden = true;
+            }
+        }, 260);
+    };
+    const scheduleNotificationClose = () => {
+        window.clearTimeout(notificationCloseTimer);
+        notificationCloseTimer = window.setTimeout(() => {
+            const hasPointer = notificationWrap?.matches(":hover") ?? false;
+            if (!hasPointer) setNotificationOpen(false);
+        }, 1000);
+    };
     const closeDesktopDropdowns = (exceptName = "") => {
         dropdownPanels.forEach((panel) => {
             const matchesException = panel.dataset.dropdownPanel === exceptName;
-            if (!matchesException) panel.hidden = true;
+            if (!matchesException && panel !== notificationPanel) panel.hidden = true;
         });
+        if (exceptName !== "notifications") setNotificationOpen(false, true);
         dropdownButtons.forEach((button) => {
             if (button.dataset.headerDropdown !== exceptName) {
                 button.setAttribute("aria-expanded", "false");
             }
         });
     };
-    dropdownButtons.forEach((button) => {
+    dropdownButtons.filter((button) => button !== notificationButton).forEach((button) => {
         button.addEventListener("click", (event) => {
             event.stopPropagation();
             closeDesktopTabs();
@@ -70,6 +111,28 @@
             panel.hidden = !willOpen;
             button.setAttribute("aria-expanded", String(willOpen));
         });
+    });
+    const openNotifications = () => {
+        closeDesktopTabs();
+        closeDesktopDropdowns("notifications");
+        setNotificationOpen(true);
+    };
+    notificationWrap?.addEventListener("mouseenter", openNotifications);
+    notificationWrap?.addEventListener("mouseleave", scheduleNotificationClose);
+    notificationPanel?.addEventListener("mouseenter", openNotifications);
+    notificationPanel?.addEventListener("mouseleave", scheduleNotificationClose);
+    notificationWrap?.addEventListener("focusin", openNotifications);
+    notificationWrap?.addEventListener("focusout", (event) => {
+        if (event.relatedTarget instanceof Node && notificationWrap.contains(event.relatedTarget)) return;
+        scheduleNotificationClose();
+    });
+    notificationButton?.addEventListener("click", (event) => {
+        event.stopPropagation();
+        if (notificationButton.getAttribute("aria-expanded") === "true") {
+            setNotificationOpen(false);
+        } else {
+            openNotifications();
+        }
     });
     const dataElement = document.getElementById("ykb-mobile-menu-data");
     let allNodes = [];
@@ -181,10 +244,28 @@
             });
         }
     };
+    const closeMobileActionSheet = () => {
+        const sheet = mobileActionSheet;
+        mobileActionSheet = null;
+        header.querySelectorAll("[data-mobile-action]").forEach((button) => {
+            button.setAttribute("aria-expanded", "false");
+        });
+        if (!sheet?.parentNode) return;
+        let removed = false;
+        const removeSheet = (event) => {
+            if (event && (event.target !== sheet || event.propertyName !== "max-height")) return;
+            if (removed) return;
+            removed = true;
+            sheet.removeEventListener("transitionend", removeSheet);
+            sheet.remove();
+        };
+        sheet.classList.remove("is-open");
+        sheet.addEventListener("transitionend", removeSheet);
+        window.setTimeout(removeSheet, 360);
+    };
     const closeMobileOverlays = () => {
         if (mobileNotificationMenu) mobileNotificationMenu.hidden = true;
-        mobileActionSheet?.remove();
-        mobileActionSheet = null;
+        closeMobileActionSheet();
     };
     const setMobileMenuOpen = (open) => {
         if (!mobileMenu || !mobileMenuToggle) return;
@@ -218,13 +299,12 @@
     });
     mobileNotificationButton?.addEventListener("click", (event) => {
         event.stopPropagation();
-        mobileActionSheet?.remove();
-        mobileActionSheet = null;
+        closeMobileActionSheet();
         if (mobileNotificationMenu) mobileNotificationMenu.hidden = !mobileNotificationMenu.hidden;
     });
-    const appendActionLink = (parent, node) => {
+    const appendActionLink = (parent, node, modifier) => {
         const link = document.createElement("a");
-        link.className = "ykb-action-item";
+        link.className = `ykb-action-item ykb-action-item--${modifier}`;
         link.href = node.Url || "#";
         if (node.OpenInNewTab) {
             link.target = "_blank";
@@ -234,28 +314,45 @@
         const label = document.createElement("span");
         label.textContent = node.Title;
         link.append(label);
+        link.append(createIcon("icon-chevron-right", "ykb-action-item-chevron"));
         parent.append(link);
+    };
+    const appendActionGroup = (parent, groupNode) => {
+        const group = document.createElement("div");
+        const children = visibleMobileChildren(groupNode);
+        group.className = "ykb-action-group";
+        appendActionLink(group, groupNode, "primary");
+        if (children.length) {
+            const childList = document.createElement("div");
+            childList.className = "ykb-action-children";
+            children.forEach((child) => appendActionLink(childList, child, "child"));
+            group.append(childList);
+        }
+        parent.append(group);
     };
     header.querySelectorAll("[data-mobile-action]").forEach((button) => {
         button.addEventListener("click", (event) => {
             event.stopPropagation();
-            const node = allNodes.find((item) => item.Id === button.dataset.mobileAction);
-            if (!node) return;
-            const wasSame = mobileActionSheet?.dataset.actionId === node.Id;
-            closeMobileOverlays();
-            if (wasSame) return;
+            const node = allNodes.find((item) => String(item.Id) === String(button.dataset.mobileAction));
+            const wasSame = String(mobileActionSheet?.dataset.actionId) === String(node?.Id);
+            closeMobileActionSheet();
+            if (!node || wasSame) return;
+            const wrap = button.closest("[data-mobile-action-wrap]");
+            if (!wrap) return;
             const sheet = document.createElement("div");
             sheet.className = `ykb-mobile-action-sheet ${node.Role === "InternetBranch" ? "is-red" : "is-blue"}`;
-            sheet.dataset.actionId = node.Id;
-            (node.Children || []).forEach((groupNode) => {
-                appendActionLink(sheet, groupNode);
-                (groupNode.Children || []).forEach((child) => appendActionLink(sheet, child));
-            });
-            header.querySelector(".ykb-mobile-header")?.append(sheet);
+            sheet.dataset.actionId = String(node.Id);
+            visibleMobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
+            wrap.append(sheet);
+            button.setAttribute("aria-expanded", "true");
             mobileActionSheet = sheet;
+            window.requestAnimationFrame(() => {
+                if (sheet.parentNode && mobileActionSheet === sheet) sheet.classList.add("is-open");
+            });
         });
     });
     document.addEventListener("click", (event) => {
+        if (!event.target.closest("[data-mobile-action-wrap]")) closeMobileActionSheet();
         if (!header.contains(event.target)) {
             closeDesktopDropdowns();
             closeDesktopTabs();
@@ -273,4 +370,3 @@
         if (window.innerWidth >= 992) setMobileMenuOpen(false);
     });
 })();
- 

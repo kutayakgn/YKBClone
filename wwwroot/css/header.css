@@ -518,6 +518,16 @@ body.ykb-menu-open {
     color: #60646c;
     background: var(--ykb-light-blue);
     box-shadow: 0 10px 30px rgba(0, 45, 88, 0.16);
+    opacity: 0;
+    pointer-events: none;
+    transform: translateY(-8px);
+    transform-origin: top right;
+    transition: opacity 180ms ease, transform 240ms ease;
+}
+.ykb-notification-menu.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
 }
     .ykb-notification-menu::before {
         position: absolute;
@@ -1304,4 +1314,3 @@ body.ykb-menu-open {
         animation: none;
     }
 }
- 
