@@ -10,32 +10,60 @@
         ViewData["Languages"] as IReadOnlyList<LanguageOptionDto> ?? Array.Empty<LanguageOptionDto>();
 
     var languageTag = currentCulture.Split('-')[0].ToLowerInvariant();
+    var layoutData = ViewData["LayoutData"] as YkbYapikredi.Application.Layout.LayoutData
+        ?? throw new InvalidOperationException("LayoutData hazırlanmadı.");
 
-    var layoutData = ViewData["LayoutData"] as YkbYapikredi.Application.Layout.LayoutData            ?? throw new InvalidOperationException("LayoutData hazırlanmadı.");
     var controller = ViewContext.RouteData.Values["controller"]?.ToString();
     var action = ViewContext.RouteData.Values["action"]?.ToString();
     var isHome = string.Equals(controller, "Home", StringComparison.OrdinalIgnoreCase)
-&& string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase);
+        && string.Equals(action, "Index", StringComparison.OrdinalIgnoreCase);
+
     ViewData["IsHomePage"] = isHome;
 
-    var description = ViewData["Description"]?.ToString() ?? "Yapı Kredi ayrıcalığı ile kredi, sigorta, ödeme ve daha fazla işlemlerinizi hemen gerçekleştirin!";
+    var description = ViewData["Description"]?.ToString()
+        ?? "Yapı Kredi ayrıcalığı ile kredi, sigorta, ödeme ve daha fazla işlemlerinizi hemen gerçekleştirin!";
 }
-<!DOCTYPE html><html dir="ltr" lang="@currentCulture" class="lang-@languageTag"><head><meta charset="UTF-8" /><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes" /><meta http-equiv="X-UA-Compatible" content="IE=edge" /><meta name="description" content="@description" /><meta name="author" content="Yapı ve Kredi Bankası A.Ş." /><title>@ViewData["Title"] - Yapı Kredi | Sınırsız Bankacılık ve Finans Hizmetleri</title>
+<!DOCTYPE html>
+<html dir="ltr" lang="@currentCulture" class="lang-@languageTag">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=yes" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="description" content="@description" />
+    <meta name="author" content="Yapı ve Kredi Bankası A.Ş." />
+    <title>@ViewData["Title"] - Yapı Kredi | Sınırsız Bankacılık ve Finans Hizmetleri</title>
+
     @foreach (var language in languageOptions.Where(option => option.Url is not null))
     {
-        <link rel="alternate" hreflang="@language.CultureCode" href="@language.Url" />    }
-    <link rel="stylesheet" href="~/css/bundle.min.css" asp-append-version="true" />    @await RenderSectionAsync("Styles", required: false)</head><body class="@(isHome ? "home" : "inner")">    @await Html.PartialAsync("_Header", layoutData, ViewData)
-    <div class="site-content">        @RenderBody()
-    </div>    @await Html.PartialAsync("_Footer", layoutData, ViewData)
-    <link rel="stylesheet" href="~/js/footer.js" asp-append-version="true" /><link rel="stylesheet" href="~/js/header.js" asp-append-version="true" /><script src="~/js/vendor.min.js" asp-append-version="true"></script>
+        <link rel="alternate" hreflang="@language.CultureCode" href="@language.Url" />
+    }
+
+    <link rel="stylesheet" href="~/css/bundle.min.css" asp-append-version="true" />
+    @await RenderSectionAsync("Styles", required: false)
+</head>
+<body class="@(isHome ? "home" : "inner")">
+    @await Html.PartialAsync("_Header", layoutData, ViewData)
+
+    <div class="site-content">
+        @RenderBody()
+    </div>
+
+    @await Html.PartialAsync("_Footer", layoutData, ViewData)
+
+    <script src="~/js/vendor.min.js" asp-append-version="true"></script>
+    <script src="~/js/header.js" asp-append-version="true" defer></script>
+    <script src="~/js/footer.js" asp-append-version="true" defer></script>
 
     @await RenderSectionAsync("Modals", required: false)
-    
-    @* Dış bağlantı uyarısı. Section'ın İÇİNDE değil: section view başına ve       isteğe bağlı, bu modal ise her sayfada tek kopya gerekiyor. Ayar       kapalıysa partial hiçbir şey basmıyor. *@
+
+    @* Dış bağlantı uyarısı her sayfada tek kopya olmalıdır. *@
     @await Html.PartialAsync("~/Views/Shared/Components/_ExternalLinkModal.cshtml")
+
     @await RenderSectionAsync("Scripts", required: false)
-     @*        Chatbot widget'ı (dış servis). Adres CMS'ten: ChatbotWidgetUrl.    *@
+
     @if (!string.IsNullOrWhiteSpace(Chatbot.WidgetUrl))
     {
-        <script id="cbot-widget-script" type="text/javascript"src="@Chatbot.WidgetUrl" async></script>    }</body></html>
- 
+        <script id="cbot-widget-script" type="text/javascript" src="@Chatbot.WidgetUrl" async></script>
+    }
+</body>
+</html>

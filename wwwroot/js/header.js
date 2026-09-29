@@ -158,8 +158,7 @@
     let activeTab = tabNodes[0] || null;
     let navigationStack = [];
     let mobileActionSheet = null;
-    const visibleMobileChildren = (node) =>
-        (node?.Children || []).filter((child) => child.DisplayOnMobile !== false);
+    const mobileChildren = (node) => node?.Children || [];
     const createIcon = (className, extraClass = "") => {
         const icon = document.createElement("i");
         icon.className = `${extraClass} ${className || ""}`.trim();
@@ -201,8 +200,8 @@
         list.className = `ykb-mobile-menu-list${isRoot ? " is-root" : ""}`;
         const animateRows = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
         if (animateRows) list.classList.add("is-entering");
-        visibleMobileChildren(currentNode).forEach((node, index) => {
-            const children = visibleMobileChildren(node);
+        mobileChildren(currentNode).forEach((node, index) => {
+            const children = mobileChildren(node);
             const element = document.createElement(children.length ? "button" : "a");
             element.className = "ykb-mobile-menu-row";
             element.style.setProperty("--ykb-row-index", index);
@@ -326,7 +325,7 @@
     };
     const appendActionGroup = (parent, groupNode) => {
         const group = document.createElement("div");
-        const children = visibleMobileChildren(groupNode);
+        const children = mobileChildren(groupNode);
         group.className = "ykb-action-group";
         appendActionLink(group, groupNode, "primary");
         if (children.length) {
@@ -349,7 +348,7 @@
             const sheet = document.createElement("div");
             sheet.className = `ykb-mobile-action-sheet ${node.Role === "InternetBranch" ? "is-red" : "is-blue"}`;
             sheet.dataset.actionId = String(node.Id);
-            visibleMobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
+            mobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
             wrap.append(sheet);
             button.setAttribute("aria-expanded", "true");
             mobileActionSheet = sheet;

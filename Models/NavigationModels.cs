@@ -8,7 +8,6 @@ public sealed class NavigationNodeDto
 {
     public string Id { get; init; } = string.Empty;
     public string Title { get; init; } = string.Empty;
-    public string DesktopName { get; init; } = string.Empty;
     public string Url { get; init; } = string.Empty;
     public string IconCssClass { get; init; } = string.Empty;
     public string ImageUrl { get; init; } = string.Empty;
@@ -16,11 +15,12 @@ public sealed class NavigationNodeDto
     public string ImageAlt { get; init; } = string.Empty;
     public string BadgeText { get; init; } = string.Empty;
     public string Role { get; init; } = NavigationRoles.MenuItem;
+    public string Audience { get; init; } = NavigationAudiences.All;
     public bool OpenInNewTab { get; init; }
-    public bool DisplayOnDesktop { get; init; } = true;
-    public bool DisplayOnMobile { get; init; } = true;
-    public bool PromoteChildrenOnDesktop { get; init; }
     public IReadOnlyList<NavigationNodeDto> Children { get; init; } = [];
+
+    public bool IsVisibleOnDesktop => Audience != NavigationAudiences.Mobile;
+    public bool IsVisibleOnMobile => Audience != NavigationAudiences.Desktop;
 }
 
 public static class NavigationRoles
@@ -30,6 +30,17 @@ public static class NavigationRoles
     public const string CustomerAcquisition = "CustomerAcquisition";
     public const string InternetBranch = "InternetBranch";
     public const string MobileQuickLinks = "MobileQuickLinks";
+}
+
+/// <summary>
+/// Header menülerinde kullanılmaz; HeaderMain ve DesktopHeader ayrımı görünürlüğü belirler.
+/// Aynı ağacı kullanan responsive footer alanları için tek bir sade seçim sunar.
+/// </summary>
+public static class NavigationAudiences
+{
+    public const string All = "All";
+    public const string Desktop = "Desktop";
+    public const string Mobile = "Mobile";
 }
 
 public sealed class HeaderNotificationDto
@@ -64,6 +75,7 @@ public static class MenuKeys
 {
     public const string HeaderTop = "HeaderTop";
     public const string HeaderMain = "HeaderMain";
+    public const string DesktopHeader = "DesktopHeader";
     public const string Footer = "Footer";
     public const string FooterLegal = "FooterLegal";
     public const string FooterBrands = "FooterBrands";
@@ -79,17 +91,20 @@ public sealed class LayoutContent
     public LayoutContent(
         IReadOnlyDictionary<string, MenuContent> menus,
         IReadOnlyList<AnnouncementDto>? announcements = null,
-        IReadOnlyList<HeaderNotificationDto>? headerNotifications = null)
+        IReadOnlyList<HeaderNotificationDto>? headerNotifications = null,
+        IReadOnlyList<YkbYapikredi.Application.Layout.ModalDto>? modals = null)
     {
         ArgumentNullException.ThrowIfNull(menus);
 
         _menus = menus;
         Announcements = announcements ?? [];
         HeaderNotifications = headerNotifications ?? [];
+        Modals = modals ?? [];
     }
 
     public IReadOnlyList<AnnouncementDto> Announcements { get; }
     public IReadOnlyList<HeaderNotificationDto> HeaderNotifications { get; }
+    public IReadOnlyList<YkbYapikredi.Application.Layout.ModalDto> Modals { get; }
 
     public MenuContent Menu(string key) =>
         _menus.TryGetValue(key, out var menu) ? menu : new MenuContent();

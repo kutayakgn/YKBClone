@@ -10,15 +10,21 @@
 
     var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
 
-    var tabNodes = Model.HeaderTabs.Where(x => x.Role == NavigationRoles.Tab).ToArray();
+    var desktopTabNodes = Model.DesktopHeaderItems.Where(x => x.Role == NavigationRoles.Tab).ToArray();
 
-    var customerAction = Model.HeaderTabs.FirstOrDefault(x => x.Role == NavigationRoles.CustomerAcquisition);
+    var desktopCustomerAction = Model.DesktopHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.CustomerAcquisition);
 
-    var internetAction = Model.HeaderTabs.FirstOrDefault(x => x.Role == NavigationRoles.InternetBranch);
+    var desktopInternetAction = Model.DesktopHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.InternetBranch);
 
-    var mobileQuickLinks = Model.HeaderTabs.FirstOrDefault(x => x.Role == NavigationRoles.MobileQuickLinks);
+    var mobileTabNodes = Model.MobileHeaderItems.Where(x => x.Role == NavigationRoles.Tab).ToArray();
 
-    var menuJson = JsonSerializer.Serialize(Model.HeaderTabs);
+    var mobileCustomerAction = Model.MobileHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.CustomerAcquisition);
+
+    var mobileInternetAction = Model.MobileHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.InternetBranch);
+
+    var mobileQuickLinks = Model.MobileHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.MobileQuickLinks);
+
+    var menuJson = JsonSerializer.Serialize(Model.MobileHeaderItems);
 
     var isNotificationRead = string.Equals(
 
@@ -27,10 +33,6 @@
         "true",
 
         StringComparison.OrdinalIgnoreCase);
-
-    string DesktopLabel(NavigationNodeDto node) =>
-
-        string.IsNullOrWhiteSpace(node.DesktopName) ? node.Title : node.DesktopName;
 
 }
 <header class="ykb-header" data-ykb-header data-home="@isHomePage.ToString().ToLowerInvariant()">
@@ -45,7 +47,7 @@
 
                        target="@(link.OpenInNewTab ? "_blank" : null)"
 
-                       rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@DesktopLabel(link)</a>
+                       rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
 
                 }
 </div>
@@ -57,35 +59,27 @@
 </a>
 <nav class="ykb-tabs" aria-label="Müşteri türü">
 
-                    @for (var index = 0; index < tabNodes.Length; index++)
+                    @for (var index = 0; index < desktopTabNodes.Length; index++)
 
                     {
 
-                        var tab = tabNodes[index];
-
-                        var desktopLinks = tab.Children
-
-                            .SelectMany(x => x.PromoteChildrenOnDesktop ? x.Children : new[] { x })
-
-                            .Where(x => x.DisplayOnDesktop)
-
-                            .ToArray();
+                        var tab = desktopTabNodes[index];
 <div class="ykb-tab @(index == 0 ? "is-active" : string.Empty)" data-desktop-tab>
 <button type="button" class="ykb-tab-button" aria-expanded="false">
 
-                                @DesktopLabel(tab)
+                                @tab.Title
 </button>
 <div class="ykb-desktop-subnav" data-desktop-subnav>
 <div class="ykb-container">
 
-                                    @foreach (var child in desktopLinks)
+                                    @foreach (var child in tab.Children)
 
                                     {
 <a href="@child.Url"
 
                                            target="@(child.OpenInNewTab ? "_blank" : null)"
 
-                                           rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">@DesktopLabel(child)</a>
+                                           rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">@child.Title</a>
 
                                     }
 </div>
@@ -157,11 +151,11 @@
 </div>
 </div>
 
-                    @foreach (var action in new[] { customerAction, internetAction }.Where(x => x is not null))
+                    @foreach (var action in new[] { desktopCustomerAction, desktopInternetAction }.OfType<NavigationNodeDto>())
 
                     {
 
-                        var isInternet = action!.Role == NavigationRoles.InternetBranch;
+                        var isInternet = action.Role == NavigationRoles.InternetBranch;
 
                         var panelId = isInternet ? "internet-branch" : "become-customer";
 <div class="ykb-action-wrap @(isInternet ? "is-red" : "is-blue")">
@@ -175,7 +169,7 @@
 
                                     }
 </i>
-<span>@DesktopLabel(action)</span>
+<span>@action.Title</span>
 </button>
 <div class="ykb-action-menu" data-dropdown-panel="@panelId" hidden>
 
@@ -195,7 +189,7 @@
 <i class="@group.IconCssClass" aria-hidden="true"></i>
 
                                             }
-<span>@DesktopLabel(group)</span>
+<span>@group.Title</span>
 <i class="icon-chevron-right ykb-action-item-chevron" aria-hidden="true"></i>
 </a>
 
@@ -219,7 +213,7 @@
 <i class="@child.IconCssClass" aria-hidden="true"></i>
 
                                                         }
-<span>@DesktopLabel(child)</span>
+<span>@child.Title</span>
 <i class="icon-chevron-right ykb-action-item-chevron" aria-hidden="true"></i>
 </a>
 
@@ -296,11 +290,11 @@
 </div>
 <div class="ykb-mobile-buttons" data-mobile-buttons>
 
-            @foreach (var action in new[] { customerAction, internetAction }.Where(x => x is not null))
+            @foreach (var action in new[] { mobileCustomerAction, mobileInternetAction }.OfType<NavigationNodeDto>())
 
             {
 
-                var isInternet = action!.Role == NavigationRoles.InternetBranch;
+                var isInternet = action.Role == NavigationRoles.InternetBranch;
 <div class="ykb-mobile-action-wrap @(isInternet ? "is-red" : "is-blue")" data-mobile-action-wrap>
 <button type="button" class="ykb-mobile-action @(isInternet ? "is-red" : "is-blue")"
 
@@ -323,11 +317,11 @@
 <div class="ykb-mobile-menu" data-mobile-menu hidden>
 <div class="ykb-mobile-tabs main-tab-menu" role="tablist" aria-label="Müşteri türü">
 
-                @for (var index = 0; index < tabNodes.Length; index++)
+                @for (var index = 0; index < mobileTabNodes.Length; index++)
 
                 {
 
-                    var tab = tabNodes[index];
+                    var tab = mobileTabNodes[index];
 <button type="button" role="tab" aria-selected="@(index == 0 ? "true" : "false")" class="@(index == 0 ? "is-active" : string.Empty)" data-mobile-tab="@tab.Id">
 
                         @if (!string.IsNullOrWhiteSpace(tab.IconCssClass))
@@ -418,4 +412,3 @@
 </section>
 
 }
- 

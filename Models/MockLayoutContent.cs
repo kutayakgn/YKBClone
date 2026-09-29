@@ -25,7 +25,11 @@ public static class MockLayoutContent
             },
             [MenuKeys.HeaderMain] = new()
             {
-                Items = BuildHeaderTree()
+                Items = BuildMobileHeaderTree()
+            },
+            [MenuKeys.DesktopHeader] = new()
+            {
+                Items = BuildDesktopHeaderTree()
             },
             [MenuKeys.Footer] = new()
             {
@@ -40,8 +44,8 @@ public static class MockLayoutContent
                     N("personal-data", "Kişisel Verilerin Korunması", $"{YkbRoot}/yapi-kredi-hakkinda/kvkk"),
                     N("privacy-policy", "Gizlilik Politikası", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/gizlilik"),
                     N("cookie-policy", "Çerez Aydınlatma Metni", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/cerez-politikasi"),
-                    N("footer-contact", "İletişim", $"{YkbRoot}/yapi-kredi-hakkinda/iletisim", desktop: false),
-                    N("footer-english", "English", $"{YkbRoot}/en", desktop: false)
+                    N("footer-contact", "İletişim", $"{YkbRoot}/yapi-kredi-hakkinda/iletisim", audience: NavigationAudiences.Mobile),
+                    N("footer-english", "English", $"{YkbRoot}/en", audience: NavigationAudiences.Mobile)
                 ]
             },
             [MenuKeys.FooterBrands] = new()
@@ -57,9 +61,9 @@ public static class MockLayoutContent
             {
                 Items =
                 [
-                    N("footer-app-store", "App Store'dan İndirin", "https://itunes.apple.com/tr/app/yap-kredi-mobil-bankac-l-k/id458627086?mt=8", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-store-f.png", imageAlt: "App Store'dan indirin", desktop: false, newTab: true),
-                    N("footer-google-play", "Google Play'den Alın", "https://play.google.com/store/apps/details?id=com.ykb.android&hl=tr&gl=US", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/google-play-f.png", imageAlt: "Google Play'den alın", desktop: false, newTab: true),
-                    N("footer-app-gallery", "AppGallery'den İndirin", "https://appgallery.huawei.com/#/app/C101430581", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-gallery-f.png", imageAlt: "AppGallery'den indirin", desktop: false, newTab: true)
+                    N("footer-app-store", "App Store'dan İndirin", "https://itunes.apple.com/tr/app/yap-kredi-mobil-bankac-l-k/id458627086?mt=8", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-store-f.png", imageAlt: "App Store'dan indirin", audience: NavigationAudiences.Mobile, newTab: true),
+                    N("footer-google-play", "Google Play'den Alın", "https://play.google.com/store/apps/details?id=com.ykb.android&hl=tr&gl=US", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/google-play-f.png", imageAlt: "Google Play'den alın", audience: NavigationAudiences.Mobile, newTab: true),
+                    N("footer-app-gallery", "AppGallery'den İndirin", "https://appgallery.huawei.com/#/app/C101430581", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-gallery-f.png", imageAlt: "AppGallery'den indirin", audience: NavigationAudiences.Mobile, newTab: true)
                 ]
             },
             [MenuKeys.Social] = new()
@@ -107,7 +111,7 @@ public static class MockLayoutContent
 
     private static IReadOnlyList<NavigationNodeDto> BuildFooterColumns() =>
     [
-        N("footer-contact-column", "Bize Ulaşın", "#", mobile: false, children:
+        N("footer-contact-column", "Bize Ulaşın", "#", audience: NavigationAudiences.Desktop, children:
         [
             N("footer-satisfaction", "Memnuniyetiniz İçin", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/"),
             N("footer-contact-link", "İletişim", $"{YkbRoot}/yapi-kredi-hakkinda/iletisim")
@@ -180,7 +184,7 @@ public static class MockLayoutContent
         ])
     ];
 
-    private static IReadOnlyList<NavigationNodeDto> BuildHeaderTree()
+    private static IReadOnlyList<NavigationNodeDto> BuildMobileHeaderTree()
     {
         var shoppingCredit = N("shopping-credit", "Alışveriş Kredisi", $"{YkbRoot}/kredi/alisveris-kredisi/", children:
         [
@@ -227,37 +231,35 @@ public static class MockLayoutContent
             "Bireysel Bankacılık",
             "#",
             icon: "icon-mobile-nav-bireysel-bankaclk",
-            promoteChildrenOnDesktop: true,
             children:
             [
-                N("become-customer", "Şimdi Yapı Kredili Olun", $"{YkbRoot}/banka-hesabi-ac", desktop: false),
+                N("become-customer", "Şimdi Yapı Kredili Olun", $"{YkbRoot}/banka-hesabi-ac"),
                 loans,
                 N("cards", "Kartlar", $"{YkbRoot}/bireysel-bankacilik/kartlar/", children: [N("credit-cards", "Kredi Kartları", "#")]),
-                N("deposits", "Mevduat Ürünleri", $"{YkbRoot}/bireysel-bankacilik/mevduat-urunleri/", desktopName: "Mevduat", children: [N("gold", "Altın Bankacılığı", "#")]),
+                N("deposits", "Mevduat Ürünleri", $"{YkbRoot}/bireysel-bankacilik/mevduat-urunleri/", children: [N("gold", "Altın Bankacılığı", "#")]),
                 N("investments", "Yapı Kredi Yatırım Ürünleri", $"{YkbRoot}/bireysel-bankacilik/yatirim-urunleri/", children: [N("funds", "Yatırım Fonları", "#")]),
                 N("payments", "Ödemeler ve Hizmetler", $"{YkbRoot}/bireysel-bankacilik/odemeler-ve-hizmetler/", children: [N("bills", "Fatura Ödemeleri", "#")]),
-                N("central-service", "Merkezi Hizmet", "#", desktop: false),
-                N("children-banking", "Çocuk Bankacılığı", "#", desktop: false),
-                N("youth-banking", "Gençlik Bankacılığı", "#", desktop: false),
+                N("central-service", "Merkezi Hizmet", "#"),
+                N("children-banking", "Çocuk Bankacılığı", "#"),
+                N("youth-banking", "Gençlik Bankacılığı", "#"),
                 N("insurance", "Sigorta ve Emeklilik", $"{YkbRoot}/bireysel-bankacilik/sigorta-ve-emeklilik/", children: [N("bes", "Bireysel Emeklilik Sistemi", "#")]),
-                N("calculators", "Hesaplama Araçları", "#", desktop: false, children: [N("loan-calculator", "Kredi Hesaplama Aracı", "#")]),
-                N("contracts", "Sözleşmeler ve Formlar", "#", desktop: false),
-                N("unlimited-desktop", "Sınırsız Bankacılık", $"{YkbRoot}/kendim-icin/sinirsiz-bankacilik/", mobile: false)
+                N("calculators", "Hesaplama Araçları", "#", children: [N("loan-calculator", "Kredi Hesaplama Aracı", "#")]),
+                N("contracts", "Sözleşmeler ve Formlar", "#")
             ]);
 
         var personalTab = N("personal-tab", "Kendim İçin", "#", icon: "icon-mobile-nav-bireysel-bankaclk", role: NavigationRoles.Tab, children:
         [
-            N("home", "Ana Sayfa", "/", icon: "icon-mobile-nav-ana-sayfa", desktop: false),
+            N("home", "Ana Sayfa", "/", icon: "icon-mobile-nav-ana-sayfa"),
             retailBanking,
             N("blue-class", "Yapı Kredi Blue Class", $"{YkbRoot}/yapi-kredi-blue-class/", icon: "icon-mobile-nav-blue-class"),
             N("private-banking", "Özel Bankacılık", $"{YkbRoot}/ozel-bankacilik/", icon: "icon-mobile-nav-ozel-bankacilik"),
-            N("bill-payment", "Fatura Ödeme", "#", icon: "icon-mobile-nav-fatura-odeme", badge: "Hemen Öde", desktop: false, children: [N("all-bills", "Tüm Faturalar", "#")]),
-            N("application-center", "Başvuru Merkezi", "#", icon: "icon-mobile-nav-basvuru-merkezi", badge: "Hemen Başvur", desktop: false, children: [N("customer-application", "Yapı Kredi Müşterisi Ol", "#")]),
-            N("market-analysis", "Yatırımcı Köşesi: Piyasa Analizleri", "#", icon: "icon-mobile-nav-yatirimci-kosesi", desktop: false, children: [N("stock-market", "Borsa", "#")]),
-            N("about", "Yapı Kredi Hakkında", "#", icon: "icon-mobile-nav-yk-hakkinda", desktop: false, children: [N("news", "Haberler", "#")]),
-            N("satisfaction", "Memnuniyetiniz İçin Buradayız", "#", icon: "icon-mobile-nav-memnuniyet", desktop: false, children: [N("contact", "İletişim", "#")]),
-            N("unlimited-mobile", "Sınırsız Bankacılık", $"{YkbRoot}/kendim-icin/sinirsiz-bankacilik/", icon: "icon-mobile-nav-sinirsiz-bankacilik", desktop: false, children: [N("mobile-branch", "Mobil Şube", "#")]),
-            N("english", "English", $"{YkbRoot}/en/", icon: "icon-mobile-nav-english", desktop: false)
+            N("bill-payment", "Fatura Ödeme", "#", icon: "icon-mobile-nav-fatura-odeme", badge: "Hemen Öde", children: [N("all-bills", "Tüm Faturalar", "#")]),
+            N("application-center", "Başvuru Merkezi", "#", icon: "icon-mobile-nav-basvuru-merkezi", badge: "Hemen Başvur", children: [N("customer-application", "Yapı Kredi Müşterisi Ol", "#")]),
+            N("market-analysis", "Yatırımcı Köşesi: Piyasa Analizleri", "#", icon: "icon-mobile-nav-yatirimci-kosesi", children: [N("stock-market", "Borsa", "#")]),
+            N("about", "Yapı Kredi Hakkında", "#", icon: "icon-mobile-nav-yk-hakkinda", children: [N("news", "Haberler", "#")]),
+            N("satisfaction", "Memnuniyetiniz İçin Buradayız", "#", icon: "icon-mobile-nav-memnuniyet", children: [N("contact", "İletişim", "#")]),
+            N("unlimited-mobile", "Sınırsız Bankacılık", $"{YkbRoot}/kendim-icin/sinirsiz-bankacilik/", icon: "icon-mobile-nav-sinirsiz-bankacilik", children: [N("mobile-branch", "Mobil Şube", "#")]),
+            N("english", "English", $"{YkbRoot}/en/", icon: "icon-mobile-nav-english")
         ]);
 
         var businessTab = N("business-tab", "İşim İçin", "#", role: NavigationRoles.Tab, icon: "icon-mobile-nav-kurumsal", children:
@@ -273,13 +275,13 @@ public static class MockLayoutContent
             N("collaborations", "İş Birliklerimiz", "#")
         ]);
 
-        var becomeCustomer = N("become-customer-action", "Yapı Kredili Ol", "#", role: NavigationRoles.CustomerAcquisition, icon: "icon-user-plus-24", desktop: false, children:
+        var becomeCustomer = N("become-customer-action", "Yapı Kredili Ol", "#", role: NavigationRoles.CustomerAcquisition, icon: "icon-user-plus-24", children:
         [
             N("individual-customer", "Bireysel Müşteri", $"{YkbRoot}/banka-hesabi-ac", icon: "icon-user-plus-40"),
             N("legal-customer", "Tüzel Müşteri", $"{YkbRoot}/ticari-hesap-acma", icon: "icon-business-plus-40")
         ]);
 
-        var internetBranch = N("internet-branch-action", "İnternet Şubesi", "#", role: NavigationRoles.InternetBranch, icon: "icon-pointer-click-24", desktop: false, children:
+        var internetBranch = N("internet-branch-action", "İnternet Şubesi", "#", role: NavigationRoles.InternetBranch, icon: "icon-pointer-click-24", children:
         [
             N("personal-login", "Bireysel Giriş", "https://internetsube.yapikredi.com.tr/ngi/index.do", icon: "icon-user-24", children:
             [
@@ -292,7 +294,7 @@ public static class MockLayoutContent
             ])
         ]);
 
-        var mobileQuickLinks = N("mobile-quick-links", "Mobil Kısayollar", "#", role: NavigationRoles.MobileQuickLinks, desktop: false, children:
+        var mobileQuickLinks = N("mobile-quick-links", "Mobil Kısayollar", "#", role: NavigationRoles.MobileQuickLinks, children:
         [
             N("mobile-app-download", "Yapı Kredi Mobil'i İndir", "#mobil-uygulama", icon: "icon-mobile-nav-mobil-indir"),
             N("mobile-fees", "Ürün ve Hizmet Ücretleri", $"{YkbRoot}/bireysel-bankacilik/hesaplama-araclari/bireysel-urun-ve-hizmet-ucretleri", icon: "icon-mobile-nav-paper-search"),
@@ -303,6 +305,76 @@ public static class MockLayoutContent
         return [personalTab, businessTab, becomeCustomer, internetBranch, mobileQuickLinks];
     }
 
+    private static IReadOnlyList<NavigationNodeDto> BuildDesktopHeaderTree()
+    {
+        var personalTab = N(
+            "desktop-personal-tab",
+            "Kendim İçin",
+            "#",
+            role: NavigationRoles.Tab,
+            children:
+            [
+                N("desktop-loans", "Krediler", $"{YkbRoot}/bireysel-bankacilik/krediler/"),
+                N("desktop-cards", "Kartlar", $"{YkbRoot}/bireysel-bankacilik/kartlar/"),
+                N("desktop-deposits", "Mevduat", $"{YkbRoot}/bireysel-bankacilik/mevduat-urunleri/"),
+                N("desktop-investments", "Yatırım Ürünleri", $"{YkbRoot}/bireysel-bankacilik/yatirim-urunleri/"),
+                N("desktop-payments", "Ödemeler ve Hizmetler", $"{YkbRoot}/bireysel-bankacilik/odemeler-ve-hizmetler/"),
+                N("desktop-insurance", "Sigorta ve Emeklilik", $"{YkbRoot}/bireysel-bankacilik/sigorta-ve-emeklilik/"),
+                N("desktop-unlimited", "Sınırsız Bankacılık", $"{YkbRoot}/kendim-icin/sinirsiz-bankacilik/")
+            ]);
+
+        var businessTab = N(
+            "desktop-business-tab",
+            "İşim İçin",
+            "#",
+            role: NavigationRoles.Tab,
+            children:
+            [
+                N("desktop-sme", "KOBİ", $"{YkbRoot}/kobi/"),
+                N("desktop-commercial", "Ticari", $"{YkbRoot}/ticari/"),
+                N("desktop-corporate", "Kurumsal", $"{YkbRoot}/kurumsal/"),
+                N("desktop-business-digital", "Sınırsız Bankacılık", $"{YkbRoot}/isim-icin/sinirsiz-bankacilik/"),
+                N("desktop-commercial-cards", "Ticari Kartlar", $"{YkbRoot}/ticari-kartlar/"),
+                N("desktop-business-loans", "Krediler", $"{YkbRoot}/kobi/krediler/kobi-kredileri"),
+                N("desktop-commercial-account", "Ticari Hesap Açma", $"{YkbRoot}/ticari-hesap-acma"),
+                N("desktop-salary-payments", "Maaş Ödemeleri", "#"),
+                N("desktop-collaborations", "İş Birliklerimiz", "#")
+            ]);
+
+        var becomeCustomer = N(
+            "desktop-become-customer-action",
+            "Yapı Kredili Ol",
+            "#",
+            role: NavigationRoles.CustomerAcquisition,
+            icon: "icon-user-plus-24",
+            children:
+            [
+                N("desktop-individual-customer", "Bireysel Müşteri", $"{YkbRoot}/banka-hesabi-ac", icon: "icon-user-plus-40"),
+                N("desktop-legal-customer", "Tüzel Müşteri", $"{YkbRoot}/ticari-hesap-acma", icon: "icon-business-plus-40")
+            ]);
+
+        var internetBranch = N(
+            "desktop-internet-branch-action",
+            "İnternet Şubesi",
+            "#",
+            role: NavigationRoles.InternetBranch,
+            icon: "icon-pointer-click-24",
+            children:
+            [
+                N("desktop-personal-login", "Bireysel Giriş", "https://internetsube.yapikredi.com.tr/ngi/index.do", icon: "icon-user-24", children:
+                [
+                    N("desktop-card-transactions", "Kart İşlemleri", "https://internetsube.yapikredi.com.tr/ngi/index.do?type=W"),
+                    N("desktop-personal-password", "Şifre Al / Şifremi Unuttum", "https://internetsube.yapikredi.com.tr/ngi/huoRetailWeb.do")
+                ]),
+                N("desktop-corporate-login", "Kurumsal Giriş", "https://ticari.yapikredi.com.tr/ngc/indexNgc.do", icon: "icon-user-business-24", children:
+                [
+                    N("desktop-corporate-password", "Şifre Al / Şifremi Unuttum", "https://ticari.yapikredi.com.tr/ngc/huoCorporate.do")
+                ])
+            ]);
+
+        return [personalTab, businessTab, becomeCustomer, internetBranch];
+    }
+
     private static NavigationNodeDto N(
         string id,
         string title,
@@ -310,20 +382,16 @@ public static class MockLayoutContent
         string icon = "",
         string badge = "",
         string role = NavigationRoles.MenuItem,
-        bool desktop = true,
-        bool mobile = true,
-        bool promoteChildrenOnDesktop = false,
         IReadOnlyList<NavigationNodeDto>? children = null,
         string image = "",
         string mobileImage = "",
         string imageAlt = "",
         bool newTab = false,
-        string desktopName = "") =>
+        string audience = NavigationAudiences.All) =>
         new()
         {
             Id = id,
             Title = title,
-            DesktopName = desktopName,
             Url = url,
             IconCssClass = icon,
             ImageUrl = image,
@@ -331,10 +399,8 @@ public static class MockLayoutContent
             ImageAlt = imageAlt,
             BadgeText = badge,
             Role = role,
+            Audience = audience,
             OpenInNewTab = newTab,
-            DisplayOnDesktop = desktop,
-            DisplayOnMobile = mobile,
-            PromoteChildrenOnDesktop = promoteChildrenOnDesktop,
             Children = children ?? []
         };
 }
