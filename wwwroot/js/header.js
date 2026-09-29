@@ -141,13 +141,34 @@
         }
     });
     const dataElement = document.getElementById("ykb-mobile-menu-data");
+    const readNodeProperty = (node, propertyName) => {
+        if (!node) return undefined;
+        const camelCaseName = propertyName.charAt(0).toLowerCase() + propertyName.slice(1);
+        return node[propertyName] ?? node[camelCaseName];
+    };
+    const normalizeRole = (role) => String(role || "MenuItem")
+        .split(";", 1)[0]
+        .trim()
+        .toLowerCase();
+    const hasRole = (node, role) => normalizeRole(node?.Role) === normalizeRole(role);
+    const normalizeNode = (node) => ({
+        Id: String(readNodeProperty(node, "Id") || ""),
+        Title: String(readNodeProperty(node, "Title") || ""),
+        Url: String(readNodeProperty(node, "Url") || ""),
+        IconCssClass: String(readNodeProperty(node, "IconCssClass") || ""),
+        BadgeText: String(readNodeProperty(node, "BadgeText") || ""),
+        Role: String(readNodeProperty(node, "Role") || "MenuItem").split(";", 1)[0].trim(),
+        OpenInNewTab: readNodeProperty(node, "OpenInNewTab") === true,
+        Children: (readNodeProperty(node, "Children") || []).map(normalizeNode)
+    });
     let allNodes = [];
     try {
-        allNodes = JSON.parse(dataElement?.textContent || "[]");
+        const parsedNodes = JSON.parse(dataElement?.textContent || "[]");
+        allNodes = Array.isArray(parsedNodes) ? parsedNodes.map(normalizeNode) : [];
     } catch {
         allNodes = [];
     }
-    const tabNodes = allNodes.filter((node) => node.Role === "Tab");
+    const tabNodes = allNodes.filter((node) => hasRole(node, "Tab"));
     const mobileMenu = header.querySelector("[data-mobile-menu]");
     const mobileMenuToggle = header.querySelector("[data-mobile-menu-toggle]");
     const mobileButtons = header.querySelector("[data-mobile-buttons]");
@@ -169,7 +190,7 @@
         if (!mobileMenuContent || !activeTab) return;
         mobileMenuContent.replaceChildren();
         if (mobileMenu) mobileMenu.scrollTop = 0;
-        const currentNode = navigationStack.at(-1) || activeTab;
+        const currentNode = navigationStack[navigationStack.length - 1] || activeTab;
         const isRoot = navigationStack.length === 0;
         if (!isRoot) {
             const back = document.createElement("button");
@@ -336,17 +357,25 @@
         }
         parent.append(group);
     };
+    const findNodeById = (nodes, id) => {
+        for (const node of nodes) {
+            if (String(node.Id) === String(id)) return node;
+            const childMatch = findNodeById(mobileChildren(node), id);
+            if (childMatch) return childMatch;
+        }
+        return null;
+    };
     header.querySelectorAll("[data-mobile-action]").forEach((button) => {
         button.addEventListener("click", (event) => {
             event.stopPropagation();
-            const node = allNodes.find((item) => String(item.Id) === String(button.dataset.mobileAction));
+            const node = findNodeById(allNodes, button.dataset.mobileAction);
             const wasSame = String(mobileActionSheet?.dataset.actionId) === String(node?.Id);
             closeMobileActionSheet();
             if (!node || wasSame) return;
             const wrap = button.closest("[data-mobile-action-wrap]");
             if (!wrap) return;
             const sheet = document.createElement("div");
-            sheet.className = `ykb-mobile-action-sheet ${node.Role === "InternetBranch" ? "is-red" : "is-blue"}`;
+            sheet.className = `ykb-mobile-action-sheet ${hasRole(node, "InternetBranch") ? "is-red" : "is-blue"}`;
             sheet.dataset.actionId = String(node.Id);
             mobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
             wrap.append(sheet);

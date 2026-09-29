@@ -10,19 +10,19 @@
 
     var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
 
-    var desktopTabNodes = Model.DesktopHeaderItems.Where(x => x.Role == NavigationRoles.Tab).ToArray();
+    var desktopTabNodes = Model.DesktopHeaderItems.Where(x => NavigationRoles.Is(x.Role, NavigationRoles.Tab)).ToArray();
 
-    var desktopCustomerAction = Model.DesktopHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.CustomerAcquisition);
+    var desktopCustomerAction = Model.DesktopHeaderItems.FirstOrDefault(x => NavigationRoles.Is(x.Role, NavigationRoles.CustomerAcquisition));
 
-    var desktopInternetAction = Model.DesktopHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.InternetBranch);
+    var desktopInternetAction = Model.DesktopHeaderItems.FirstOrDefault(x => NavigationRoles.Is(x.Role, NavigationRoles.InternetBranch));
 
-    var mobileTabNodes = Model.MobileHeaderItems.Where(x => x.Role == NavigationRoles.Tab).ToArray();
+    var mobileTabNodes = Model.MobileHeaderItems.Where(x => NavigationRoles.Is(x.Role, NavigationRoles.Tab)).ToArray();
 
-    var mobileCustomerAction = Model.MobileHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.CustomerAcquisition);
+    var mobileCustomerAction = Model.MobileHeaderItems.FirstOrDefault(x => NavigationRoles.Is(x.Role, NavigationRoles.CustomerAcquisition));
 
-    var mobileInternetAction = Model.MobileHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.InternetBranch);
+    var mobileInternetAction = Model.MobileHeaderItems.FirstOrDefault(x => NavigationRoles.Is(x.Role, NavigationRoles.InternetBranch));
 
-    var mobileQuickLinks = Model.MobileHeaderItems.FirstOrDefault(x => x.Role == NavigationRoles.MobileQuickLinks);
+    var mobileQuickLinks = Model.MobileHeaderItems.FirstOrDefault(x => NavigationRoles.Is(x.Role, NavigationRoles.MobileQuickLinks));
 
     var menuJson = JsonSerializer.Serialize(Model.MobileHeaderItems);
 
@@ -155,7 +155,7 @@
 
                     {
 
-                        var isInternet = action.Role == NavigationRoles.InternetBranch;
+                        var isInternet = NavigationRoles.Is(action.Role, NavigationRoles.InternetBranch);
 
                         var panelId = isInternet ? "internet-branch" : "become-customer";
 <div class="ykb-action-wrap @(isInternet ? "is-red" : "is-blue")">
@@ -294,7 +294,7 @@
 
             {
 
-                var isInternet = action.Role == NavigationRoles.InternetBranch;
+                var isInternet = NavigationRoles.Is(action.Role, NavigationRoles.InternetBranch);
 <div class="ykb-mobile-action-wrap @(isInternet ? "is-red" : "is-blue")" data-mobile-action-wrap>
 <button type="button" class="ykb-mobile-action @(isInternet ? "is-red" : "is-blue")"
 

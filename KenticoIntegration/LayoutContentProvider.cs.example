@@ -184,8 +184,6 @@ public sealed class LayoutContentProvider : ILayoutContentProvider
         NavigationNodePage page,
         ILookup<int, NavigationNodePage> childrenByParent)
     {
-        var role = Clean(page.NavigationRole);
-
         return new NavigationNodeDto
         {
             Id = page.NodeGUID.ToString("N"),
@@ -196,7 +194,7 @@ public sealed class LayoutContentProvider : ILayoutContentProvider
             MobileImageUrl = Clean(page.NavigationMobileImage),
             ImageAlt = Clean(page.NavigationImageAlt),
             BadgeText = Clean(page.NavigationBadgeText),
-            Role = string.IsNullOrEmpty(role) ? NavigationRoles.MenuItem : role,
+            Role = NavigationRoles.Normalize(page.NavigationRole),
             OpenInNewTab = page.NavigationOpenInNewTab,
             Children = childrenByParent[page.NodeID]
                 .OrderBy(child => child.NodeOrder)

@@ -95,8 +95,6 @@ private NavigationNodeDto MapNode(
     NavigationNodePage page,
     ILookup<int, NavigationNodePage> childrenByParent)
 {
-    var role = Clean(page.NavigationRole);
-
     return new NavigationNodeDto
     {
         Id = page.NodeGUID.ToString("N"),
@@ -107,7 +105,7 @@ private NavigationNodeDto MapNode(
         MobileImageUrl = Clean(page.NavigationMobileImage),
         ImageAlt = Clean(page.NavigationImageAlt),
         BadgeText = Clean(page.NavigationBadgeText),
-        Role = string.IsNullOrEmpty(role) ? NavigationRoles.MenuItem : role,
+        Role = NavigationRoles.Normalize(page.NavigationRole),
         OpenInNewTab = page.NavigationOpenInNewTab,
         Children = childrenByParent[page.NodeID]
             .OrderBy(child => child.NodeOrder)
@@ -125,6 +123,8 @@ private NavigationNodeDto MapNode(
 - `WhereIn(nameof(TreeNode.NodeGUID), ...)` target sorgusu
 - `NavigationAudience` field sabiti ve map'i
 - Eski display/promote generated property erişimleri
+
+`NavigationRoles.Normalize` ve `NavigationRoles.Is` yardımcılarını da taşıyın. Bunlar role değerlerini trim eder, büyük/küçük harf farkını kaldırır ve Kentico seçenek metni yanlışlıkla değerle birlikte gelirse `CustomerAcquisition;...` biçiminin kod kısmını kullanır.
 
 Bu sadeleştirmeyle bildirilen `Argument 2: cannot convert from 'object[]' to 'CMS.DataEngine.IDataQuery'` hatasını üreten target-page `WhereIn` satırı da tamamen ortadan kalkar.
 

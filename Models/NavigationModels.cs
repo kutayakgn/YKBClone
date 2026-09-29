@@ -32,6 +32,52 @@ public static class NavigationRoles
     public const string CustomerAcquisition = "CustomerAcquisition";
     public const string InternetBranch = "InternetBranch";
     public const string MobileQuickLinks = "MobileQuickLinks";
+
+    public static bool Is(string? actualRole, string expectedRole) =>
+        string.Equals(Normalize(actualRole), expectedRole, StringComparison.OrdinalIgnoreCase);
+
+    public static string Normalize(string? role)
+    {
+        var value = role?.Trim() ?? string.Empty;
+        var optionSeparator = value.IndexOf(';');
+
+        if (optionSeparator >= 0)
+        {
+            value = value[..optionSeparator].Trim();
+        }
+
+        if (value.Length == 0)
+        {
+            return MenuItem;
+        }
+
+        if (string.Equals(value, Tab, StringComparison.OrdinalIgnoreCase))
+        {
+            return Tab;
+        }
+
+        if (string.Equals(value, CustomerAcquisition, StringComparison.OrdinalIgnoreCase))
+        {
+            return CustomerAcquisition;
+        }
+
+        if (string.Equals(value, InternetBranch, StringComparison.OrdinalIgnoreCase))
+        {
+            return InternetBranch;
+        }
+
+        if (string.Equals(value, MobileQuickLinks, StringComparison.OrdinalIgnoreCase))
+        {
+            return MobileQuickLinks;
+        }
+
+        if (string.Equals(value, MenuItem, StringComparison.OrdinalIgnoreCase))
+        {
+            return MenuItem;
+        }
+
+        return value;
+    }
 }
 
 public sealed class HeaderNotificationDto
