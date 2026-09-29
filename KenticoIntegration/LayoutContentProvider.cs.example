@@ -22,7 +22,7 @@ namespace YkbYapikredi.Infrastructure.Kentico;
 /// Kentico page tree içeriğini Razor'dan bağımsız LayoutContent paketine dönüştürür.
 /// IPageRetriever geçerli site, culture, preview ve yayın bağlamını uygular.
 /// </summary>
-public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
+public sealed class LayoutContentProvider : ILayoutContentProvider
 {
     private const string NavigationTargetPageField = "NavigationTargetPage";
     private const string NavigationAudienceField = "NavigationAudience";
@@ -44,13 +44,13 @@ public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
 
     private readonly IPageRetriever _pageRetriever;
     private readonly IPageUrlRetriever _pageUrlRetriever;
-    private readonly ILogger<KenticoLayoutContentProvider> _logger;
+    private readonly ILogger<LayoutContentProvider> _logger;
     private readonly ModalDtoMapper _modalDtoMapper;
 
-    public KenticoLayoutContentProvider(
+    public LayoutContentProvider(
         IPageRetriever pageRetriever,
         IPageUrlRetriever pageUrlRetriever,
-        ILogger<KenticoLayoutContentProvider> logger,
+        ILogger<LayoutContentProvider> logger,
         ModalDtoMapper modalDtoMapper)
     {
         _pageRetriever = pageRetriever;
@@ -201,12 +201,10 @@ public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
             return new Dictionary<Guid, TreeNode>();
         }
 
-        var guidValues = targetPageGuids
-            .Select(guid => (object)guid)
-            .ToArray();
-
+        // Kentico 13 GUID listeleri için List<Guid> overload'ını kullanır.
+        // object[] verilirse çağrı IDataQuery overload'ına bağlanmaya çalışır.
         return _pageRetriever.Retrieve<TreeNode>(query => query
-                .WhereIn(nameof(TreeNode.NodeGUID), guidValues)
+                .WhereIn("NodeGUID", targetPageGuids.ToList())
                 .WithPageUrlPaths())
             .GroupBy(page => page.NodeGUID)
             .ToDictionary(group => group.Key, group => group.First());

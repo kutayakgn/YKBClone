@@ -2,7 +2,7 @@ using YkbYapikredi.Application.Layout;
 using YkbYapikredi.Infrastructure.Kentico;
 
 // Mevcut Kentico/Xperience servis kayıtlarınızdan sonra ekleyin.
-builder.Services.AddScoped<ILayoutContentProvider, KenticoLayoutContentProvider>();
+builder.Services.AddScoped<ILayoutContentProvider, LayoutContentProvider>();
 
 // Controller'lar SiteController üzerinden LoadLayoutDataAsync çağırıyorsa
 // başka bir MVC filter kaydına gerek yoktur.

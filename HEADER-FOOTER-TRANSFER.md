@@ -8,7 +8,7 @@ Bu rehber yalnız desktop/mobile header ayrımı ve buna bağlı sade navigation
 |---|---|---|
 | `Models/NavigationModels.cs` | Application navigation modelleri | `DesktopHeader` key'i, sade DTO ve `NavigationAudience` |
 | `Models/LayoutData.cs` | Application layout modeli | `DesktopHeaderItems` ve `MobileHeaderItems` ayrımı |
-| `KenticoIntegration/KenticoLayoutContentProvider.cs.example` | Infrastructure Kentico provider | Yeni key, Page selector hedef çözümleme, URL üretme ve eski alanların kaldırılması |
+| `KenticoIntegration/LayoutContentProvider.cs.example` | Infrastructure Kentico provider | Yeni key, Page selector hedef çözümleme, URL üretme ve eski alanların kaldırılması |
 | `Views/Shared/Header.cshtml` | Gerçek header partial'ı | Desktop ve mobil kaynakların ayrılması |
 | `Views/Shared/Footer.cshtml` | Gerçek footer partial'ı | İki checkbox yerine `NavigationAudience` kullanımı |
 | `wwwroot/js/header.js` | Gerçek header script'i | Mobil ağacın tamamını `HeaderMain` üzerinden kullanma |
@@ -20,7 +20,7 @@ Provider dosyasını `.example` uzantısıyla taşımayın; asıl projedeki `.cs
 | Dosya | Karar |
 |---|---|
 | `KenticoIntegration/ILayoutContentProvider.cs.example` | `GetAsync` imzası aynıysa değişiklik gerekmez. |
-| `KenticoIntegration/ProgramRegistration.cs.example` | DI kaydınız zaten `ILayoutContentProvider -> KenticoLayoutContentProvider` ise değişiklik gerekmez. |
+| `KenticoIntegration/ProgramRegistration.cs.example` | DI kaydınız zaten `ILayoutContentProvider -> LayoutContentProvider` ise değişiklik gerekmez. |
 | `KenticoIntegration/ControllerLayoutData.cs.example` | Mevcut controller/filter akışınızı koruyun; sözleşme değişmedi. |
 | `KenticoIntegration/_Layout.cshtml.example` | Mevcut layout'a sadece gerekli model/partial kullanımını merge edin. |
 | `Models/ModalModels.cs` | **Clone-only minimum tiptir.** Asıl projede gerçek `ModalDto` varsa taşımayın. |
@@ -93,12 +93,9 @@ using AnnouncementPage = ...Announcement;
 using ModalPage = ...Modal;
 ```
 
-Asıl projede provider sınıf adı `LayoutContentProvider` ise iki seçenekten birini tutarlı uygulayın:
-
-- Sınıfı `KenticoLayoutContentProvider` yapıp mevcut DI kaydını kullanın, veya
-- Sınıfı `LayoutContentProvider` bırakıp DI kaydındaki implementation adını değiştirin.
-
-Bu repoda dosya adı, sınıf adı, logger generic tipi ve DI örneği `KenticoLayoutContentProvider` olarak birbiriyle uyumlu hale getirilmiştir.
+Bu repoda dosya adı, sınıf adı, logger generic tipi ve DI örneği
+`LayoutContentProvider` olarak birbiriyle uyumludur. Asıl projede de bu adı
+koruyun.
 
 ## 5. Kentico tarafındaki işlemler
 
@@ -153,7 +150,7 @@ Kod deploy ve doğrulamadan sonra:
 
 - `LayoutData` `content.Modals` okuyordu ancak `LayoutContent` içinde `Modals` yoktu; constructor/property eklendi.
 - Provider dört argümanla `LayoutContent` oluşturuyordu ancak model üç argüman kabul ediyordu; imzalar eşitlendi.
-- Provider sınıfı `LayoutContentProvider`, DI örneği `KenticoLayoutContentProvider` kullanıyordu; isimler eşitlendi.
+- Provider sınıfı, logger generic tipi ve DI kaydı `LayoutContentProvider` adıyla eşitlendi.
 - Son güncellemede provider namespace'i ve satır biçimi bozulmuştu; normal C# dosya yapısına döndürüldü.
 - `_Layout.cshtml.example` JavaScript dosyalarını yanlışlıkla stylesheet olarak yüklüyordu; `header.js` ve `footer.js` gerçek `script` etiketlerine çevrildi.
 
