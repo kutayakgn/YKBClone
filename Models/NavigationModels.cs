@@ -15,12 +15,14 @@ public sealed class NavigationNodeDto
     public string ImageAlt { get; init; } = string.Empty;
     public string BadgeText { get; init; } = string.Empty;
     public string Role { get; init; } = NavigationRoles.MenuItem;
-    public string Audience { get; init; } = NavigationAudiences.All;
     public bool OpenInNewTab { get; init; }
+    public bool DisplayOnDesktop { get; init; } = true;
+    public bool DisplayOnMobile { get; init; } = true;
     public IReadOnlyList<NavigationNodeDto> Children { get; init; } = [];
 
-    public bool IsVisibleOnDesktop => Audience != NavigationAudiences.Mobile;
-    public bool IsVisibleOnMobile => Audience != NavigationAudiences.Desktop;
+    // Footer'ın mevcut görünürlük sözleşmesi korunur. Header bu alanları kullanmaz.
+    public bool IsVisibleOnDesktop => DisplayOnDesktop;
+    public bool IsVisibleOnMobile => DisplayOnMobile;
 }
 
 public static class NavigationRoles
@@ -30,17 +32,6 @@ public static class NavigationRoles
     public const string CustomerAcquisition = "CustomerAcquisition";
     public const string InternetBranch = "InternetBranch";
     public const string MobileQuickLinks = "MobileQuickLinks";
-}
-
-/// <summary>
-/// Header menülerinde kullanılmaz; HeaderMain ve DesktopHeader ayrımı görünürlüğü belirler.
-/// Aynı ağacı kullanan responsive footer alanları için tek bir sade seçim sunar.
-/// </summary>
-public static class NavigationAudiences
-{
-    public const string All = "All";
-    public const string Desktop = "Desktop";
-    public const string Mobile = "Mobile";
 }
 
 public sealed class HeaderNotificationDto

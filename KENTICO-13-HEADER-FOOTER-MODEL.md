@@ -1,146 +1,101 @@
-# Kentico 13 header/footer içerik modeli
+# Kentico 13 header içerik modeli
 
-Bu belge yeni sözleşmenin ana kaynağıdır. Temel kural şudur:
+Bu değişiklik yalnız header içindir. Footer page tree'si, footer menü kökleri ve footer görünümü değiştirilmez.
 
-- `HeaderMain`: yalnız mobil header içeriği.
-- `DesktopHeader`: yalnız masaüstü header içeriği.
-- Bir öğenin hangi header'da görüneceğini checkbox değil, bulunduğu menü kökü belirler.
-- Aynı içerik sayfası iki menüde de gösterilecekse iki ayrı `NavigationMenuNode` oluşturulur ve ikisinde de aynı hedef sayfa seçilir.
+Temel kural:
 
-Bu ayrım sayesinde masaüstü etiketi, masaüstü görünürlük bayrağı ve çocuk yükseltme davranışı node modelinden çıkarılmıştır. Masaüstünde gösterilecek doğrudan linkler `DesktopHeader` altına istenen sırada doğrudan eklenir.
+- `HeaderMain`: mevcut mobil header menüsü.
+- `DesktopHeader`: yeni masaüstü header menüsü.
+- Görünürlüğü bir field değil, node'un bulunduğu menü kökü belirler.
+- `Tab` ayrı bir page type değildir. `Kendim İçin`, `İşim İçin` ve bütün alt kayıtlar aynı `YkbYapikredi.NavigationMenuNode` page type'ındadır.
+- Masaüstü ve mobilde aynı hedef gösterilecekse iki menü altında iki ayrı node oluşturulur.
 
-## 1. Page type: `YkbYapikredi.NavigationMenu`
+## 1. `YkbYapikredi.NavigationMenu`
+
+Yeni bir page type oluşturulmaz. Var olan `NavigationMenu` şu alanlarla kullanılmaya devam eder:
 
 | Alan | Tip / form control | Zorunlu | Açıklama |
 |---|---|---:|---|
-| `NavigationMenuTitle` | Text / Text input, 100 | Evet | Editörün gördüğü menü adı |
-| `NavigationMenuKey` | Text / Drop-down list, 50 | Evet | Kodun kullandığı tekil anahtar |
+| `NavigationMenuTitle` | Text / Text input | Evet | Editörün gördüğü menü adı |
+| `NavigationMenuKey` | Text / Drop-down list | Evet | Kodun kullandığı tekil anahtar |
 
-`NavigationMenuKey` dropdown değerleri:
+`NavigationMenuKey` seçeneklerine şunu ekleyin:
 
 ```text
-HeaderTop;Header üst bağlantıları
-HeaderMain;Mobil header ana menüsü
 DesktopHeader;Masaüstü header ana menüsü
-Footer;Footer kolonları
-FooterLegal;Footer yasal bağlantıları
-FooterBrands;Footer marka görselleri
-FooterApps;Footer uygulama mağazaları
-Social;Sosyal medya
 ```
 
-Her anahtar site ve culture içinde tek kayıt olmalıdır. Provider duplicate kayıtları error, eksik kayıtları warning olarak loglar.
+Mevcut `HeaderMain` değeri mobil menü olarak kalır. `DesktopHeader` ve `HeaderMain` kayıtlarının allowed child page type'ı `YkbYapikredi.NavigationMenuNode` olmalıdır.
 
-Allowed child page type yalnız `YkbYapikredi.NavigationMenuNode` olmalıdır.
+## 2. `YkbYapikredi.NavigationMenuNode`
 
-## 2. Page type: `YkbYapikredi.NavigationMenuNode`
+Paylaşılan generated class'a göre kullanılacak son field listesi:
 
-### Son alan listesi
+| Alan | Önerilen form control | Zorunlu | Kullanım |
+|---|---|---:|---|
+| `NavigationNodeID` | Sistem alanı | Evet | Page type primary key |
+| `NavigationTitle` | Text input | Evet | Menüde görünen başlık |
+| `NavigationUrl` | URL selector | Koşullu | İç sayfa, dış URL, anchor, `mailto:` veya `tel:` hedefi |
+| `NavigationIconCssClass` | Text input veya Drop-down list | Hayır | İkon CSS sınıfı |
+| `NavigationImage` | Media selector | Hayır | Görsel URL'si |
+| `NavigationMobileImage` | Media selector | Hayır | Mobil alternatif görsel URL'si |
+| `NavigationImageAlt` | Text input | Hayır | Görsel alternatif metni |
+| `NavigationBadgeText` | Text input | Hayır | `YENİ`, `Hemen Öde` gibi rozet |
+| `NavigationRole` | Drop-down list | Evet | Node'un header davranışı |
+| `NavigationOpenInNewTab` | Check box | Evet | Linki yeni sekmede açar |
 
-| Alan | Tip / form control | Zorunlu | Varsayılan | Kullanım |
-|---|---|---:|---|---|
-| `NavigationTitle` | Text / Text input, 200 | Evet | — | Menüde görünen etiket ve page tree adı |
-| `NavigationTargetPage` | Unique identifier (GUID) / Page selector | Hayır | `Guid.Empty` | Kentico page tree içindeki herhangi bir iç sayfa |
-| `NavigationUrl` | Text / URL selector, 500 | Hayır | Boş | Dış URL, `mailto:`, `tel:`, `#anchor` veya hedef sayfa bulunamazsa fallback |
-| `NavigationRole` | Text / Drop-down list, 40 | Evet | `MenuItem` | Header'daki teknik davranış |
-| `NavigationIconCssClass` | Text / Drop-down list, 100 | Hayır | Boş | Tasarımda gerekiyorsa ikon |
-| `NavigationBadgeText` | Text / Text input, 40 | Hayır | Boş | `YENİ`, `Hemen Öde` gibi kısa rozet |
-| `NavigationImage` | Text / Media selector, 500 | Hayır | Boş | Görsel footer öğeleri |
-| `NavigationMobileImage` | Text / Media selector, 500 | Hayır | Boş | Aynı görselin mobil alternatifi |
-| `NavigationImageAlt` | Text / Text input, 160 | Koşullu | Boş | `NavigationImage` doluysa zorunlu |
-| `NavigationAudience` | Text / Drop-down list, 20 | Evet | `All` | Yalnız ortak footer ağaçları için cihaz seçimi |
-| `NavigationOpenInNewTab` | Boolean / Check box | Evet | `false` | Yeni sekmede açma |
+`NavigationUrl` alanını URL selector olarak yapılandırın. Editör bu tek alan üzerinden page tree'deki bir sayfayı seçebilmeli veya dış URL girebilmelidir. Ayrı bir `NavigationTargetPage` field'ı oluşturmayın.
 
-`NavigationTargetPage` Page selector için başlangıç path'i vermeyin veya `/` kullanın. Böylece page type'ından ve hiyerarşideki yerinden bağımsız olarak herhangi bir sayfa seçilebilir. Seçim limiti bir olmalıdır.
-
-`NavigationAudience` dropdown:
+Şu field'lar page type'ta bulunmamalıdır:
 
 ```text
-All;Tüm cihazlar
-Desktop;Yalnız masaüstü
-Mobile;Yalnız mobil
-```
-
-Header ağaçlarında `NavigationAudience=All` bırakılır. Header görünürlüğünü bu alanla yönetmeyin; doğru köke yerleştirin. Alan yalnız mevcut desktop/mobile footer varyasyonlarını iki ayrı checkbox yerine tek ve geçerli bir seçimle korur.
-
-### Silinecek alanlar
-
-Kod yeni sürüme alındıktan sonra şu alanları page type'tan silin:
-
-```text
+NavigationTargetPage
+NavigationAudience
 NavigationDesktopName
 NavigationDisplayOnDesktop
 NavigationDisplayOnMobile
 NavigationPromoteChildrenOnDesktop
 ```
 
-Karşılıkları:
+Provider yalnız yukarıdaki son generated class property'lerine erişir. Bu nedenle kaldırılan field'lar için generated code üretmeye gerek yoktur.
 
-- `NavigationDesktopName`: Gerekli değil. Desktop node'un `NavigationTitle` değeri bağımsızdır. Örneğin mobil node `Mevduat Ürünleri`, desktop node `Mevduat` olabilir.
-- `NavigationDisplayOnDesktop`: Gerekli değil. Desktop görünürlük `DesktopHeader` ağacında bulunmakla belirlenir.
-- `NavigationDisplayOnMobile`: Header için gerekli değil. Footer'daki ihtiyaç tek `NavigationAudience` alanına taşınmıştır.
-- `NavigationPromoteChildrenOnDesktop`: Gerekli değil. Gösterilecek çocuklar doğrudan `DesktopHeader/<Tab>` altına eklenir.
-
-### Hedef ve URL önceliği
-
-Provider aşağıdaki sırayı uygular:
-
-1. `NavigationTargetPage` seçilmiş ve yayınlanmışsa hedef sayfanın güncel relative URL'si kullanılır.
-2. Seçilen sayfa bulunamazsa warning loglanır ve `NavigationUrl` kullanılır.
-3. Target seçilmemişse doğrudan `NavigationUrl` kullanılır.
-
-İç linklerde Page selector kullanın. Böylece sayfanın URL'si veya content-tree konumu değiştiğinde menüde elle URL güncellemek gerekmez. Dış bağlantı, anchor ve teknik `#` grupları için `NavigationUrl` kullanın.
-
-Tıklanabilir bir node için hedef sayfa veya URL'den en az biri dolu olmalıdır. Salt grup/sekme node'unda ikisi de boş olabilir; mevcut view ile uyumluluk için `#` da kullanılabilir. `javascript:` URL kabul edilmemelidir.
-
-## 3. Role değerleri
+## 3. `NavigationRole` seçenekleri
 
 ```text
 MenuItem;Standart menü öğesi
 Tab;Ana müşteri sekmesi
 CustomerAcquisition;Yapı Kredili Ol aksiyonu
 InternetBranch;İnternet Şubesi aksiyonu
-MobileQuickLinks;Mobil kısayol grubu
+MobileQuickLinks;Mobil kısayollar bölümü
 ```
 
-Kurallar:
+Varsayılan değer `MenuItem` olmalıdır.
 
-- `DesktopHeader` doğrudan çocuklarında `Tab`, `CustomerAcquisition` ve `InternetBranch` kullanılabilir.
-- `HeaderMain` doğrudan çocuklarında bunlara ek olarak `MobileQuickLinks` kullanılabilir.
-- `MobileQuickLinks`, `DesktopHeader` altında oluşturulmaz.
-- Role teknik köklerin çocuklarında `MenuItem` olmalıdır.
-- Her iki header kökünde `CustomerAcquisition` ve `InternetBranch` en fazla birer kez bulunmalıdır.
+Önemli: `Tab`, `CustomerAcquisition`, `InternetBranch` ve `MobileQuickLinks` page type değildir; aynı `NavigationMenuNode` üzerindeki role değerleridir.
 
-## 4. Parent page type ve scope ayarları
+## 4. Header ayrımının çalışma şekli
 
-- `CMS.Folder` altında `YkbYapikredi.NavigationMenu` oluşturulabilsin.
-- `YkbYapikredi.NavigationMenu` altında yalnız `YkbYapikredi.NavigationMenuNode` oluşturulabilsin.
-- `YkbYapikredi.NavigationMenuNode` kendi altında yine `YkbYapikredi.NavigationMenuNode` kabul etsin.
-- Navigation içerik tiplerinde URL/routing veya Page Builder özelliği açmayın; bunlar içerik-only kayıtlarıdır.
-- `NavigationTitle`, Page name source field olarak seçilebilir.
+```text
+NavigationMenuKey=DesktopHeader
+  -> LayoutData.DesktopHeaderItems
+  -> Header.cshtml masaüstü alanı
 
-## 5. Güvenli geçiş sırası
+NavigationMenuKey=HeaderMain
+  -> LayoutData.MobileHeaderItems
+  -> Header.cshtml mobil alanı ve header.js
+```
 
-1. Kentico page type ve mevcut navigation verisinin export/backup'ını alın.
-2. `NavigationMenuKey` dropdown'una `DesktopHeader` ekleyin.
-3. `NavigationTargetPage` ve `NavigationAudience` alanlarını ekleyin. Eski görünürlük alanlarını henüz silmeyin.
-4. Mevcut footer node'larında eski iki checkbox değerini `NavigationAudience` alanına aktarın; dönüşüm tablosu minimum page-tree belgesindedir.
-5. `/Shared/Navigation/DesktopHeader` kökünü ve aşağıdaki page tree'yi oluşturun.
-6. Eski `HeaderMain` ağacında `NavigationDisplayOnDesktop=true` olan yapıyı referans alarak desktop node'larını yeni köke ekleyin. `PromoteChildrenOnDesktop=true` olan kapsayıcıyı değil, ekranda görünen çocuklarını doğrudan tab altına ekleyin.
-7. Eski `HeaderMain` içinde `NavigationDisplayOnMobile=false` olan desktop-only node'ları belirleyin; bunları yeni köke taşıdıktan/yeniden oluşturduktan sonra `HeaderMain` içinden kaldırın. Aksi halde yeni kod bunları mobilde gösterir.
-8. Bu repodaki model/provider/view/JS değişikliklerini deploy edin.
-9. Desktop, mobil ve footer görünürlüğünü ayrı ayrı doğrulayın.
-10. Dört eski alanı silin ve `NavigationMenu` ile `NavigationMenuNode` generated class'larını yeniden üretin.
+`DisplayOnDesktop`, `DisplayOnMobile` veya `PromoteChildrenOnDesktop` kontrolü yapılmaz. Masaüstünde gösterilecek link, `DesktopHeader` altında ve gösterilmesi istenen seviyede oluşturulur. Mobil ağaç mevcut `HeaderMain` altında yönetilmeye devam eder.
 
-Eski alanları deploy öncesi silmeyin; eski provider generated property'lere eriştiği için geçiş sırasında uygulama açılmaz.
+## 5. Validasyon önerileri
 
-## 6. Teknik notlar
+- `NavigationTitle` zorunlu olsun.
+- `NavigationRole` zorunlu ve varsayılanı `MenuItem` olsun.
+- Link node'larında `NavigationUrl` zorunlu olsun; sadece grup/sekme node'larında boş veya `#` kabul edilebilir.
+- `NavigationOpenInNewTab` varsayılanı `false` olsun.
+- `NavigationImage` girilmişse `NavigationImageAlt` da istenebilir.
+- Aynı `NavigationMenuKey` için birden fazla `NavigationMenu` kaydı oluşturmayın.
 
-- `NavigationTargetPage` bilinçli olarak generated property üzerinden değil `GetGuidValue` ile okunur. Bu, schema ve generated wrapper deploy'larının kısa süreli farklı sırada ilerlemesini tolere eder; generated class yine de son aşamada yenilenmelidir.
-- Seçilen hedefler tüm menüler için toplu alınır ve URL path verileri `WithPageUrlPaths()` ile birlikte yüklenir.
-- Masaüstü ve mobil action içerikleri iki kökte ayrı node'lardır. Bu duplication, cihazlara göre bağımsız sıra, başlık ve hedef yönetebilmenin bilinçli bedelidir.
+## 6. Footer kapsamı
 
-Kentico'nun resmi önerisi de ikincil menülerde sayfaları seçilebilir referanslar olarak modellemek ve URL'leri `IPageUrlRetriever` ile üretmektir:
-
-- https://docs.kentico.com/13/developing-websites/building-website-navigation
-- https://docs.kentico.com/13/developing-websites/retrieving-content/displaying-page-content
+Footer için yeni root, yeni role, `NavigationAudience` veya başka bir field eklenmez. Asıl projedeki footer modeli ve page tree'si aynen korunur. Bu repodaki header ayrımı footer içeriğini farklı bir klasöre taşımaz.

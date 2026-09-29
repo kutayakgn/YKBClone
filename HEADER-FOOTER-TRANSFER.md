@@ -1,60 +1,72 @@
-# Değişiklikleri asıl projeye taşıma rehberi
+# Desktop header değişikliklerini asıl projeye taşıma
 
-Bu rehber yalnız desktop/mobile header ayrımı ve buna bağlı sade navigation modelini taşımak içindir. Asıl projedeki modal, localization, cache ve controller altyapısını koruyarak merge edin; dosyaları körlemesine üzerine yazmayın.
+Bu değişiklik yalnız desktop/mobile header ayrımı içindir. Asıl projedeki footer yapısını ve footer page tree'sini değiştirmeyin.
 
-## 1. Zorunlu taşınacak dosyalar
+## Zorunlu taşınacak dosyalar
 
-| Bu repodaki dosya | Asıl projedeki hedef | Neden |
+| Bu repodaki dosya | Asıl projedeki karşılığı | Taşınacak değişiklik |
 |---|---|---|
-| `Models/NavigationModels.cs` | Application navigation modelleri | `DesktopHeader` key'i, sade DTO ve `NavigationAudience` |
-| `Models/LayoutData.cs` | Application layout modeli | `DesktopHeaderItems` ve `MobileHeaderItems` ayrımı |
-| `KenticoIntegration/LayoutContentProvider.cs.example` | Infrastructure Kentico provider | Yeni key, Page selector hedef çözümleme, URL üretme ve eski alanların kaldırılması |
-| `Views/Shared/Header.cshtml` | Gerçek header partial'ı | Desktop ve mobil kaynakların ayrılması |
-| `Views/Shared/Footer.cshtml` | Gerçek footer partial'ı | İki checkbox yerine `NavigationAudience` kullanımı |
-| `wwwroot/js/header.js` | Gerçek header script'i | Mobil ağacın tamamını `HeaderMain` üzerinden kullanma |
+| `Models/NavigationModels.cs` | Navigation DTO/model dosyası | `MenuKeys.DesktopHeader`; kaldırılan header alanlarının artık kullanılmaması |
+| `Models/LayoutData.cs` | Layout view modeli | `DesktopHeaderItems` ve `MobileHeaderItems` ayrımı |
+| `KenticoIntegration/LayoutContentProvider.cs.example` | Gerçek Kentico provider `.cs` dosyası | `DesktopHeader` root'unu okuma; sade `NavigationMenuNode` map'i |
+| `Views/Shared/Header.cshtml` | Gerçek header partial'ı | Desktop için `DesktopHeaderItems`, mobil için `MobileHeaderItems` kullanımı |
+| `wwwroot/js/header.js` | Gerçek header script'i | Mobil menünün `HeaderMain` ağacını doğrudan kullanması |
 
-Provider dosyasını `.example` uzantısıyla taşımayın; asıl projedeki `.cs` implementasyonuyla birleştirin.
+`.example` uzantısını asıl projeye taşımayın. İçeriği gerçek `.cs` provider implementasyonuyla birleştirin.
 
-## 2. Koşullu taşınacak dosyalar
+## Naming değişikliği
 
-| Dosya | Karar |
-|---|---|
-| `KenticoIntegration/ILayoutContentProvider.cs.example` | `GetAsync` imzası aynıysa değişiklik gerekmez. |
-| `KenticoIntegration/ProgramRegistration.cs.example` | DI kaydınız zaten `ILayoutContentProvider -> LayoutContentProvider` ise değişiklik gerekmez. |
-| `KenticoIntegration/ControllerLayoutData.cs.example` | Mevcut controller/filter akışınızı koruyun; sözleşme değişmedi. |
-| `KenticoIntegration/_Layout.cshtml.example` | Mevcut layout'a sadece gerekli model/partial kullanımını merge edin. |
-| `Models/ModalModels.cs` | **Clone-only minimum tiptir.** Asıl projede gerçek `ModalDto` varsa taşımayın. |
-
-Bu değişiklikte CSS ve asset değişmedi. `header.css`, `footer.css`, font ve görselleri tekrar taşımaya gerek yoktur.
-
-`Models/MockLayoutContent.cs` yalnız bu klonun Kentico'suz demo kaynağıdır; üretime taşımayın.
-
-## 3. Asıl projede yapılacak model merge'i
-
-`NavigationNodeDto` içinden kaldırılacaklar:
+Provider sınıf adı her yerde `LayoutContentProvider` olmalıdır:
 
 ```csharp
-DesktopName
-DisplayOnDesktop
-DisplayOnMobile
-PromoteChildrenOnDesktop
+public sealed class LayoutContentProvider : ILayoutContentProvider
 ```
 
-Eklenecekler:
+DI kaydı:
 
 ```csharp
-public string Audience { get; init; } = NavigationAudiences.All;
-public bool IsVisibleOnDesktop => Audience != NavigationAudiences.Mobile;
-public bool IsVisibleOnMobile => Audience != NavigationAudiences.Desktop;
+builder.Services.AddScoped<ILayoutContentProvider, LayoutContentProvider>();
 ```
 
-`MenuKeys` içine:
+Asıl projede eski ad varsa şu noktaları birlikte yeniden adlandırın:
+
+- Dosya: `KenticoLayoutContentProvider.cs` -> `LayoutContentProvider.cs`
+- Sınıf ve constructor: `LayoutContentProvider`
+- Logger generic tipi: `ILogger<LayoutContentProvider>`
+- DI kaydı: `LayoutContentProvider`
+
+Bu repo için örnek kayıt [ProgramRegistration.cs.example](KenticoIntegration/ProgramRegistration.cs.example) içindedir.
+
+## Taşınmaması gerekenler
+
+- `Views/Shared/Footer.cshtml`: Bu iş kapsamında footer değişikliği yoktur.
+- Footer page tree kayıtları: Aynen korunur.
+- `Models/MockLayoutContent.cs`: Yalnız klon projenin Kentico olmadan çalışması içindir.
+- `Models/ModalModels.cs`: Clone-only minimum modeldir; asıl projede mevcut gerçek modal modelini koruyun.
+- CSS, font ve görseller: Bu ayrım için değişiklik gerektirmez.
+
+## Navigation model merge'i
+
+`MenuKeys` içine ekleyin:
 
 ```csharp
 public const string DesktopHeader = "DesktopHeader";
 ```
 
-`LayoutData` içinde eski tek `HeaderTabs` alanını aşağıdaki iki alanla değiştirin:
+Header için aşağıdaki eski alan ve davranışları kullanmayın:
+
+```text
+DesktopName
+DisplayOnDesktop
+DisplayOnMobile
+PromoteChildrenOnDesktop
+Audience
+TargetPage
+```
+
+Not: Asıl projede footer'ın kendi view modelinde desktop/mobile görünürlük bilgisi bulunuyorsa onu koruyun. Buradaki talep, `NavigationMenuNode` page type'ına footer için yeni alan eklemek veya footer'ı yeniden modellemek değildir.
+
+`LayoutData` içindeki eski tek header koleksiyonunu iki kaynağa ayırın:
 
 ```csharp
 public IReadOnlyList<NavigationNodeDto> DesktopHeaderItems { get; init; } = [];
@@ -68,90 +80,71 @@ DesktopHeaderItems = content.Menu(MenuKeys.DesktopHeader).Items,
 MobileHeaderItems = content.Menu(MenuKeys.HeaderMain).Items,
 ```
 
-Asıl projedeki `LayoutContent` modal listesini koruyun. Bu klonda son güncellemedeki constructor uyuşmazlığı giderildi: constructor artık `modals` parametresini alır ve `Modals` property’sine atar. Asıl projede bu zaten başka dosyada/partial'da çözülmüşse duplicate tanım oluşturmayın.
+## Provider merge'i
 
-## 4. Provider merge'i
-
-Provider'da şu değişiklikler birlikte taşınmalıdır:
-
-1. `RequiredMenuKeys` listesine `MenuKeys.DesktopHeader` eklenmesi.
-2. Constructor'a `IPageUrlRetriever` eklenmesi.
-3. Bütün navigation node'larındaki `NavigationTargetPage` GUID'lerinin toplanması.
-4. Seçilen target sayfaların `IPageRetriever.Retrieve<TreeNode>` ve `WithPageUrlPaths()` ile toplu alınması.
-5. URL'nin `_pageUrlRetriever.Retrieve(targetPage).RelativePath` üzerinden çözülmesi.
-6. Target bulunamazsa `NavigationUrl` fallback'i ve warning logu.
-7. Eski generated property erişimlerinin kaldırılması.
-8. `NavigationAudience` map'i.
-
-Asıl projedeki generated class namespace'lerine göre dosyanın başındaki alias'ları düzeltin:
+`RequiredMenuKeys` listesine ekleyin:
 
 ```csharp
-using NavigationMenuPage = ...NavigationMenu;
-using NavigationNodePage = ...NavigationMenuNode;
-using HeaderNotificationPage = ...HeaderNotificationItem;
-using AnnouncementPage = ...Announcement;
-using ModalPage = ...Modal;
+MenuKeys.DesktopHeader,
 ```
 
-Bu repoda dosya adı, sınıf adı, logger generic tipi ve DI örneği
-`LayoutContentProvider` olarak birbiriyle uyumludur. Asıl projede de bu adı
-koruyun.
+Navigation node map'i yalnız generated class'ta bulunan alanları kullanmalıdır:
 
-## 5. Kentico tarafındaki işlemler
+```csharp
+private NavigationNodeDto MapNode(
+    NavigationNodePage page,
+    ILookup<int, NavigationNodePage> childrenByParent)
+{
+    var role = Clean(page.NavigationRole);
 
-Kod deploy'undan önce:
+    return new NavigationNodeDto
+    {
+        Id = page.NodeGUID.ToString("N"),
+        Title = Clean(page.NavigationTitle),
+        Url = Clean(page.NavigationUrl),
+        IconCssClass = Clean(page.NavigationIconCssClass),
+        ImageUrl = Clean(page.NavigationImage),
+        MobileImageUrl = Clean(page.NavigationMobileImage),
+        ImageAlt = Clean(page.NavigationImageAlt),
+        BadgeText = Clean(page.NavigationBadgeText),
+        Role = string.IsNullOrEmpty(role) ? NavigationRoles.MenuItem : role,
+        OpenInNewTab = page.NavigationOpenInNewTab,
+        Children = childrenByParent[page.NodeID]
+            .OrderBy(child => child.NodeOrder)
+            .Select(child => MapNode(child, childrenByParent))
+            .ToArray()
+    };
+}
+```
+
+Şunları taşımayın veya asıl projede varsa kaldırın:
+
+- `NavigationTargetPage` field sabiti ve GUID toplama kodu
+- `RetrieveTargetPages`
+- `IPageUrlRetriever` dependency'si
+- `WhereIn(nameof(TreeNode.NodeGUID), ...)` target sorgusu
+- `NavigationAudience` field sabiti ve map'i
+- Eski display/promote generated property erişimleri
+
+Bu sadeleştirmeyle bildirilen `Argument 2: cannot convert from 'object[]' to 'CMS.DataEngine.IDataQuery'` hatasını üreten target-page `WhereIn` satırı da tamamen ortadan kalkar.
+
+## Kentico işlemleri
 
 1. `NavigationMenuKey` seçeneklerine `DesktopHeader` ekleyin.
-2. `NavigationTargetPage` alanını GUID + Page selector olarak ekleyin.
-3. `NavigationAudience` alanını dropdown olarak ekleyin.
-4. Mevcut footer görünürlük checkbox değerlerini `NavigationAudience` alanına aktarın.
-5. `/Shared/Navigation/DesktopHeader` menü kökünü oluşturun.
-6. `KENTICO-13-MINIMUM-WORKING-PAGE-TREE.md` içindeki desktop ağacını girin.
-7. İç link node'larında gerçek target sayfayı seçin.
+2. `/Shared/Navigation/DesktopHeader` kaydını `YkbYapikredi.NavigationMenu` olarak oluşturun.
+3. `Kendim İçin` ve `İşim İçin` kayıtlarını `YkbYapikredi.NavigationMenuNode`, `NavigationRole=Tab` olarak ekleyin.
+4. Gösterilecek linkleri aynı page type ile bu tab kayıtlarının altına ekleyin.
+5. İç sayfaları tek `NavigationUrl` alanındaki URL selector ile seçin; `NavigationTargetPage` oluşturmayın.
+6. Mevcut `HeaderMain` ağacını mobil için kullanmaya devam edin.
+7. Footer kayıtlarını değiştirmeyin.
 
-Kod deploy ve doğrulamadan sonra:
+Ayrıntılı field listesi için [KENTICO-13-HEADER-FOOTER-MODEL.md](KENTICO-13-HEADER-FOOTER-MODEL.md), page tree için [KENTICO-13-MINIMUM-WORKING-PAGE-TREE.md](KENTICO-13-MINIMUM-WORKING-PAGE-TREE.md) dosyasını kullanın.
 
-1. `NavigationDesktopName` alanını silin.
-2. `NavigationDisplayOnDesktop` alanını silin.
-3. `NavigationDisplayOnMobile` alanını silin.
-4. `NavigationPromoteChildrenOnDesktop` alanını silin.
-5. `NavigationMenu` ve `NavigationMenuNode` wrapper class'larını Kentico Code sekmesinden yeniden üretin.
-6. Generated dosyaları live-site projesine alın ve build edin.
+## Kontrol listesi
 
-## 6. Beklenen davranış
-
-| Ekran alanı | Kaynak |
-|---|---|
-| Desktop üst gri linkler | `HeaderTop` |
-| Desktop müşteri sekmeleri ve linkleri | `DesktopHeader` / `Tab` |
-| Desktop Yapı Kredili Ol | `DesktopHeader` / `CustomerAcquisition` |
-| Desktop İnternet Şubesi | `DesktopHeader` / `InternetBranch` |
-| Mobil sekmeler ve recursive menü | `HeaderMain` / `Tab` |
-| Mobil Yapı Kredili Ol | `HeaderMain` / `CustomerAcquisition` |
-| Mobil İnternet Şubesi | `HeaderMain` / `InternetBranch` |
-| Mobil kısayollar | `HeaderMain` / `MobileQuickLinks` |
-
-`HeaderMain` değişmeden mobil içerik yönetim noktası olmaya devam eder. Desktop için aynı gerçek sayfayı göstermek istediğinizde `DesktopHeader` altında yeni node oluşturup aynı sayfayı `NavigationTargetPage` alanında seçersiniz.
-
-## 7. Test listesi
-
-- Ana sayfa ve iç sayfada desktop header açılıyor.
-- Desktop tab linkleri yalnız `DesktopHeader` sırasını izliyor.
-- `HeaderMain` değişikliği yalnız mobili etkiliyor.
-- `DesktopHeader` değişikliği yalnız desktopı etkiliyor.
-- İç sayfa taşındığında/URL'i değiştiğinde selector kullanan link çalışmaya devam ediyor.
-- Yayınlanmamış veya silinmiş target için uygulama kırılmıyor; warning ve fallback URL davranışı görülüyor.
-- Mobil recursive menü tüm seviyelerde ilerliyor ve geri dönüyor.
-- Desktop ve mobil action panelleri kendi menü köklerindeki içerikleri gösteriyor.
-- Footer `All`, `Desktop`, `Mobile` seçimlerini doğru uyguluyor.
-- Duplicate veya eksik `DesktopHeader` key'i loglarda görülüyor.
-
-## 8. Bu klonda düzeltilen mevcut hatalar
-
-- `LayoutData` `content.Modals` okuyordu ancak `LayoutContent` içinde `Modals` yoktu; constructor/property eklendi.
-- Provider dört argümanla `LayoutContent` oluşturuyordu ancak model üç argüman kabul ediyordu; imzalar eşitlendi.
-- Provider sınıfı, logger generic tipi ve DI kaydı `LayoutContentProvider` adıyla eşitlendi.
-- Son güncellemede provider namespace'i ve satır biçimi bozulmuştu; normal C# dosya yapısına döndürüldü.
-- `_Layout.cshtml.example` JavaScript dosyalarını yanlışlıkla stylesheet olarak yüklüyordu; `header.js` ve `footer.js` gerçek `script` etiketlerine çevrildi.
-
-Bu repoda `dotnet` CLI kurulu olmadığı için gerçek build çalıştırılamadı. Taşıma sonrasında asıl solution üzerinde build ve Kentico preview testi zorunludur.
+- Projede `KenticoLayoutContentProvider` adı kalmadı.
+- Projede `NavigationTargetPage` ve `NavigationAudience` erişimi kalmadı.
+- Provider, paylaşılan generated `NavigationMenuNode` class'ıyla derleniyor.
+- Desktop menü yalnız `DesktopHeader` içeriğini gösteriyor.
+- Mobil menü mevcut `HeaderMain` içeriğini göstermeye devam ediyor.
+- Footer'ın mevcut davranışı ve page tree'si değişmedi.

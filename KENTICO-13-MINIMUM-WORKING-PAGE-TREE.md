@@ -1,183 +1,96 @@
-# Kentico 13 page tree — ayrı desktop ve mobil header
+# Kentico 13 page tree — desktop header
 
-## 1. Oluşturulacak yeni kök
+## Oluşturulacak yeni menü kökü
 
-`/Shared/Navigation` altında şu kaydı oluşturun:
+`/Shared/Navigation` altında aşağıdaki kaydı oluşturun:
 
 | Page path | Page type | `NavigationMenuTitle` | `NavigationMenuKey` |
 |---|---|---|---|
 | `/Shared/Navigation/DesktopHeader` | `YkbYapikredi.NavigationMenu` | `Masaüstü header` | `DesktopHeader` |
 
-Bu bir `CMS.Folder` değildir. Provider menü köklerini path ile değil `NavigationMenuKey` ile bulur; bu nedenle görünen ad `Desktop Header` da olabilir ama key tam olarak `DesktopHeader` olmalıdır.
+Bu kayıt teknik olarak `CMS.Folder` değil, `NavigationMenu` page type'ında bir menü köküdür. Provider path'e değil `NavigationMenuKey` değerine göre bulduğu için key tam olarak `DesktopHeader` olmalıdır.
 
-## 2. Son page tree
+Mevcut `/Shared/Navigation/HeaderMain` kaydını silmeyin veya taşımayın. Mobil header buradan beslenmeye devam eder.
+
+## DesktopHeader altında oluşturulacak page tree
+
+Aşağıdaki kayıtların tamamı `YkbYapikredi.NavigationMenuNode` page type'ında oluşturulur. Parantez içindeki değer ayrı bir page type değil, `NavigationRole` alanının değeridir.
 
 ```text
-/Shared                                                       (CMS.Folder)
-  /Navigation                                                 (CMS.Folder)
-    /HeaderTop                                                (NavigationMenu / HeaderTop)
-      /Mobil Uygulama İndir                                  (NavigationMenuNode)
-      /Şube ve ATM'ler                                       (NavigationMenuNode)
-      /Ürün ve Hizmet Ücretleri                              (NavigationMenuNode)
-      /EN                                                    (NavigationMenuNode)
+/Shared/Navigation/DesktopHeader                         (NavigationMenu; key=DesktopHeader)
+  /Kendim İçin                                          (NavigationMenuNode; role=Tab)
+    /Krediler                                           (NavigationMenuNode; role=MenuItem)
+    /Kartlar                                            (NavigationMenuNode; role=MenuItem)
+    /Mevduat                                            (NavigationMenuNode; role=MenuItem)
+    /Yatırım Ürünleri                                   (NavigationMenuNode; role=MenuItem)
+    /Ödemeler ve Hizmetler                              (NavigationMenuNode; role=MenuItem)
+    /Sigorta ve Emeklilik                               (NavigationMenuNode; role=MenuItem)
+    /Sınırsız Bankacılık                                (NavigationMenuNode; role=MenuItem)
 
-    /HeaderMain                                               (NavigationMenu / HeaderMain; MOBİL)
-      /Kendim İçin                                           (NavigationMenuNode / Tab)
-        /Ana Sayfa                                           (NavigationMenuNode)
-        /Bireysel Bankacılık                                 (NavigationMenuNode)
-          /Şimdi Yapı Kredili Olun                           (NavigationMenuNode)
-          /Krediler                                          (NavigationMenuNode)
-            /Bireysel İhtiyaç Kredisi                        (NavigationMenuNode)
-              /Alışveriş Kredisi                             (NavigationMenuNode)
-                /World PAY Alışveriş Kredisi                 (NavigationMenuNode)
-          /Kartlar                                           (NavigationMenuNode)
-          /Mevduat Ürünleri                                  (NavigationMenuNode)
-          /Yatırım Ürünleri                                  (NavigationMenuNode)
-          /Ödemeler ve Hizmetler                             (NavigationMenuNode)
-          /Sigorta ve Emeklilik                              (NavigationMenuNode)
-          /Hesaplama Araçları                                (NavigationMenuNode)
-        /Yapı Kredi Blue Class                               (NavigationMenuNode)
-        /Özel Bankacılık                                     (NavigationMenuNode)
-        /Fatura Ödeme                                        (NavigationMenuNode)
-        /Başvuru Merkezi                                     (NavigationMenuNode)
-        /Yatırımcı Köşesi                                    (NavigationMenuNode)
-        /Yapı Kredi Hakkında                                 (NavigationMenuNode)
-        /Memnuniyetiniz İçin Buradayız                       (NavigationMenuNode)
-        /Sınırsız Bankacılık                                 (NavigationMenuNode)
-        /English                                             (NavigationMenuNode)
+  /İşim İçin                                           (NavigationMenuNode; role=Tab)
+    /KOBİ                                               (NavigationMenuNode; role=MenuItem)
+    /Ticari                                             (NavigationMenuNode; role=MenuItem)
+    /Kurumsal                                           (NavigationMenuNode; role=MenuItem)
+    /Sınırsız Bankacılık                                (NavigationMenuNode; role=MenuItem)
+    /Ticari Kartlar                                     (NavigationMenuNode; role=MenuItem)
+    /Krediler                                           (NavigationMenuNode; role=MenuItem)
+    /Ticari Hesap Açma                                  (NavigationMenuNode; role=MenuItem)
+    /Maaş Ödemeleri                                     (NavigationMenuNode; role=MenuItem)
+    /İş Birliklerimiz                                   (NavigationMenuNode; role=MenuItem)
 
-      /İşim İçin                                            (NavigationMenuNode / Tab)
-        /KOBİ                                                (NavigationMenuNode)
-        /Ticari                                              (NavigationMenuNode)
-        /Kurumsal                                            (NavigationMenuNode)
-        /Sınırsız Bankacılık                                 (NavigationMenuNode)
-        /Ticari Kartlar                                      (NavigationMenuNode)
-        /Krediler                                            (NavigationMenuNode)
-        /Ticari Hesap Açma                                   (NavigationMenuNode)
-        /Maaş Ödemeleri                                      (NavigationMenuNode)
-        /İş Birliklerimiz                                    (NavigationMenuNode)
+  /Yapı Kredili Ol                                      (NavigationMenuNode; role=CustomerAcquisition)
+    /Bireysel Müşteri                                   (NavigationMenuNode; role=MenuItem)
+    /Tüzel Müşteri                                      (NavigationMenuNode; role=MenuItem)
 
-      /Yapı Kredili Ol                                       (NavigationMenuNode / CustomerAcquisition)
-        /Bireysel Müşteri                                    (NavigationMenuNode)
-        /Tüzel Müşteri                                       (NavigationMenuNode)
-
-      /İnternet Şubesi                                       (NavigationMenuNode / InternetBranch)
-        /Bireysel Giriş                                      (NavigationMenuNode)
-          /Kart İşlemleri                                    (NavigationMenuNode)
-          /Şifre Al - Şifremi Unuttum                        (NavigationMenuNode)
-        /Kurumsal Giriş                                      (NavigationMenuNode)
-          /Şifre Al - Şifremi Unuttum                        (NavigationMenuNode)
-
-      /Mobil Kısayollar                                      (NavigationMenuNode / MobileQuickLinks)
-        /Yapı Kredi Mobil'i İndir                            (NavigationMenuNode; ilk sırada)
-        /Ürün ve Hizmet Ücretleri                            (NavigationMenuNode)
-        /Şube ve ATM'ler                                     (NavigationMenuNode)
-        /Şifre Merkezi                                       (NavigationMenuNode)
-
-    /DesktopHeader                                            (NavigationMenu / DesktopHeader; DESKTOP)
-      /Kendim İçin                                           (NavigationMenuNode / Tab)
-        /Krediler                                            (NavigationMenuNode)
-        /Kartlar                                             (NavigationMenuNode)
-        /Mevduat                                             (NavigationMenuNode)
-        /Yatırım Ürünleri                                    (NavigationMenuNode)
-        /Ödemeler ve Hizmetler                               (NavigationMenuNode)
-        /Sigorta ve Emeklilik                                (NavigationMenuNode)
-        /Sınırsız Bankacılık                                 (NavigationMenuNode)
-
-      /İşim İçin                                            (NavigationMenuNode / Tab)
-        /KOBİ                                                (NavigationMenuNode)
-        /Ticari                                              (NavigationMenuNode)
-        /Kurumsal                                            (NavigationMenuNode)
-        /Sınırsız Bankacılık                                 (NavigationMenuNode)
-        /Ticari Kartlar                                      (NavigationMenuNode)
-        /Krediler                                            (NavigationMenuNode)
-        /Ticari Hesap Açma                                   (NavigationMenuNode)
-        /Maaş Ödemeleri                                      (NavigationMenuNode)
-        /İş Birliklerimiz                                    (NavigationMenuNode)
-
-      /Yapı Kredili Ol                                       (NavigationMenuNode / CustomerAcquisition)
-        /Bireysel Müşteri                                    (NavigationMenuNode)
-        /Tüzel Müşteri                                       (NavigationMenuNode)
-
-      /İnternet Şubesi                                       (NavigationMenuNode / InternetBranch)
-        /Bireysel Giriş                                      (NavigationMenuNode)
-          /Kart İşlemleri                                    (NavigationMenuNode)
-          /Şifre Al - Şifremi Unuttum                        (NavigationMenuNode)
-        /Kurumsal Giriş                                      (NavigationMenuNode)
-          /Şifre Al - Şifremi Unuttum                        (NavigationMenuNode)
-
-    /FooterColumns                                            (NavigationMenu / Footer)
-    /FooterLegal                                              (NavigationMenu / FooterLegal)
-    /FooterBrands                                             (NavigationMenu / FooterBrands)
-    /FooterApps                                               (NavigationMenu / FooterApps)
-    /Social                                                   (NavigationMenu / Social)
-
-  /HeaderNotifications                                       (CMS.Folder)
-  /Announcements                                             (CMS.Folder)
-  /Modals                                                    (CMS.Folder)
+  /İnternet Şubesi                                      (NavigationMenuNode; role=InternetBranch)
+    /Bireysel Giriş                                     (NavigationMenuNode; role=MenuItem)
+      /Kart İşlemleri                                   (NavigationMenuNode; role=MenuItem)
+      /Şifre Al - Şifremi Unuttum                       (NavigationMenuNode; role=MenuItem)
+    /Kurumsal Giriş                                     (NavigationMenuNode; role=MenuItem)
+      /Şifre Al - Şifremi Unuttum                       (NavigationMenuNode; role=MenuItem)
 ```
 
-`DesktopHeader` altındaki tab çocukları, desktop dropdown'da ekranda görülecek linklerdir. Artık araya `Bireysel Bankacılık` koyup “promote children” işaretlemeyin. Sıra doğrudan `NodeOrder` ile yönetilir.
+İlk iki root node'un (`Kendim İçin`, `İşim İçin`) `NavigationRole` değeri `Tab` olmalıdır. View masaüstü sekmelerini bu role göre seçer ve sekmenin doğrudan çocuklarını yatay alt menüde gösterir.
 
-## 3. Desktop node değerleri
+`Yapı Kredili Ol` ve `İnternet Şubesi` mevcut masaüstü aksiyonları kullanılacaksa aynı root altında gösterildiği gibi oluşturulmalıdır. Bunlar da `NavigationMenuNode` page type'ındadır.
 
-Tab ve aksiyon kökleri:
+## Her node için doldurulacak alanlar
 
-| Path | Role | URL/target | Icon |
-|---|---|---|---|
-| `DesktopHeader/Kendim İçin` | `Tab` | Boş veya `#` | Boş |
-| `DesktopHeader/İşim İçin` | `Tab` | Boş veya `#` | Boş |
-| `DesktopHeader/Yapı Kredili Ol` | `CustomerAcquisition` | Boş veya `#` | `icon-user-plus-24` |
-| `DesktopHeader/İnternet Şubesi` | `InternetBranch` | Boş veya `#` | `icon-pointer-click-24` |
+| Alan | Değer |
+|---|---|
+| `NavigationTitle` | Ekranda görünecek metin |
+| `NavigationRole` | Yukarıdaki role; normal linklerde `MenuItem` |
+| `NavigationUrl` | URL selector ile seçilen iç sayfa veya dış URL |
+| `NavigationOpenInNewTab` | Gerekiyorsa işaretli |
+| `NavigationIconCssClass` | Yalnız ikon kullanılan aksiyonlarda |
 
-Normal iç site linklerinde:
+`NavigationUrl` URL selector'ında page tree'nin herhangi bir yerindeki sayfa seçilebilir. Böylece `DesktopHeader` içindeki node, menünün dışında bulunan herhangi bir içerik sayfasını gösterebilir. Dış bağlantılar da aynı alana yazılır. `NavigationTargetPage` kullanılmaz.
 
-- `NavigationTitle`: Desktopta görünmesini istediğiniz kısa ad.
-- `NavigationTargetPage`: İlgili gerçek sayfayı Page selector'dan seçin.
-- `NavigationUrl`: Boş bırakın.
-- `NavigationRole`: `MenuItem`.
-- `NavigationAudience`: `All`.
-- `NavigationOpenInNewTab`: Kapalı.
+## Mevcut mobil menü
 
-Örnek: Mobil tarafta başlık `Mevduat Ürünleri`, desktop tarafta `Mevduat` olabilir. İki node'un `NavigationTargetPage` değeri aynı gerçek mevduat sayfasını gösterir.
+Mobil page tree aynı kalır:
 
-İnternet Şubesi gibi harici adreslerde:
+```text
+/Shared/Navigation/HeaderMain                            (NavigationMenu; key=HeaderMain)
+  /Kendim İçin                                          (NavigationMenuNode; role=Tab)
+    /... mevcut mobil çocuklar ...                      (NavigationMenuNode)
+  /İşim İçin                                           (NavigationMenuNode; role=Tab)
+    /... mevcut mobil çocuklar ...                      (NavigationMenuNode)
+  /Yapı Kredili Ol                                      (NavigationMenuNode; role=CustomerAcquisition)
+  /İnternet Şubesi                                      (NavigationMenuNode; role=InternetBranch)
+  /Mobil Kısayollar                                     (NavigationMenuNode; role=MobileQuickLinks)
+```
 
-- `NavigationTargetPage`: Boş.
-- `NavigationUrl`: Tam `https://...` adresi.
-- Gerçekten yeni sekme isteniyorsa `NavigationOpenInNewTab`: Açık.
+`HeaderMain` altında girilmiş mevcut kayıtlar mobilde kullanılmaya devam eder. Desktop görünürlüğünü değiştirmek için bu kayıtların field'ları değiştirilmez; karşılığı `DesktopHeader` altında ayrıca oluşturulur.
 
-## 4. HeaderMain için önemli temizlik
+## Footer
 
-`HeaderMain` artık mobil ağacın tamamıdır. Kod `NavigationDisplayOnMobile` alanına bakmaz. Eski içerikte yalnız desktop için oluşturulmuş node varsa mobilde görünmeye başlar.
+Footer root'larına ve footer altındaki mevcut page'lere dokunmayın. Bu değişiklik için footer migration'ı yoktur.
 
-Geçişten önce Kentico Pages listing veya page type export üzerinden
-`NavigationDisplayOnMobile=false` kayıtlarının listesini alın. Sonuçlardaki
-desktop-only kayıtları `DesktopHeader` altında yeniden oluşturun ve
-`HeaderMain` içinden kaldırın. Veriyi doğrudan SQL ile güncellemeyin; Pages
-uygulamasını kullanın.
+## Yayına alma kontrolü
 
-## 5. Footer audience dönüşümü
-
-Eski checkbox değerlerini yeni `NavigationAudience` alanına şu şekilde taşıyın:
-
-| Eski Desktop | Eski Mobile | Yeni `NavigationAudience` |
-|---:|---:|---|
-| Açık | Açık | `All` |
-| Açık | Kapalı | `Desktop` |
-| Kapalı | Açık | `Mobile` |
-| Kapalı | Kapalı | İçerik kullanılmıyor; silin veya yayın dışına alın |
-
-Header node'larında eski checkbox değerlerini `Audience` alanına taşımayın; bütün header node'larında `All` kullanın.
-
-## 6. Yayın kontrol listesi
-
-- `DesktopHeader` key'i tam yazıldı ve tekil.
-- Desktop header'da iki `Tab` kökü var.
-- Her iki header kökünde birer `CustomerAcquisition` ve `InternetBranch` var.
-- `MobileQuickLinks` yalnız `HeaderMain` altında.
-- İç linklerde Page selector hedefi seçili.
-- Seçilen target sayfaların ilgili culture varyantı yayınlanmış.
-- Dış linklerde `NavigationUrl` dolu.
-- `HeaderMain` içinde desktop-only eski node kalmadı.
-- Kardeş node sıraları Pages uygulamasında doğru.
+1. `DesktopHeader` menü kökünü ve altındaki node'ları publish edin.
+2. `NavigationMenuKey` değerinin tam olarak `DesktopHeader` olduğunu doğrulayın.
+3. `Kendim İçin` ve `İşim İçin` kayıtlarında `NavigationRole=Tab` olduğunu doğrulayın.
+4. Çocukların sırasını page tree sırasıyla düzenleyin; provider `NodeOrder` kullanır.
+5. Masaüstünde `DesktopHeader`, mobilde mevcut `HeaderMain` içeriğinin geldiğini kontrol edin.

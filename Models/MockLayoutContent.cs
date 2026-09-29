@@ -44,8 +44,8 @@ public static class MockLayoutContent
                     N("personal-data", "Kişisel Verilerin Korunması", $"{YkbRoot}/yapi-kredi-hakkinda/kvkk"),
                     N("privacy-policy", "Gizlilik Politikası", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/gizlilik"),
                     N("cookie-policy", "Çerez Aydınlatma Metni", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/cerez-politikasi"),
-                    N("footer-contact", "İletişim", $"{YkbRoot}/yapi-kredi-hakkinda/iletisim", audience: NavigationAudiences.Mobile),
-                    N("footer-english", "English", $"{YkbRoot}/en", audience: NavigationAudiences.Mobile)
+                    N("footer-contact", "İletişim", $"{YkbRoot}/yapi-kredi-hakkinda/iletisim", desktop: false),
+                    N("footer-english", "English", $"{YkbRoot}/en", desktop: false)
                 ]
             },
             [MenuKeys.FooterBrands] = new()
@@ -61,9 +61,9 @@ public static class MockLayoutContent
             {
                 Items =
                 [
-                    N("footer-app-store", "App Store'dan İndirin", "https://itunes.apple.com/tr/app/yap-kredi-mobil-bankac-l-k/id458627086?mt=8", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-store-f.png", imageAlt: "App Store'dan indirin", audience: NavigationAudiences.Mobile, newTab: true),
-                    N("footer-google-play", "Google Play'den Alın", "https://play.google.com/store/apps/details?id=com.ykb.android&hl=tr&gl=US", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/google-play-f.png", imageAlt: "Google Play'den alın", audience: NavigationAudiences.Mobile, newTab: true),
-                    N("footer-app-gallery", "AppGallery'den İndirin", "https://appgallery.huawei.com/#/app/C101430581", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-gallery-f.png", imageAlt: "AppGallery'den indirin", audience: NavigationAudiences.Mobile, newTab: true)
+                    N("footer-app-store", "App Store'dan İndirin", "https://itunes.apple.com/tr/app/yap-kredi-mobil-bankac-l-k/id458627086?mt=8", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-store-f.png", imageAlt: "App Store'dan indirin", desktop: false, newTab: true),
+                    N("footer-google-play", "Google Play'den Alın", "https://play.google.com/store/apps/details?id=com.ykb.android&hl=tr&gl=US", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/google-play-f.png", imageAlt: "Google Play'den alın", desktop: false, newTab: true),
+                    N("footer-app-gallery", "AppGallery'den İndirin", "https://appgallery.huawei.com/#/app/C101430581", image: "https://assets.yapikredi.com.tr/WebSite/_assets_responsive/img/app-gallery-f.png", imageAlt: "AppGallery'den indirin", desktop: false, newTab: true)
                 ]
             },
             [MenuKeys.Social] = new()
@@ -111,7 +111,7 @@ public static class MockLayoutContent
 
     private static IReadOnlyList<NavigationNodeDto> BuildFooterColumns() =>
     [
-        N("footer-contact-column", "Bize Ulaşın", "#", audience: NavigationAudiences.Desktop, children:
+        N("footer-contact-column", "Bize Ulaşın", "#", mobile: false, children:
         [
             N("footer-satisfaction", "Memnuniyetiniz İçin", $"{YkbRoot}/memnuniyetiniz-icin-buradayiz/"),
             N("footer-contact-link", "İletişim", $"{YkbRoot}/yapi-kredi-hakkinda/iletisim")
@@ -387,7 +387,8 @@ public static class MockLayoutContent
         string mobileImage = "",
         string imageAlt = "",
         bool newTab = false,
-        string audience = NavigationAudiences.All) =>
+        bool desktop = true,
+        bool mobile = true) =>
         new()
         {
             Id = id,
@@ -399,8 +400,9 @@ public static class MockLayoutContent
             ImageAlt = imageAlt,
             BadgeText = badge,
             Role = role,
-            Audience = audience,
             OpenInNewTab = newTab,
+            DisplayOnDesktop = desktop,
+            DisplayOnMobile = mobile,
             Children = children ?? []
         };
 }

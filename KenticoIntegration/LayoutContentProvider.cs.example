@@ -24,8 +24,6 @@ namespace YkbYapikredi.Infrastructure.Kentico;
 /// </summary>
 public sealed class LayoutContentProvider : ILayoutContentProvider
 {
-    private const string NavigationTargetPageField = "NavigationTargetPage";
-    private const string NavigationAudienceField = "NavigationAudience";
     private const string HeaderNotificationsPath = "/Shared/HeaderNotifications";
     private const string ModalsPath = "/Shared/Modals";
     private const string AnnouncementsPath = "/Shared/Announcements";
@@ -43,18 +41,15 @@ public sealed class LayoutContentProvider : ILayoutContentProvider
     ];
 
     private readonly IPageRetriever _pageRetriever;
-    private readonly IPageUrlRetriever _pageUrlRetriever;
     private readonly ILogger<LayoutContentProvider> _logger;
     private readonly ModalDtoMapper _modalDtoMapper;
 
     public LayoutContentProvider(
         IPageRetriever pageRetriever,
-        IPageUrlRetriever pageUrlRetriever,
         ILogger<LayoutContentProvider> logger,
         ModalDtoMapper modalDtoMapper)
     {
         _pageRetriever = pageRetriever;
-        _pageUrlRetriever = pageUrlRetriever;
         _logger = logger;
         _modalDtoMapper = modalDtoMapper;
     }
@@ -100,15 +95,6 @@ public sealed class LayoutContentProvider : ILayoutContentProvider
             menuSources[menuKey] = new MenuSource(root, nodes);
         }
 
-        var targetPageGuids = menuSources.Values
-            .SelectMany(source => source.Nodes)
-            .Select(GetTargetPageGuid)
-            .Where(guid => guid != Guid.Empty)
-            .Distinct()
-            .ToArray();
-
-        var targetPagesByGuid = RetrieveTargetPages(targetPageGuids);
-
         foreach (var (menuKey, source) in menuSources)
         {
             var childrenByParent = source.Nodes.ToLookup(node => node.NodeParentID);
@@ -118,7 +104,7 @@ public sealed class LayoutContentProvider : ILayoutContentProvider
                 Title = Clean(source.Root.NavigationMenuTitle),
                 Items = childrenByParent[source.Root.NodeID]
                     .OrderBy(node => node.NodeOrder)
-                    .Select(node => MapNode(node, childrenByParent, targetPagesByGuid))
+                    .Select(node => MapNode(node, childrenByParent))
                     .ToArray()
             };
         }
@@ -194,87 +180,30 @@ public sealed class LayoutContentProvider : ILayoutContentProvider
         return rootsByKey;
     }
 
-    private IReadOnlyDictionary<Guid, TreeNode> RetrieveTargetPages(Guid[] targetPageGuids)
-    {
-        if (targetPageGuids.Length == 0)
-        {
-            return new Dictionary<Guid, TreeNode>();
-        }
-
-        // Kentico 13 GUID listeleri için List<Guid> overload'ını kullanır.
-        // object[] verilirse çağrı IDataQuery overload'ına bağlanmaya çalışır.
-        return _pageRetriever.Retrieve<TreeNode>(query => query
-                .WhereIn("NodeGUID", targetPageGuids.ToList())
-                .WithPageUrlPaths())
-            .GroupBy(page => page.NodeGUID)
-            .ToDictionary(group => group.Key, group => group.First());
-    }
-
     private NavigationNodeDto MapNode(
         NavigationNodePage page,
-        ILookup<int, NavigationNodePage> childrenByParent,
-        IReadOnlyDictionary<Guid, TreeNode> targetPagesByGuid)
+        ILookup<int, NavigationNodePage> childrenByParent)
     {
         var role = Clean(page.NavigationRole);
-        var audience = Clean(page.GetStringValue(
-            NavigationAudienceField,
-            NavigationAudiences.All));
 
         return new NavigationNodeDto
         {
             Id = page.NodeGUID.ToString("N"),
             Title = Clean(page.NavigationTitle),
-            Url = ResolveUrl(page, targetPagesByGuid),
+            Url = Clean(page.NavigationUrl),
             IconCssClass = Clean(page.NavigationIconCssClass),
             ImageUrl = Clean(page.NavigationImage),
             MobileImageUrl = Clean(page.NavigationMobileImage),
             ImageAlt = Clean(page.NavigationImageAlt),
             BadgeText = Clean(page.NavigationBadgeText),
             Role = string.IsNullOrEmpty(role) ? NavigationRoles.MenuItem : role,
-            Audience = IsKnownAudience(audience) ? audience : NavigationAudiences.All,
             OpenInNewTab = page.NavigationOpenInNewTab,
             Children = childrenByParent[page.NodeID]
                 .OrderBy(child => child.NodeOrder)
-                .Select(child => MapNode(child, childrenByParent, targetPagesByGuid))
+                .Select(child => MapNode(child, childrenByParent))
                 .ToArray()
         };
     }
-
-    private string ResolveUrl(
-        NavigationNodePage navigationNode,
-        IReadOnlyDictionary<Guid, TreeNode> targetPagesByGuid)
-    {
-        var fallbackUrl = Clean(navigationNode.NavigationUrl);
-        var targetPageGuid = GetTargetPageGuid(navigationNode);
-
-        if (targetPageGuid == Guid.Empty)
-        {
-            return fallbackUrl;
-        }
-
-        if (!targetPagesByGuid.TryGetValue(targetPageGuid, out var targetPage))
-        {
-            _logger.LogWarning(
-                "Navigation node {NodeId} için seçilen {TargetPageGuid} sayfası bulunamadı veya yayınlanmamış.",
-                navigationNode.NodeID,
-                targetPageGuid);
-
-            return fallbackUrl;
-        }
-
-        var relativePath = Clean(_pageUrlRetriever.Retrieve(targetPage).RelativePath);
-        return relativePath.StartsWith("~/", StringComparison.Ordinal)
-            ? relativePath[1..]
-            : relativePath;
-    }
-
-    private static Guid GetTargetPageGuid(NavigationNodePage page) =>
-        page.GetGuidValue(NavigationTargetPageField, Guid.Empty);
-
-    private static bool IsKnownAudience(string audience) =>
-        string.Equals(audience, NavigationAudiences.All, StringComparison.Ordinal)
-        || string.Equals(audience, NavigationAudiences.Desktop, StringComparison.Ordinal)
-        || string.Equals(audience, NavigationAudiences.Mobile, StringComparison.Ordinal);
 
     private static string Clean(string? value) => value?.Trim() ?? string.Empty;
 
