@@ -1,7 +1,10 @@
 (() => {
     "use strict";
+    const initializeHeader = () => {
     const header = document.querySelector("[data-ykb-header]");
     if (!header) return;
+    if (header.dataset.ykbHeaderInitialized === "true") return;
+    header.dataset.ykbHeaderInitialized = "true";
     const desktopTabs = [...header.querySelectorAll("[data-desktop-tab]")];
     const dropdownButtons = [...header.querySelectorAll("[data-header-dropdown]")];
     const dropdownPanels = [...header.querySelectorAll("[data-dropdown-panel]")];
@@ -404,4 +407,11 @@
     window.addEventListener("resize", () => {
         if (window.innerWidth >= 992) setMobileMenuOpen(false);
     });
+    };
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", initializeHeader, { once: true });
+    } else {
+        initializeHeader();
+    }
 })();
