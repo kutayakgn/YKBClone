@@ -1,29 +1,7 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using CMS.DocumentEngine;
-using Kentico.Content.Web.Mvc;
-using Microsoft.Extensions.Logging;
-using YkbYapikredi.Application.Layout;
-using YkbYapikredi.Application.Navigation;
-
-// Bu dört alias'ı Kentico'nun sizin projenizde ürettiği namespace/class adlarına göre düzenleyin.
-using NavigationMenuPage = CMS.DocumentEngine.Types.YKB.NavigationMenu;
-using NavigationNodePage = CMS.DocumentEngine.Types.YKB.NavigationNode;
-using HeaderNotificationPage = CMS.DocumentEngine.Types.YKB.HeaderNotification;
-using AnnouncementPage = CMS.DocumentEngine.Types.YKB.Announcement;
-
-namespace YkbYapikredi.Infrastructure.Kentico;
-
-/// <summary>
-/// Kentico page tree içeriğini Razor'dan bağımsız LayoutContent paketine dönüştürür.
-/// IPageRetriever geçerli site, culture, preview ve yayın bağlamını uygular.
-/// </summary>
-public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
-{
-    private const string HeaderNotificationsPath = "/Shared/Header Notifications";
+using CMS.DocumentEngine;using Kentico.Content.Web.Mvc;using Microsoft.Extensions.Logging;using YkbYapikredi.Application.Layout;using YkbYapikredi.Application.Navigation;using YkbYapikredi.Infrastructure.Layout;using AnnouncementPage = CMS.DocumentEngine.Types.YkbYapikredi.Announcement;using HeaderNotificationPage = CMS.DocumentEngine.Types.YkbYapikredi.HeaderNotificationItem;using ModalPage = CMS.DocumentEngine.Types.YkbYapikredi.Modal;// Bu dört alias'ı Kentico'nun sizin projenizde ürettiği namespace/class adlarına göre düzenleyin.using NavigationMenuPage = CMS.DocumentEngine.Types.YkbYapikredi.NavigationMenu;using NavigationNodePage = CMS.DocumentEngine.Types.YkbYapikredi.NavigationMenuNode;
+/// <summary>/// Kentico page tree içeriğini Razor'dan bağımsız LayoutContent paketine dönüştürür./// IPageRetriever geçerli site, culture, preview ve yayın bağlamını uygular./// </summary>public sealed class LayoutContentProvider : ILayoutContentProvider{
+    private const string HeaderNotificationsPath = "/Shared/HeaderNotifications";
+    private const string ModalsPath = "/Shared/Modals";
     private const string AnnouncementsPath = "/Shared/Announcements";
 
     private static readonly string[] RequiredMenuKeys =
@@ -38,14 +16,17 @@ public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
     };
 
     private readonly IPageRetriever _pageRetriever;
-    private readonly ILogger<KenticoLayoutContentProvider> _logger;
+    private readonly ILogger<LayoutContentProvider> _logger;
+    private readonly ModalDtoMapper _modalDtoMapper;
 
-    public KenticoLayoutContentProvider(
+    public LayoutContentProvider(
         IPageRetriever pageRetriever,
-        ILogger<KenticoLayoutContentProvider> logger)
+        ILogger<LayoutContentProvider> logger,
+        ModalDtoMapper modalDtoMapper)
     {
         _pageRetriever = pageRetriever;
         _logger = logger;
+        _modalDtoMapper = modalDtoMapper;
     }
 
     public Task<LayoutContent> GetAsync(
@@ -54,9 +35,7 @@ public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
     {
         cancellationToken.ThrowIfCancellationRequested();
 
-        // IPageRetriever culture'ı request context'ten belirler. Parametre provider cache key'i
-        // veya projeye özel culture override'ı için sözleşmede tutulmaktadır.
-        _ = culture;
+        // IPageRetriever culture'ı request context'ten belirler. Parametre provider cache key'i// veya projeye özel culture override'ı için sözleşmede tutulmaktadır.        _ = culture;
 
         var roots = _pageRetriever.Retrieve<NavigationMenuPage>(query => query
                 .WhereIn("NavigationMenuKey", RequiredMenuKeys)
@@ -133,6 +112,13 @@ public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
             })
             .ToArray();
 
+        var modals = _pageRetriever
+          .Retrieve<ModalPage>(query => query
+          .Path(ModalsPath, PathTypeEnum.Children)
+          .NestingLevel(1)
+          .OrderBy(nameof(TreeNode.NodeOrder)))
+          .Select(page => _modalDtoMapper.Map(page)).ToArray();
+
         var announcements = _pageRetriever
             .Retrieve<AnnouncementPage>(query => query
                 .Path(AnnouncementsPath, PathTypeEnum.Children)
@@ -149,7 +135,7 @@ public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
         return Task.FromResult(new LayoutContent(
             menus,
             announcements,
-            headerNotifications));
+            headerNotifications, modals));
     }
 
     private static NavigationNodeDto MapNode(
@@ -183,3 +169,4 @@ public sealed class KenticoLayoutContentProvider : ILayoutContentProvider
 
     private static string Clean(string? value) => value?.Trim() ?? string.Empty;
 }
+ 
