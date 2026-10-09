@@ -34,7 +34,7 @@ vm.runInNewContext(source.replace('handlers.set("projects", projects);',
     'window.testInternals = { initialize, bulletins }; handlers.set("projects", projects);'),
     { window, document, console });
 const api = window.YKB.CustomTableFeeds;
-const { normalize, parseDate, isoDate, unique } = api.utils;
+const { normalize, parseDate, isoDate, displayDate, previousMonth, unique } = api.utils;
 assert.equal(normalize(' İZMİR '), 'izmir');
 assert.equal(parseDate('31.02.2026'), undefined);
 assert.equal(parseDate('29.02.2025'), undefined);
@@ -42,6 +42,9 @@ assert.equal(isoDate(parseDate('29.02.2024')), '2024-02-29');
 assert.equal(parseDate(''), null);
 assert.equal(parseDate('2026-10-09'), undefined);
 assert.equal(unique(['İzmir', 'İZMİR', ' Ankara ', '', 'Ankara']).length, 2);
+assert.equal(isoDate(previousMonth(new Date(2026, 2, 31))), '2026-02-28');
+assert.equal(isoDate(previousMonth(new Date(2024, 2, 31))), '2024-02-29');
+assert.equal(isoDate(previousMonth(new Date(2026, 0, 9))), '2025-12-09');
 
 function feed(size) {
     const root = new Element();
@@ -87,6 +90,8 @@ const datesRoot = new Element(), start = new Element(), end = new Element(), err
 datesRoot.querySelector = selector => ({ '[data-start-date]': start, '[data-end-date]': end, '[data-filter-error]': error })[selector];
 datesRoot.querySelectorAll = () => []; // Calendar interactions verified in Preview.
 const read = window.testInternals.bulletins(datesRoot, a.rows);
+assert.equal(start.value, displayDate(previousMonth(new Date())));
+assert.equal(end.value, displayDate(new Date()));
 start.value = '10.10.2026'; end.value = '12.10.2026';
 assert.equal(a.rows.filter(read()).length, 3); // Both boundaries inclusive.
 start.value = '13.10.2026';
@@ -94,4 +99,17 @@ assert.equal(read(), null);
 assert.equal(error.hidden, false);
 start.value = '31.02.2026';
 assert.equal(read(), null);
-console.log('PASS: dates, Turkish search, PageSize=0, pagination, filter reset, empty results, independent instances, inclusive date ranges.');
+
+// Initial bulletin rendering must apply the default date range, before submit.
+const initial = feed(0);
+const first = new Element(), last = new Element(), validation = new Element();
+initial.root.dataset.kind = 'bulletins';
+const originalQuery = initial.root.querySelector;
+initial.root.querySelector = selector => ({ '[data-start-date]': first, '[data-end-date]': last, '[data-filter-error]': validation })[selector] || originalQuery(selector);
+initial.root.querySelectorAll = selector => selector === '[data-ct-date]' ? [] : initial.rows;
+initial.rows[0].dataset.date = isoDate(previousMonth(new Date()));
+initial.rows[1].dataset.date = isoDate(new Date());
+initial.rows.slice(2).forEach(row => { row.dataset.date = '1900-01-01'; });
+window.testInternals.initialize(initial.root);
+assert.equal(initial.shown().length, 2);
+console.log('PASS: dates, month-end clamping, default initial date filter, Turkish search, PageSize=0, pagination, filter reset, empty results, independent instances, inclusive date ranges.');

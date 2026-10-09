@@ -98,7 +98,8 @@ Layout'ta bu dosyaların birleştirildiği bundle yüklenmeli. Paket JS'i bağı
 - Bültenlerde “tıklayınız” bağlantısı satırın Pdf adresini; projelerde Web bağlantısı WebsiteUrl adresini `target="_blank" rel="noopener noreferrer"` ile yeni sekme/pencerede açar.
 - Yalnızca seçilen kaynak tablo okunur. CMS alanından gelen key SQL'e/tablo sorgusuna doğrudan verilmez; kodda kayıtlı source seçilir.
 - PageSize=0: pagination yok. Pozitif PageSize: filtre sonucunda sayfa başına o kadar kayıt.
-- İlk ekranda filtre yoktur. Filtre formu gönderilince uygulanır; yazarken/il seçerken satırlar hemen değişmez.
+- Projelerde ilk ekranda filtre yoktur. Bültenlerde başlangıç tarihi bir takvim ayı öncesi, bitiş tarihi tarayıcının yerel bugünü olarak doldurulur ve bu aralık ilk render sırasında otomatik uygulanır. Ay sonunda önceki ayın son geçerli günü kullanılır (31 Mart → 28/29 Şubat). Sonraki filtreler form gönderilince uygulanır; yazarken/il seçerken satırlar hemen değişmez.
+- Takvim ay/yıl seçimi, oklar, odak değişimi ve dış tıklamada açık kalır. Yalnızca gün seçimi takvimi kapatır. Tarih alanları, ay/yıl dropdown'ları ve takvim kontrollerinde hover/focus stili yoktur; seçili gün işareti korunur. Proje filtre inputları ve dropdown tetikleyicileri de focus çerçevesi üretmez.
 - İl seçilene kadar ilçe dropdown'u disabled'dır. İl değişince ilçe seçimi temizlenir. Boş seçenek filtreyi kaldırır.
 - Dropdown'lar yalnızca mevcut kayıtlarda bulunan il/ilçeleri içerir. Metin araması Türkçe büyük/küçük harf duyarsız, kısmi eşleşmedir.
 - Tarih filtreleri isteğe bağlıdır, başlangıç/bitiş günleri dahil edilir. Boş bırakılan sınır kısıtlama yapmaz. Geçersiz veya ters tarih aralığı hata gösterir, mevcut satırları değiştirmez.
@@ -142,3 +143,9 @@ node CustomTableFeedTransfer/Tests/client-tests.cjs
 Doğrulama: Node testleri ve JS syntax kontrolü geçti. Tarayıcıda ilk pagination, il seçilmeden ilçe engeli, İzmir ilçelerinin listelenmesi, Güzelbahçe filtresi ve takvim üzerinden tarih seçip satırları filtreleme doğrulandı. Bu makinede .NET SDK ve gerçek Kentico solution bulunmadığı için C#/Razor derlemesi çalıştırılamadı; hedef Kentico projesinde build yapın.
 
 Kentico API referansı: https://devnet.kentico.com/docs/13_0/api/html/T_CMS_CustomTables_CustomTableItemProvider.htm
+
+## Bültenlerde boş sonuç kontrolü
+
+İlk ekranda yalnızca bir ay öncesi–bugün aralığı görünür. Daha eski kayıtlar için başlangıç tarihini değiştirip Getir'e basın. Hedef CMS veritabanına bu paket erişemediğinden boşluğun nedenini burada doğrulamak mümkün değildir.
+
+HTML kaynak kodunda `data-ct-row data-date=` satırları hiç yoksa kaynak/field kontrolü yapın: `CustomTableFeedSchema.cs` içindeki table class name ve `BulletinDateField = "Tarih"` değerleri CMS code name ile aynı olmalıdır. Caption (görünen etiket) code name değildir. Tarih alanı Date and time olmalıdır; mevcut mapper geçersiz/boş tarihi olan kayıtları listeye almaz. Satırlar HTML'de varsa fakat görünmüyorsa tarih aralığını ve tarayıcıdaki JS hatalarını kontrol edin.

@@ -13,6 +13,13 @@
     };
     const pad = number => String(number).padStart(2, "0");
     const isoDate = date => `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+    const displayDate = date => `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`;
+    function previousMonth(date) {
+        // Clamp month-end: 31 March -> 28/29 February, never 3 March.
+        const first = new Date(date.getFullYear(), date.getMonth() - 1, 1);
+        const lastDay = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+        return new Date(first.getFullYear(), first.getMonth(), Math.min(date.getDate(), lastDay));
+    }
     function parseDate(text) {
         if (!text.trim()) return null;
         const match = /^(\d{2})\.(\d{2})\.(\d{4})$/.exec(text.trim());
@@ -150,7 +157,6 @@
             input.setAttribute("aria-expanded", "false");
             if (focus) input.focus();
         };
-        root.addEventListener("ct-calendar-open", event => { if (event.detail !== field) close(false); });
         function render() {
             panel.replaceChildren();
             const header = document.createElement("div");
@@ -197,7 +203,7 @@
                     button.classList.add("is-selected"); button.setAttribute("aria-pressed", "true");
                 }
                 button.addEventListener("click", () => {
-                    input.value = `${pad(date.getDate())}.${pad(date.getMonth() + 1)}.${date.getFullYear()}`;
+                    input.value = displayDate(date);
                     input.dispatchEvent(new Event("change", { bubbles: true }));
                     close(true);
                 });
@@ -207,7 +213,6 @@
         }
         const open = () => {
             if (!panel.hidden) return;
-            root.dispatchEvent(new CustomEvent("ct-calendar-open", { detail: field }));
             const selected = parseDate(input.value);
             displayed = selected ? new Date(selected.getFullYear(), selected.getMonth(), 1)
                 : new Date(today.getFullYear(), today.getMonth(), 1);
@@ -215,11 +220,10 @@
             toggle.setAttribute("aria-expanded", "true"); input.setAttribute("aria-expanded", "true");
         };
         input.addEventListener("click", open);
-        toggle.addEventListener("click", () => panel.hidden ? open() : close(false));
+        toggle.addEventListener("click", open);
         input.addEventListener("keydown", event => { if (event.key === "ArrowDown") { event.preventDefault(); open(); panel.querySelector(".is-selected, [data-calendar-date]").focus(); } });
         field.addEventListener("keydown", event => {
             if (panel.hidden) return;
-            if (event.key === "Escape") { event.preventDefault(); close(true); }
             const day = event.target.closest("[data-calendar-date]");
             const delta = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -7, ArrowDown: 7 }[event.key];
             if (day && delta) {
@@ -229,8 +233,9 @@
                 if (target) target.focus();
             }
         });
-        document.addEventListener("click", event => { if (!field.contains(event.target)) close(false); });
-        field.addEventListener("focusout", event => { if (!field.contains(event.relatedTarget)) close(false); });
+        // A native month/year select may temporarily lose focus, and render()
+        // detaches its old DOM. Neither event should dismiss the calendar.
+        // Only choosing a day above closes this panel.
     }
     function paging(container, page, count, change) {
         container.replaceChildren();
@@ -276,6 +281,9 @@
         const start = root.querySelector("[data-start-date]");
         const end = root.querySelector("[data-end-date]");
         const error = root.querySelector("[data-filter-error]");
+        const today = new Date();
+        start.value = displayDate(previousMonth(today));
+        end.value = displayDate(today);
         const dates = rows.map(row => row.dataset.date);
         root.querySelectorAll("[data-ct-date]").forEach((field, index) => calendar(field, root, index, dates));
         return () => {
@@ -306,7 +314,7 @@
         const rawSize = Number.parseInt(root.dataset.pageSize, 10);
         const size = Number.isFinite(rawSize) && rawSize > 0 ? rawSize : 0;
         let page = 1;
-        let predicate = () => true;
+        let predicate = readPredicate() || (() => true);
         const render = () => {
             const matches = rows.filter(predicate);
             const count = size > 0 ? Math.ceil(matches.length / size) : 1;
@@ -341,7 +349,7 @@
             if (handlers.has(kind)) throw new Error("Feed handler zaten kayıtlı: " + kind);
             handlers.set(kind, factory); init();
         },
-        utils: { normalize, parseDate, isoDate, unique }
+        utils: { normalize, parseDate, isoDate, displayDate, previousMonth, unique }
     };
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
     else init();

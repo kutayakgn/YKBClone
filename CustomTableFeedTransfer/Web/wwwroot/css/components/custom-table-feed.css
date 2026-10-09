@@ -7,7 +7,7 @@
 .ct-feed__filters--dates { grid-template-columns:minmax(0,1fr) minmax(0,1fr) auto; gap:20px 30px; }
 .ct-feed__input { width:100%; min-width:0; height:36px; border:1px solid #929aa5; border-radius:5px; padding:8px 14px; background:#fff; color:#004990; font:inherit; }
 .ct-feed__input::placeholder { color:#686868; }
-.ct-feed__input:focus { outline:1px solid #0052b4; border-color:#0052b4; }
+.ct-feed .ct-feed__input:is(:hover,:focus,:focus-visible,:active) { outline:none; border-color:#929aa5; box-shadow:none; background:#fff; }
 .ct-feed__input[aria-invalid="true"] { border-color:#b32020; }
 .ct-feed__submit { height:36px; padding:0 22px; border:0; border-radius:5px; background:#004990; color:#fff; font:inherit; cursor:pointer; }
 .ct-feed__submit:hover { background:#003b75; }
@@ -18,12 +18,14 @@
 .ct-select { position:relative; min-width:0; }
 .ct-select__trigger { display:flex; align-items:center; justify-content:space-between; gap:8px; width:100%; height:36px; padding:8px 14px; border:1px solid #929aa5; border-radius:5px; background:#fff; color:#555; text-align:left; font:inherit; cursor:pointer; }
 .ct-select__trigger:disabled { opacity:.5; cursor:not-allowed; }
-.ct-select__trigger[aria-expanded="true"] { border-color:#0052b4; border-radius:5px 5px 0 0; }
+.ct-select__trigger[aria-expanded="true"] { border-color:#929aa5; border-radius:5px 5px 0 0; }
+.ct-feed .ct-select__trigger:is(:hover,:focus,:focus-visible,:active) { outline:none; box-shadow:none; border-color:#929aa5; background:#fff; color:#555; }
 .ct-select__trigger [data-select-label] { overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
 .ct-select__arrow { flex:0 0 auto; border-left:4px solid transparent; border-right:4px solid transparent; border-top:5px solid #888; }
 .ct-select__trigger[aria-expanded="true"] .ct-select__arrow { transform:rotate(180deg); }
-.ct-select__panel { position:absolute; top:calc(100% - 1px); inset-inline:0; z-index:30; padding:4px; border:1px solid #0052b4; border-radius:0 0 5px 5px; background:#fff; box-shadow:0 5px 12px #0002; }
+.ct-select__panel { position:absolute; top:calc(100% - 1px); inset-inline:0; z-index:30; padding:4px; border:1px solid #929aa5; border-radius:0 0 5px 5px; background:#fff; box-shadow:0 5px 12px #0002; }
 .ct-select__search { width:100%; height:28px; padding:4px 6px; border:1px solid #ddd; color:#004990; background:#fff; font:inherit; }
+.ct-feed .ct-select__search:is(:hover,:focus,:focus-visible,:active) { outline:none; box-shadow:none; border-color:#ddd; background:#fff; }
 .ct-select__options { max-height:210px; overflow-y:auto; overscroll-behavior:contain; scrollbar-width:thin; }
 .ct-select__option { display:block; width:100%; padding:5px 12px; border:0; background:#fff; color:#004990; text-align:left; font:inherit; cursor:pointer; }
 .ct-select__option:hover, .ct-select__option:focus-visible { background:#edf4fb; }
@@ -55,13 +57,14 @@
 .ct-calendar__header > button { height:24px; padding:0; border:0; background:transparent; color:#222; font-size:24px; line-height:1; cursor:pointer; }
 .ct-calendar__header > button:disabled { opacity:.3; }
 .ct-calendar__header select { width:100%; min-width:0; height:22px; padding:0 2px; border:1px solid #aaa; border-radius:0; color:#004990; background:#fff; font:inherit; font-size:11px; }
+.ct-feed .ct-calendar__header select:is(:hover,:focus,:focus-visible,:active) { outline:none; box-shadow:none; border-color:#aaa; background:#fff; color:#004990; }
+.ct-feed .ct-calendar button:is(:hover,:focus,:focus-visible,:active), .ct-feed .ct-date__open:is(:hover,:focus,:focus-visible,:active) { outline:none; box-shadow:none; background:transparent; }
 .ct-calendar__week, .ct-calendar__days { display:grid; grid-template-columns:repeat(7,minmax(0,1fr)); text-align:center; }
 .ct-calendar__week { margin-bottom:8px; font-size:11px; }
 .ct-calendar__days { gap:2px 0; }
 .ct-calendar__days button { width:30px; height:30px; justify-self:center; padding:0; border:0; border-radius:50%; background:transparent; color:#004990; font:inherit; font-size:11px; cursor:pointer; }
-.ct-calendar__days button:hover { background:#edf4fb; }
 .ct-calendar__days button.is-other-month { color:#999; }
-.ct-calendar__days button.is-selected { background:#1266b5; color:#fff; }
+.ct-feed .ct-calendar__days button.is-selected { background:#1266b5; color:#fff; }
 /* Bulletin table */
 .ct-feed__table-wrap { overflow-x:auto; border:1px solid #eee; border-radius:6px 6px 0 0; }
 .ct-bulletins { width:100%; border-collapse:collapse; text-align:left; color:#003b75; font-size:13px; }
