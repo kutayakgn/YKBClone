@@ -6,4 +6,11 @@
     <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
+  <!-- Transfer package targets the external Kentico/Clean Architecture solution. -->
+  <ItemGroup>
+    <Compile Remove="CustomTableFeedTransfer/**/*.cs" />
+    <Content Remove="CustomTableFeedTransfer/**" />
+    <None Include="CustomTableFeedTransfer/**/*.cs;CustomTableFeedTransfer/**/*.cshtml" />
+  </ItemGroup>
+
 </Project>

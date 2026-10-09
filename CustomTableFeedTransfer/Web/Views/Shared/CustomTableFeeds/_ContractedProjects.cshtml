@@ -1,0 +1,54 @@
+@model YkbYapikredi.Application.CustomTableFeeds.ContractedProjectsContent
+
+<form class="ct-feed__filters ct-feed__filters--projects" data-ct-filters>
+    <input class="ct-feed__input" type="text" placeholder="Proje Adı" aria-label="Proje Adı" data-project-name />
+    <input class="ct-feed__input" type="text" placeholder="Firma Adı" aria-label="Firma Adı" data-firm-name />
+    <div class="ct-select" data-ct-select data-location="city" data-placeholder="İl Seçiniz">
+        <button type="button" class="ct-select__trigger" data-select-trigger aria-expanded="false" aria-haspopup="listbox">
+            <span data-select-label>İl Seçiniz</span><span class="ct-select__arrow" aria-hidden="true"></span>
+        </button>
+        <div class="ct-select__panel" data-select-panel hidden>
+            <input class="ct-select__search" type="search" placeholder="Ara" aria-label="İl ara" autocomplete="off" data-select-search />
+            <div class="ct-select__options" data-select-options role="listbox" aria-label="İller"></div>
+            <p class="ct-select__empty" data-select-empty hidden>Sonuç bulunamadı.</p>
+        </div>
+    </div>
+    <div class="ct-select" data-ct-select data-location="district" data-placeholder="İlçe Seçiniz">
+        <button type="button" class="ct-select__trigger" data-select-trigger aria-expanded="false" aria-haspopup="listbox" disabled>
+            <span data-select-label>İlçe Seçiniz</span><span class="ct-select__arrow" aria-hidden="true"></span>
+        </button>
+        <div class="ct-select__panel" data-select-panel hidden>
+            <input class="ct-select__search" type="search" placeholder="Ara" aria-label="İlçe ara" autocomplete="off" data-select-search />
+            <div class="ct-select__options" data-select-options role="listbox" aria-label="İlçeler"></div>
+            <p class="ct-select__empty" data-select-empty hidden>Sonuç bulunamadı.</p>
+        </div>
+    </div>
+    <button type="submit" class="ct-feed__submit">ARA</button>
+</form>
+<div class="ct-projects">
+    @foreach (var row in Model.Rows)
+    {
+        <article class="ct-project" data-ct-row
+                 data-project-name="@row.ProjectName" data-firm-name="@row.FirmName"
+                 data-city="@row.City" data-district="@row.District">
+            <h3 class="ct-project__title">@row.ProjectName</h3>
+            <div class="ct-project__body">
+                @if (!string.IsNullOrWhiteSpace(row.Image))
+                {
+                    <div class="ct-project__image"><img src="@Url.Content(row.Image)" alt="@row.FirmName" loading="lazy" /></div>
+                }
+                <dl class="ct-project__details">
+                    <div><dt>Firma Adı</dt><dd>@row.FirmName</dd></div>
+                    <div><dt>Adres</dt><dd>@row.City / @row.District</dd></div>
+                    <div><dt>Web</dt><dd>
+                        @if (!string.IsNullOrWhiteSpace(row.WebsiteUrl))
+                        {
+                            <a href="@Url.Content(row.WebsiteUrl)" target="_blank" rel="noopener noreferrer">@row.WebsiteUrl</a>
+                        }
+                    </dd></div>
+                    <div><dt>İlgili Şube / Tel</dt><dd>@row.Branch @(!string.IsNullOrWhiteSpace(row.Branch) && !string.IsNullOrWhiteSpace(row.Phone) ? "/" : "") @row.Phone</dd></div>
+                </dl>
+            </div>
+        </article>
+    }
+</div>
