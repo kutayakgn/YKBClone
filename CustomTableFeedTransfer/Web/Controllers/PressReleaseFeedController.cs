@@ -12,7 +12,7 @@ public sealed class PressReleaseFeedController : Controller
 
     [HttpGet("rows")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public IActionResult Rows(int? category, string period = "", int page = 1, int pageSize = 0)
+    public IActionResult Rows([FromQuery] int? category, [FromQuery] string period = "", [FromQuery] int page = 1, [FromQuery] int pageSize = 0)
     {
         if (!ModelState.IsValid || pageSize < 0 || page < 1) return BadRequest();
         try

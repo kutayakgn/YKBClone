@@ -46,14 +46,16 @@ public sealed class KenticoPressReleaseFeedService : IPressReleaseFeedService
         }
         var query = CustomTableItemProvider.GetItems(CustomTableFeedSchema.BasinBultenleri)
             .WhereGreaterOrEquals("Date", new DateTime(1900, 1, 1));
-        if (category.HasValue) query.WhereEquals("Category", category.Value);
-        if (from.HasValue) query.WhereGreaterOrEquals("Date", from.Value);
-        if (until.HasValue) query.WhereLessThan("Date", until.Value);
-        query.OrderBy("Date DESC", "ItemID DESC");
+        // Retain every returned query, including when the provider uses an
+        // immutable query instance. Otherwise added filters can be discarded.
+        if (category.HasValue) query = query.WhereEquals("Category", category.Value);
+        if (from.HasValue) query = query.WhereGreaterOrEquals("Date", from.Value);
+        if (until.HasValue) query = query.WhereLessThan("Date", until.Value);
+        query = query.OrderBy("Date DESC", "ItemID DESC");
         pageSize = Math.Max(0, pageSize);
         var pagination = pageSize > 0;
         page = pagination ? Math.Max(1, Math.Min(page, Math.Max(1, int.MaxValue / Math.Max(1, pageSize)))) : 1;
-        if (pagination) query.Page(page - 1, pageSize);
+        if (pagination) query = query.Page(page - 1, pageSize);
         var items = query.ToArray();
         var total = pagination ? query.TotalRecords : items.Length;
         var pages = pagination ? (int)Math.Ceiling(total / (double)pageSize) : 0;

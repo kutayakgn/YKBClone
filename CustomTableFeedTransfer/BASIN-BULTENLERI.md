@@ -137,3 +137,33 @@ Adres: http://127.0.0.1:8891/Preview/press-releases.html. Bu sunucu yalnızca ö
 Kentico API: [Query Page / TotalRecords / Where](https://devnet.kentico.com/docs/13_0/api/html/T_CMS_DataEngine_ObjectQuery.htm), [MediaFileInfoProvider](https://devnet.kentico.com/docs/13_0/api/html/T_CMS_MediaLibrary_MediaFileInfoProvider.htm).
 
 Doğrulama sonucu: Yeni JS syntax kontrolü ve eski client testleri geçti. Tarayıcıda kategori seçenek araması, Git ile 13 kayıt filtresi, ikinci sayfada kalan 3 satır, sınırda disabled oklar ve boş sonuç durumu mock endpoint ile doğrulandı; sayfa URL'si değişmedi. Bu ortamda gerçek Kentico DB ve .NET SDK olmadığından C#/Razor build ve gerçek SQL/medya uçtan uca testi çalıştırılamadı.
+
+## Git tıklamasında Network isteği yoksa
+
+Bu durumda SQL veya controller henüz çalışmamıştır. `press-releases.js` dosyasının hedef bundle'a dahil edildiğini, bundle'ın yeniden üretildiğini ve tarayıcıya güncel dosyanın geldiğini kontrol edin. İlk liste sunucuda render edildiği için JS yüklenmese bile satırlar görünür; bu, filtrenin başlatıldığı anlamına gelmez.
+
+Güncel JS kendi filtre hidden inputlarını scoped selector ile okur. Başlatma hatasında component içinde mesaj ve Console'da hata gösterir. Başarılı kökte `data-press-initialized="true"` bulunur.
+
+Console kontrolleri:
+
+```javascript
+typeof window.YKB?.PressReleases
+Array.from(document.querySelectorAll('[data-press-feed]'), element => ({
+    initialized: element.dataset.pressInitialized,
+    endpoint: element.dataset.endpoint,
+    category: element.querySelector('[name="category"]')?.value,
+    period: element.querySelector('[name="period"]')?.value
+}))
+```
+
+İlk sonuç undefined ise module bundle'da yoktur/yüklenmemiştir veya bundle daha önce bir syntax hatasıyla durmuştur. object olup initialized false ise Console'daki başlatma hatasını düzeltin. Güncel module yüklüyse `window.YKB.PressReleases.init()` ile yeniden başlatabilirsiniz; başka bundle hatalarını atlamaz.
+
+Sunucu sorgusundaki Where/OrderBy/Page dönüşleri de artık query değişkenine atanır; immutable instance kullanıldığında filtre/sayfalama kaybolmaz. Gerçek provider'da immutable kullanıldığı hedef DB'ye erişmeden doğrulanamaz.
+
+Ek request-akış testi:
+
+```sh
+node CustomTableFeedTransfer/Tests/press-client-tests.cjs
+```
+
+Bu test gerçek JS'i çalıştırarak Git ile kategori/yıl/PageSize parametrelerinin gönderildiğini, pagination'ın son uygulanmış filtreleri koruduğunu ve Seçiniz'in filtre parametrelerini kaldırdığını doğrular. Kentico uçtan uca testi değildir.

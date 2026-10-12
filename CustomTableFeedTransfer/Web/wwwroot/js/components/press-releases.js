@@ -68,7 +68,14 @@
         const status = root.querySelector("[data-press-status]");
         const error = root.querySelector("[data-press-error]");
         const selectors = Array.from(root.querySelectorAll("[data-press-select]"), (element, index) => selector(root, element, index));
-        const read = () => ({ category: form.elements.category.value, period: form.elements.period.value });
+        // Read this component's hidden values explicitly, rather than named
+        // properties of form.elements (which may resolve to a collection).
+        const categoryInput = form.querySelector('[data-press-value][name="category"]');
+        const periodInput = form.querySelector('[data-press-value][name="period"]');
+        if (!categoryInput || !periodInput || !root.dataset.endpoint) {
+            throw new Error("Filtre inputları veya data-endpoint eksik. _PressReleases ve _PressReleaseSelect partial'larını kontrol edin.");
+        }
+        const read = () => ({ category: categoryInput.value.trim(), period: periodInput.value.trim() });
         let applied = read();
         let controller, sequence = 0;
         function renderPager() {
@@ -101,8 +108,10 @@
             try {
                 const url = new URL(root.dataset.endpoint, window.location.href);
                 url.searchParams.set("pageSize", root.dataset.pageSize || "0");
-                url.searchParams.set("category", filter.category);
-                url.searchParams.set("period", filter.period);
+                if (filter.category) url.searchParams.set("category", filter.category);
+                else url.searchParams.delete("category");
+                if (filter.period) url.searchParams.set("period", filter.period);
+                else url.searchParams.delete("period");
                 url.searchParams.set("page", String(page));
                 const response = await fetch(url, { signal: controller.signal, credentials: "same-origin", headers: { "X-Requested-With": "XMLHttpRequest" } });
                 if (!response.ok) throw new Error("HTTP " + response.status);
@@ -116,7 +125,10 @@
             } catch (exception) {
                 if (requestId !== sequence || exception.name === "AbortError") return;
                 error.textContent = "Bültenler yüklenemedi. Lütfen tekrar deneyiniz."; error.hidden = false;
-                renderPager(); console.error("Basın bültenleri yüklenemedi:", exception);
+                renderPager(); console.error("Basın bültenleri yüklenemedi:", {
+                    endpoint: root.dataset.endpoint, category: filter.category,
+                    period: filter.period, page, error: exception
+                });
             } finally {
                 if (requestId === sequence) root.setAttribute("aria-busy", "false");
             }
@@ -125,10 +137,19 @@
             event.preventDefault(); selectors.forEach(item => item.close()); load(1, read(), false);
         });
         renderPager(); initialized.add(root);
+        root.dataset.pressInitialized = "true";
     }
     function init() {
         document.querySelectorAll("[data-press-feed]").forEach(root => {
-            try { initialize(root); } catch (error) { console.error("Basın bültenleri başlatılamadı:", error); }
+            try { initialize(root); } catch (error) {
+                root.dataset.pressInitialized = "false";
+                const message = root.querySelector("[data-press-error]");
+                if (message) {
+                    message.textContent = "Bülten filtreleri başlatılamadı. Lütfen sayfayı yeniden yükleyiniz.";
+                    message.hidden = false;
+                }
+                console.error("Basın bültenleri başlatılamadı:", root.id, error);
+            }
         });
     }
     window.YKB.PressReleases = { init };
