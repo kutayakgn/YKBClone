@@ -337,7 +337,7 @@
         root.dataset.ctInitialized = "true";
     }
     function init() {
-        document.querySelectorAll("[data-ct-feed]").forEach(root => {
+        document.querySelectorAll('[data-ct-feed]:not([data-feed-mode="server"])').forEach(root => {
             try { initialize(root); } catch (error) { console.error("CustomTableFeed başlatılamadı:", root.id, error); }
         });
     }

@@ -17,10 +17,10 @@ public sealed class CustomTableFeedProvider : ICustomTableFeedProvider
         }
         sources = dictionary;
     }
-    public ICustomTableFeedContent Load(string key)
+    public ICustomTableFeedContent Load(string key, int pageSize = 0)
     {
         if (!sources.TryGetValue(key.Trim(), out var source))
             throw new InvalidOperationException($"Custom table feed kaydı bulunamadı: {key}");
-        return source.Load();
+        return source.Load(Math.Max(0, pageSize));
     }
 }

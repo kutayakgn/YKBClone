@@ -100,7 +100,7 @@
             status.textContent = "Yükleniyor…";
             try {
                 const url = new URL(root.dataset.endpoint, window.location.href);
-                url.searchParams.set("token", root.dataset.token);
+                url.searchParams.set("pageSize", root.dataset.pageSize || "0");
                 url.searchParams.set("category", filter.category);
                 url.searchParams.set("period", filter.period);
                 url.searchParams.set("page", String(page));

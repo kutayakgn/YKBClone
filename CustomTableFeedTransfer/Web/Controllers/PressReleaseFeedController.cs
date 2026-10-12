@@ -1,7 +1,6 @@
 using System;
 using Microsoft.AspNetCore.Mvc;
 using YkbYapikredi.Application.CustomTableFeeds;
-using YkbYapikredi.Web.Services;
 
 namespace YkbYapikredi.Web.Controllers;
 
@@ -9,15 +8,13 @@ namespace YkbYapikredi.Web.Controllers;
 public sealed class PressReleaseFeedController : Controller
 {
     private readonly IPressReleaseFeedService service;
-    private readonly PressReleaseFeedToken tokens;
-    public PressReleaseFeedController(IPressReleaseFeedService service, PressReleaseFeedToken tokens)
-    { this.service = service; this.tokens = tokens; }
+    public PressReleaseFeedController(IPressReleaseFeedService service) { this.service = service; }
 
     [HttpGet("rows")]
     [ResponseCache(NoStore = true, Location = ResponseCacheLocation.None)]
-    public IActionResult Rows(string token, int? category, string period = "", int page = 1)
+    public IActionResult Rows(int? category, string period = "", int page = 1, int pageSize = 0)
     {
-        if (!ModelState.IsValid || !tokens.TryRead(token, out var pageSize)) return BadRequest();
+        if (!ModelState.IsValid || pageSize < 0 || page < 1) return BadRequest();
         try
         {
             return PartialView("~/Views/Shared/CustomTableFeeds/_PressReleaseRows.cshtml",

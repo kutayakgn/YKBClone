@@ -2,9 +2,10 @@
 @using System.Globalization
 @using YkbYapikredi.Application.CustomTableFeeds
 @using YkbYapikredi.Web.Models
-@model PressReleaseFeedViewModel
+@model PressReleasesContent
 
 @{
+    var domId = "press-feed-" + System.Guid.NewGuid().ToString("N");
     var periods = new List<PressReleaseOption> { new PressReleaseOption { Value = "3m", Label = "3 aylık" } };
     foreach (var year in Model.Years)
     {
@@ -12,7 +13,7 @@
         periods.Add(new PressReleaseOption { Value = text, Label = text });
     }
 }
-<section class="ct-feed ct-press" id="@Model.DomId" data-press-feed data-endpoint="@Url.Action("Rows", "PressReleaseFeed")" data-token="@Model.Token">
+<section class="ct-feed ct-press" id="@domId" data-press-feed data-endpoint="@Url.Action("Rows", "PressReleaseFeed")" data-page-size="@Model.PageSize">
     <form class="ct-press__filters" data-press-form>
         @await Html.PartialAsync("~/Views/Shared/CustomTableFeeds/_PressReleaseSelect.cshtml", new PressReleaseSelectViewModel { Name = "category", Label = "Kategoriler", Options = PressReleaseCategories.All })
         @await Html.PartialAsync("~/Views/Shared/CustomTableFeeds/_PressReleaseSelect.cshtml", new PressReleaseSelectViewModel { Name = "period", Label = "Tarih", Value = Model.Period, Options = periods })

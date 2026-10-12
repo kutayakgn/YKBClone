@@ -28,46 +28,52 @@ Media alanına iframe/HTML değil `~/getmedia/<guid>/dosya.pdf`, `/getmedia/...`
 
 Satırın tamamı target=_blank ile Media URL açar. PDF genelde tarayıcıda açılır; DOC dosyasını tarayıcı/Content-Disposition ayarı indirebilir. Kod yeni sekme/pencere açmayı ister; dosya gösterimini tarayıcı belirler.
 
-## Kopyalanacak güncellenmiş dosyalar
+## Önceki sürümden kaldırılacak dosyalar ve kayıtlar
 
+Aşağıdaki üç dosya artık pakette yoktur; hedef projeden de kaldırın:
+
+- Web/ViewComponents/PressReleasesViewComponent.cs
+- Web/Services/PressReleaseFeedToken.cs
+- Web/Models/PressReleaseFeedViewModel.cs
+
+Program.cs içinden `builder.Services.AddSingleton<PressReleaseFeedToken>();` kaydını ve yalnızca bu sınıf için eklenen `using YkbYapikredi.Web.Services;` satırını kaldırın. Yeni bir Web token/servis kaydı gerekmez. Başka özelliklerin kullandığı Data Protection ayarlarını değiştirmeyin.
+
+## Güncellenmiş dosyalar — son halleri pakette
+
+- Application/CustomTableFeeds/ICustomTableFeedSource.cs
+- Application/CustomTableFeeds/ICustomTableFeedProvider.cs
+- Application/CustomTableFeeds/ICustomTableFeedContent.cs
+- Application/CustomTableFeeds/PressReleasesContent.cs
+- Infrastructure/Components/Mappers/CustomTableFeedComponentMapper.cs
+- Infrastructure/CustomTableFeeds/CustomTableFeedProvider.cs
+- Infrastructure/CustomTableFeeds/BasinBultenleriSource.cs
+- Web/Controllers/PressReleaseFeedController.cs
+- Web/Views/Shared/Components/_CustomTableFeedComponent.cshtml
+- Web/Views/Shared/CustomTableFeeds/_PressReleases.cshtml
+- Web/wwwroot/js/components/custom-table-feed.js
+- Web/wwwroot/js/components/press-releases.js
+
+Provider artık PageSize'ı source'a geçirir. Eski kaynaklar default interface metodu sayesinde kendi Load() metodunu aynen kullanır; ContractedProjects ve iki eski bülten source'u değiştirilmez. PressReleasesContent ilk ekranın Years, Period, PageSize ve Result verilerini taşır. Source bu modeli hazırlayıp ViewName üzerinden normal partial render sağlar. Ana view'da BasinBultenleri veya herhangi bir somut model türüne özel kontrol yoktur. UsesClientFiltering yalnızca genel client/server davranış sözleşmesidir; eski modeller için varsayılan true'dur.
+
+## Korunacak diğer dosyalar
+
+- Application/CustomTableFeeds/PressReleaseModels.cs
 - Infrastructure/CustomTableFeeds/CustomTableFeedSchema.cs
 - Infrastructure/CustomTableFeeds/CustomTableFeedServiceCollectionExtensions.cs
-- Web/Views/Shared/Components/_CustomTableFeedComponent.cshtml
-
-Model ve mapper mevcut PageSize alanını kullanır; checkbox için değişiklik gerekmez. Eski kaynaklar ve eski JS/CSS dosyaları aynı davranışta kalır.
-
-## Kopyalanacak yeni dosyalar
-
-- Application/CustomTableFeeds/PressReleasesContent.cs
-- Application/CustomTableFeeds/PressReleaseModels.cs
-- Infrastructure/CustomTableFeeds/BasinBultenleriSource.cs
 - Infrastructure/CustomTableFeeds/KenticoPressReleaseFeedService.cs
-- Web/Models/PressReleaseFeedViewModel.cs
 - Web/Models/PressReleaseSelectViewModel.cs
-- Web/Services/PressReleaseFeedToken.cs
-- Web/ViewComponents/PressReleasesViewComponent.cs
-- Web/Controllers/PressReleaseFeedController.cs
-- Web/Views/Shared/CustomTableFeeds/_PressReleases.cshtml
 - Web/Views/Shared/CustomTableFeeds/_PressReleaseSelect.cshtml
 - Web/Views/Shared/CustomTableFeeds/_PressReleaseRows.cshtml
-- Web/wwwroot/js/components/press-releases.js
 - Web/wwwroot/css/components/press-releases.css
+
+PressReleaseSelectViewModel yalnızca ortak dropdown partial'ının modelidir. Web altında Services veya ViewComponents dosyası yoktur. Application'daki IPressReleaseFeedService ve Infrastructure'daki uygulaması SQL sorgularının MVC içine taşınmaması için korunur.
 
 ## DI / route / bundle
 
-Infrastructure DI kaydında mevcut çağrı yeterli; güncel dosya yeni source/service kaydını ekler:
+Infrastructure DI kaydındaki mevcut çağrı yeterlidir:
 
 ```csharp
 services.AddCustomTableFeeds();
-```
-
-Web Program.cs servis kayıtlarına, `builder.Build()` öncesi:
-
-```csharp
-using YkbYapikredi.Web.Services;
-
-builder.Services.AddDataProtection();
-builder.Services.AddSingleton<PressReleaseFeedToken>();
 ```
 
 MapControllers yoksa middleware/controller route bölümüne, app.Run() öncesi ekleyin:
@@ -76,7 +82,7 @@ MapControllers yoksa middleware/controller route bölümüne, app.Run() öncesi 
 app.MapControllers();
 ```
 
-Mevcut `.Add<CustomTableFeedComponentMapper>()` kaydı korunur; yeni mapper kaydı yok. Singleton mapper'a Scoped provider bağlamayın. DynamicPage, controller, ModalReferenceCollector, layout değişmez.
+Mevcut `.Add<CustomTableFeedComponentMapper>()` kaydı korunur; yeni mapper veya Web servis kaydı yoktur. Singleton mapper'a Scoped provider bağlamayın. DynamicPage, controller, ModalReferenceCollector, layout değişmez.
 
 Bundle CSS girdileri sırasıyla:
 
@@ -85,13 +91,14 @@ wwwroot/css/components/custom-table-feed.css
 wwwroot/css/components/press-releases.css
 ```
 
-Bundle JS girdisine:
+Bundle JS girdileri:
 
 ```text
+wwwroot/js/components/custom-table-feed.js
 wwwroot/js/components/press-releases.js
 ```
 
-Mevcut `custom-table-feed.js` diğer kaynaklar için kalır. Yeni JS kendi `[data-press-feed]` köklerini başlatır; version, jQuery, Bootstrap kullanmaz. Sonradan DOM eklenirse `window.YKB.PressReleases.init()` çağrılabilir. Bundle'ı yeniden üretin.
+İki JS'in son halini kopyalayıp bundle'ı yeniden oluşturun. Genel feed JS'i server mode köklerini başlatmaz. Basın bültenleri JS'i kendi `[data-press-feed]` köklerini başlatır; version, jQuery, Bootstrap kullanmaz. Sonradan DOM eklenirse `window.YKB.PressReleases.init()` çağrılabilir.
 
 ## İşleyiş
 
@@ -102,13 +109,13 @@ Filtre bölümünde görsellerdeki gibi **Kategoriler**, **Tarih** dropdown'lar�
 - Seçiniz tarih sınırlamasını kaldırır. 3 aylık, sunucunun bugünü dahil geriye üç takvim aylık aralıktır. Sunucu saat diliminin hedef siteye uygun olduğundan emin olun.
 - Git: SQL WHERE Category / Date filtresi, Date DESC + ItemID DESC sıralama, SQL Page. Filtre uygulandığında sayfa 1.
 - Pagination isteği son uygulanmış filtreleri kullanır. Dropdown değiştirip Git'e basılmadan sayfa değiştirirseniz mevcut listenin filtresi korunur.
-- PageSize=0 ise SQL paging yoktur ve pagination basılmaz. Pozitif değer CMS'den gelen imzalı token'da saklanır; endpoint istemciden gelen ayrı bir pageSize/pagination değerine güvenmez.
+- PageSize=0 ise SQL paging yoktur ve pagination basılmaz. Pozitif PageSize source tarafından ilk sorguya uygulanır ve partial üzerindeki data-page-size ile AJAX isteklerine taşınır. Bu public içerik endpoint'i category/period/page/pageSize parametrelerini doğrular; token yoktur.
 - Dört ok pagination varsa görünür; ilk/sonda ilgili oklar disabled. Önceki/sonraki iki sayfa numarası gösterilir.
 - AJAX yalnızca satır partial'ını getirir; URL/sayfa yenilenmez. Hızlı art arda isteklerde eski yanıt yeni sonucu ezmez. Hata durumunda önceki liste korunur.
 - Info banner içeriği `_PressReleases.cshtml` içinde statiktir.
 - Date boş/geçersiz veya 1900'den önce ise rapor sorguya dahil edilmez.
 
-Endpoint: `GET /components/press-releases/rows?token=...&category=...&period=...&page=...`. Route Url.Action ile üretilir; virtual directory ile çalışır. Bu tablo public içeriktir. Multi-instance host'ta Data Protection key ring paylaşılmalı; aksi takdirde diğer instance token'ı çözemeyebilir.
+Endpoint: `GET /components/press-releases/rows?category=...&period=...&page=...&pageSize=...`. Route Url.Action ile üretilir; virtual directory ile çalışır. Bu tablo public içeriktir. İlk render source içinde hazırlanır; sonraki isteklerde aynı SQL sorgu uygulamasını AJAX controller kullanır. MVC içinde veritabanı sorgusu yoktur.
 
 ## Kontrol
 

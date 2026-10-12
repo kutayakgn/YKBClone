@@ -3,26 +3,22 @@
 
 @{ var instanceId = $"{Model.DomId}-{Guid.NewGuid():N}"; }
 
-@if (Model.Content is YkbYapikredi.Application.CustomTableFeeds.PressReleasesContent)
-{
-    @if (!string.IsNullOrWhiteSpace(Model.Title))
-    {
-        <h2 class="ct-feed__title">@Model.Title</h2>
-    }
-    @await Component.InvokeAsync("PressReleases", new { pageSize = Model.PageSize })
-}
-else if (Model.Content is not null)
+@if (Model.Content is not null)
 {
     <section class="ct-feed" id="@instanceId"
              data-ct-feed data-kind="@Model.Content.Kind"
+             data-feed-mode="@(Model.Content.UsesClientFiltering ? "client" : "server")"
              data-page-size="@Model.PageSize">
         @if (!string.IsNullOrWhiteSpace(Model.Title))
         {
             <h2 class="ct-feed__title">@Model.Title</h2>
         }
         @await Html.PartialAsync(Model.Content.ViewName, Model.Content)
-        <p class="ct-feed__empty" data-ct-empty hidden>Aramanıza uygun kayıt bulunamadı.</p>
-        <nav class="ct-feed__pagination" data-ct-pagination aria-label="Liste sayfaları" hidden></nav>
-        <p class="ct-feed__status" data-ct-status role="status" aria-live="polite" aria-atomic="true"></p>
+        @if (Model.Content.UsesClientFiltering)
+        {
+            <p class="ct-feed__empty" data-ct-empty hidden>Aramanıza uygun kayıt bulunamadı.</p>
+            <nav class="ct-feed__pagination" data-ct-pagination aria-label="Liste sayfaları" hidden></nav>
+            <p class="ct-feed__status" data-ct-status role="status" aria-live="polite" aria-atomic="true"></p>
+        }
     </section>
 }

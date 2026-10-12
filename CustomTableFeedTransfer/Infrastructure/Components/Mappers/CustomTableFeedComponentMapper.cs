@@ -16,6 +16,7 @@ public sealed class CustomTableFeedComponentMapper : IComponentMapper
     public IComponentModel Map(TreeNode node)
     {
         var key = ValidationHelper.GetString(node.GetValue("TableKey"), string.Empty).Trim();
+        var pageSize = Math.Max(0, ValidationHelper.GetInteger(node.GetValue("PageSize"), 0));
         return new CustomTableFeedComponentModel
         {
             Id = node.NodeGUID,
@@ -23,8 +24,8 @@ public sealed class CustomTableFeedComponentMapper : IComponentMapper
             Order = node.NodeOrder,
             Title = ValidationHelper.GetString(node.GetValue("Title"), string.Empty).Trim(),
             TableKey = key,
-            PageSize = Math.Max(0, ValidationHelper.GetInteger(node.GetValue("PageSize"), 0)),
-            Content = string.IsNullOrWhiteSpace(key) ? null : provider.Load(key)
+            PageSize = pageSize,
+            Content = string.IsNullOrWhiteSpace(key) ? null : provider.Load(key, pageSize)
         };
     }
 }
