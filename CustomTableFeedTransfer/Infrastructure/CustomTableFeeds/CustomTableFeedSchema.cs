@@ -8,6 +8,7 @@ public static class CustomTableFeedSchema
     public const string ContractedProjects = "YkbYapikredi.ContractedProjects";
     public const string AllMarketBulletins = "YkbYapikredi.AllMarketBulletins";
     public const string AllAssetAllocationRecommendations = "YkbYapikredi.AllAssetAllocationRecommendations";
+    public const string BasinBultenleri = "YkbYapikredi.BasinBultenleri";
     public const string BulletinDateField = "Tarih";
     public const string BulletinTypeField = "BultenTipi";
     public const string BulletinPdfField = "Pdf";

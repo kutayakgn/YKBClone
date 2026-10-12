@@ -1,0 +1,32 @@
+@using System.Collections.Generic
+@using System.Globalization
+@using YkbYapikredi.Application.CustomTableFeeds
+@using YkbYapikredi.Web.Models
+@model PressReleaseFeedViewModel
+
+@{
+    var periods = new List<PressReleaseOption> { new PressReleaseOption { Value = "3m", Label = "3 aylık" } };
+    foreach (var year in Model.Years)
+    {
+        var text = year.ToString(CultureInfo.InvariantCulture);
+        periods.Add(new PressReleaseOption { Value = text, Label = text });
+    }
+}
+<section class="ct-feed ct-press" id="@Model.DomId" data-press-feed data-endpoint="@Url.Action("Rows", "PressReleaseFeed")" data-token="@Model.Token">
+    <form class="ct-press__filters" data-press-form>
+        @await Html.PartialAsync("~/Views/Shared/CustomTableFeeds/_PressReleaseSelect.cshtml", new PressReleaseSelectViewModel { Name = "category", Label = "Kategoriler", Options = PressReleaseCategories.All })
+        @await Html.PartialAsync("~/Views/Shared/CustomTableFeeds/_PressReleaseSelect.cshtml", new PressReleaseSelectViewModel { Name = "period", Label = "Tarih", Value = Model.Period, Options = periods })
+        <button type="submit" class="ct-press__submit">Git</button>
+    </form>
+    <div class="ct-press__info">
+        Yapı Kredi Medya İlişkileri ve İtibar Yönetimi ile
+        <a href="mailto:medyailiskileriveitibaryonetimi@yapikredi.com.tr">medyailiskileriveitibaryonetimi@yapikredi.com.tr</a>
+        e-posta adresinden iletişim kurabilirsiniz.
+    </div>
+    <p class="ct-press__error" role="alert" data-press-error hidden></p>
+    <div data-press-results>
+        @await Html.PartialAsync("~/Views/Shared/CustomTableFeeds/_PressReleaseRows.cshtml", Model.Result)
+    </div>
+    <nav class="ct-feed__pagination" aria-label="Basın bültenleri sayfaları" data-press-pagination hidden></nav>
+    <p class="ct-feed__status" role="status" aria-live="polite" data-press-status></p>
+</section>

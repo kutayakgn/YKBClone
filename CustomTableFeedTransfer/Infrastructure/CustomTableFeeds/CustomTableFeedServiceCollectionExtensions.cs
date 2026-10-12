@@ -13,6 +13,8 @@ public static class CustomTableFeedServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomTableFeedSource, ContractedProjectsSource>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomTableFeedSource, AllMarketBulletinsSource>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomTableFeedSource, AllAssetAllocationRecommendationsSource>());
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomTableFeedSource, BasinBultenleriSource>());
+        services.TryAddSingleton<IPressReleaseFeedService, KenticoPressReleaseFeedService>();
         return services;
     }
 }

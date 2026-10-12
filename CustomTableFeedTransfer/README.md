@@ -2,6 +2,8 @@
 
 Bu klasör gerçek Kentico/Clean Architecture projesine taşınacak dosyaları içerir. YKBClone bir net10 örnek MVC projesidir; CMS bağımlılıkları yoktur. Paket dosyaları YKBClone derlemesinden hariç tutulmuştur. Gerçek proje için Application, Infrastructure ve Web altındaki dosyaları aynı katmanlara kopyalayın. Bu klasörü olduğu gibi gerçek projenin derleme köküne koymak yerine katmanlara dağıtın.
 
+BasinBultenleri sunucu tarafı filtresi ve pagination kurulumu için [BASIN-BULTENLERI.md](BASIN-BULTENLERI.md) dosyasına bakın. Bu belgedeki istemci tarafı filtreleme açıklamaları ilk üç kaynak için geçerlidir.
+
 ## CMS page type
 
 Code name: `YkbYapikredi.CustomTableFeedComponent`. Content-only component. DynamicPage altına ve component kabul eden container'lara eklenebilir. Alt item page type yoktur.
@@ -19,6 +21,7 @@ Drop-down seçenekleri (değer;görünen ad):
 ContractedProjects;Anlaşmalı Projeler
 AllMarketBulletins;Tüm Piyasa Bültenleri
 AllAssetAllocationRecommendations;Tüm Varlık Dağılımı Önerileri
+BasinBultenleri;Basın Bültenleri
 ```
 
 Kayıt anahtarları mantıksal adlardır. Kentico database içindeki SQL tablo adı yazılmaz. Mapper generated sınıfa doğrudan bağımlı değildir; field'ları GetValue ile okur. CMS şeması oluşturulmalı, generated sınıf gerekiyorsa CMS'den yeniden üretilmeli, elle düzenlenmemelidir.

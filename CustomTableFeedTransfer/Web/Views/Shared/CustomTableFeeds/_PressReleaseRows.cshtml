@@ -1,0 +1,31 @@
+@using System
+@using System.Globalization
+@model YkbYapikredi.Application.CustomTableFeeds.PressReleaseResult
+
+<div class="ct-press__rows" data-press-result data-page="@Model.Page" data-total-pages="@Model.TotalPages" data-total-records="@Model.TotalRecords">
+    @foreach (var row in Model.Rows)
+    {
+        <article class="ct-press__row">
+            @if (!string.IsNullOrWhiteSpace(row.MediaUrl))
+            {
+                <a class="ct-press__row-link" href="@Url.Content(row.MediaUrl)" target="_blank" rel="noopener noreferrer">
+                    <h3 class="ct-press__row-title">@row.Title</h3>
+                    <time class="ct-press__date" datetime="@row.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">@row.Date.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture)</time>
+                    <p class="ct-press__detail">@row.Detail</p>
+                </a>
+            }
+            else
+            {
+                <div class="ct-press__row-link">
+                    <h3 class="ct-press__row-title">@row.Title</h3>
+                    <time class="ct-press__date" datetime="@row.Date.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">@row.Date.ToString("dd.MM.yyyy", CultureInfo.InvariantCulture)</time>
+                    <p class="ct-press__detail">@row.Detail</p>
+                </div>
+            }
+        </article>
+    }
+    @if (Model.Rows.Count == 0)
+    {
+        <p class="ct-press__empty">Aramanıza uygun kayıt bulunamadı.</p>
+    }
+</div>

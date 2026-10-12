@@ -3,7 +3,15 @@
 
 @{ var instanceId = $"{Model.DomId}-{Guid.NewGuid():N}"; }
 
-@if (Model.Content is not null)
+@if (Model.Content is YkbYapikredi.Application.CustomTableFeeds.PressReleasesContent)
+{
+    @if (!string.IsNullOrWhiteSpace(Model.Title))
+    {
+        <h2 class="ct-feed__title">@Model.Title</h2>
+    }
+    @await Component.InvokeAsync("PressReleases", new { pageSize = Model.PageSize })
+}
+else if (Model.Content is not null)
 {
     <section class="ct-feed" id="@instanceId"
              data-ct-feed data-kind="@Model.Content.Kind"

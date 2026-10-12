@@ -1,0 +1,22 @@
+@using System.Linq
+@model YkbYapikredi.Web.Models.PressReleaseSelectViewModel
+
+<div class="ct-press-select" data-press-select>
+    <span class="ct-press-select__label">@Model.Label</span>
+    <input type="hidden" name="@Model.Name" value="@Model.Value" data-press-value />
+    <button type="button" class="ct-press-select__trigger" aria-expanded="false" aria-haspopup="listbox" aria-label="@Model.Label" data-press-trigger>
+        <span data-press-label>@(Model.Options.FirstOrDefault(option => option.Value == Model.Value)?.Label ?? "Seçiniz")</span>
+        <span class="ct-press-select__arrow" aria-hidden="true"></span>
+    </button>
+    <div class="ct-press-select__panel" data-press-panel hidden>
+        <input type="search" class="ct-press-select__search" aria-label="@Model.Label içinde ara" autocomplete="off" data-press-search />
+        <div class="ct-press-select__options" role="listbox" aria-label="@Model.Label" data-press-options>
+            <button type="button" role="option" tabindex="-1" aria-selected="@(Model.Value == "" ? "true" : "false")" data-value="">Seçiniz</button>
+            @foreach (var option in Model.Options)
+            {
+                <button type="button" role="option" tabindex="-1" aria-selected="@(Model.Value == option.Value ? "true" : "false")" data-value="@option.Value">@option.Label</button>
+            }
+        </div>
+        <p class="ct-press-select__empty" data-press-no-options hidden>Sonuç bulunamadı.</p>
+    </div>
+</div>
