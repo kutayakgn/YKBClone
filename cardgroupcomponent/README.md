@@ -80,7 +80,7 @@ Bundle'ı yeniden oluşturup güncel dosyanın yüklendiğini doğrulayın. Pagi
 typeof window.YKB?.CardGroups
 ```
 
-`object` dönmelidir. Sonradan eklenen kökler için `window.YKB.CardGroups.init()` kullanılabilir; aynı köke handler iki kez bağlanmaz. version, jQuery veya Bootstrap JS bağımlılığı yoktur.
+`object` dönmelidir. `undefined` dönüyorsa dosya bundle'a dahil edilmemiştir veya bundle yüklenmemiş/önceki bir syntax hatasıyla durmuştur. Pagination numaraları sunucuda basıldığından numaraların görünmesi JS'in yüklendiğini kanıtlamaz. Güncel JS pagination tıklamalarını document üzerinde capture modunda tek handler ile yakalar ve sonradan eklenen grubu ilk tıklamada başlatır. Kök ve partial arasındaki ilişki doğrudan DOM çocuklarıyla bulunur; :scope bağımlılığı yoktur. Sonradan eklenen kökler için `window.YKB.CardGroups.init()` kullanılabilir; aynı köke handler iki kez bağlanmaz. version, jQuery veya Bootstrap JS bağımlılığı yoktur.
 
 ## Veri ve render akışı
 
@@ -112,3 +112,9 @@ node cardgroupcomponent/Tests/client-tests.cjs
 ```
 
 Kontroller geçti: nested pagination izolasyonu, disabled oklar, başarısız istekten sonra tekrar deneme, doğru groupId/culture/page parametreleri, partial değiştirme ve URL'nin korunması. Bu makinede .NET SDK ve gerçek Kentico solution olmadığından C#/Razor derlemesi veya Kentico DB sorguları çalıştırılamadı; hedef projede build ve yayınlanmış kartlarla uçtan uca kontrol yapın.
+
+## Bundle içinde ReferenceError
+
+`Uncaught (in promise) ReferenceError: o is not defined` gibi bir hata fetch çağrısından önce gelirse controller'a istek ulaşmaz. Güncel JS request controller ve sıra numarasını açık bir state nesnesinde tutar; istek hazırlığı da try içinde, son Promise rejection da handler içinde yakalanır.
+
+Kaynak dosyayı değiştirdikten sonra bundle'ın gerçekten yeniden üretildiğini doğrulayın. Eski CardGroup JS kopyalarını bundle girdilerinden kaldırın; dosya bir kez yer alsın. `vendor.min.js` dosyasını elle düzeltmeyin. Stack hâlâ HTMLDivElement üzerindeki handler'ı gösteriyorsa eski köke bağlanan sürüm çalışıyor olabilir; güncel dosya document üzerinde tek handler kullanır. Ctrl+F5 ile yeni bundle'ı yükleyin. Gerçek projedeki minifier bu ortamda bulunmadığından o pipeline'ın çıktısı burada doğrulanamadı.

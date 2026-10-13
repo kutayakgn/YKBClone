@@ -20,6 +20,7 @@ Drop-down seçenekleri (değer;görünen ad):
 ```text
 ContractedProjects;Anlaşmalı Projeler
 AllMarketBulletins;Tüm Piyasa Bültenleri
+DailyAllMarketBullettins;Günlük Piyasa Bültenleri
 AllAssetAllocationRecommendations;Tüm Varlık Dağılımı Önerileri
 BasinBultenleri;Basın Bültenleri
 ```
@@ -32,6 +33,7 @@ Gerçekte var olan tablolarda code name farklıysa sadece `Infrastructure/Custom
 
 - YkbYapikredi.ContractedProjects
 - YkbYapikredi.AllMarketBulletins
+- YkbYapikredi.DailyAllMarketBullettins
 - YkbYapikredi.AllAssetAllocationRecommendations
 
 `ContractedProjects`:
