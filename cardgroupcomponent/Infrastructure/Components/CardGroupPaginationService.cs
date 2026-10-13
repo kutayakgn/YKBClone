@@ -30,7 +30,8 @@ public sealed class CardGroupPaginationService : ICardGroupPaginationService
             .OnSite(SiteContext.CurrentSiteName)
             .WhereEquals("NodeGUID", groupId)
             .Culture(culture).CombineWithDefaultCulture(false).Published()
-            .WithCoupledColumns().TopN(1).FirstOrDefault();
+            // Single-type DocumentQuery already retrieves page type fields.
+            .TopN(1).FirstOrDefault();
         if (group is null) return null;
 
         // Any registered card type is supported; no PromoCard/ImageCard switch.
