@@ -1,0 +1,20 @@
+@using System
+@model YkbYapikredi.Application.Components.CardGroupComponentModel
+
+@if (Model.TotalCards > 0)
+{
+    var domId = "card-group-" + Model.GroupId.ToString("N") + "-" + Guid.NewGuid().ToString("N");
+    <div class="card-group-component" id="@domId" data-card-group
+         data-group-id="@Model.GroupId" data-culture="@Model.Culture"
+         data-endpoint="@Url.Action("Page", "CardGroupPagination")">
+        @if (!string.IsNullOrWhiteSpace(Model.Title))
+        {
+            <h2 class="card-group-component__title">@Model.Title</h2>
+        }
+        <p class="card-group-component__error" data-card-group-error role="alert" hidden></p>
+        <div data-card-group-content>
+            @await Html.PartialAsync("~/Views/Shared/Components/_CardGroupItems.cshtml", Model)
+        </div>
+        <p class="card-group-component__status" data-card-group-status role="status" aria-live="polite"></p>
+    </div>
+}

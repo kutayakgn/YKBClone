@@ -1,0 +1,11 @@
+.card-group-component { min-width:0; }
+.card-group-component [hidden] { display:none !important; }
+.card-group-component__pagination { display:flex; align-items:center; justify-content:flex-start; flex-wrap:wrap; gap:5px; margin-top:16px; }
+.card-group-component__page { display:inline-flex; align-items:center; justify-content:center; min-width:24px; height:28px; padding:0 7px; border:0; border-radius:2px; background:transparent; color:#111; font:inherit; font-size:12px; cursor:pointer; }
+.card-group-component__page:hover:not(:disabled):not(.is-active) { background:#edf4fb; color:#1266b5; }
+.card-group-component__page.is-active { background:#1266b5; color:#fff; font-weight:600; }
+.card-group-component__page:disabled { opacity:.4; cursor:default; }
+.card-group-component__page:focus-visible { outline:2px solid #1266b5; outline-offset:2px; }
+.card-group-component__error { margin:0 0 16px; color:#b32020; }
+.card-group-component[aria-busy="true"] > [data-card-group-content] { opacity:.6; }
+.card-group-component__status { position:absolute; width:1px; height:1px; overflow:hidden; clip-path:inset(50%); white-space:nowrap; }
