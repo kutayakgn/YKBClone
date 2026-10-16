@@ -4,6 +4,8 @@ Bu klasör gerçek Kentico/Clean Architecture projesine taşınacak dosyaları i
 
 BasinBultenleri sunucu tarafı filtresi ve pagination kurulumu için [BASIN-BULTENLERI.md](BASIN-BULTENLERI.md) dosyasına bakın. Bu belgedeki istemci tarafı filtreleme açıklamaları ilk üç kaynak için geçerlidir.
 
+Restoran/şube/galeri feed'i için [HORECA-RESTAURANTS.md](HORECA-RESTAURANTS.md) dosyasına bakın.
+
 ## CMS page type
 
 Code name: `YkbYapikredi.CustomTableFeedComponent`. Content-only component. DynamicPage altına ve component kabul eden container'lara eklenebilir. Alt item page type yoktur.
@@ -23,6 +25,7 @@ AllMarketBulletins;Tüm Piyasa Bültenleri
 DailyAllMarketBullettins;Günlük Piyasa Bültenleri
 AllAssetAllocationRecommendations;Tüm Varlık Dağılımı Önerileri
 BasinBultenleri;Basın Bültenleri
+HorecaRestaurants;Otel ve restoran indirimleri
 ```
 
 Kayıt anahtarları mantıksal adlardır. Kentico database içindeki SQL tablo adı yazılmaz. Mapper generated sınıfa doğrudan bağımlı değildir; field'ları GetValue ile okur. CMS şeması oluşturulmalı, generated sınıf gerekiyorsa CMS'den yeniden üretilmeli, elle düzenlenmemelidir.

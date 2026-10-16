@@ -304,7 +304,7 @@
     function initialize(root) {
         if (initialized.has(root)) return;
         const factory = handlers.get(root.dataset.kind);
-        if (!factory) { console.error("CustomTableFeed handler bulunamadı:", root.dataset.kind); return; }
+        if (!factory) return; // An extension may register its client handler later in the bundle.
         const rows = Array.from(root.querySelectorAll("[data-ct-row]"));
         const form = root.querySelector("[data-ct-filters]");
         const pagination = root.querySelector("[data-ct-pagination]");
@@ -351,6 +351,7 @@
         },
         utils: { normalize, parseDate, isoDate, displayDate, previousMonth, unique }
     };
+    document.dispatchEvent(new CustomEvent("ykb:customtablefeed-ready"));
     if (document.readyState === "loading") document.addEventListener("DOMContentLoaded", init, { once: true });
     else init();
 })(window, document);

@@ -1,0 +1,84 @@
+@using System
+@using YkbYapikredi.Application.CustomTableFeeds
+@model HorecaRestaurantsContent
+
+@{
+    var prefix = "horeca-" + Guid.NewGuid().ToString("N");
+    var panelId = prefix + "-panel";
+    var rowIndex = 0;
+}
+<div class="ct-restaurants" data-horeca>
+    <form data-ct-filters hidden>
+        <input type="hidden" value="istanbul" data-horeca-city />
+    </form>
+    <div class="ct-restaurants__tabs" role="tablist" aria-label="Restoran şehirleri">
+        @foreach (var tab in HorecaRestaurantsContent.Tabs)
+        {
+            <button type="button" role="tab" id="@(prefix + "-" + tab.Key)"
+                    class="ct-restaurants__tab" aria-controls="@panelId"
+                    aria-selected="@(tab.Key == "istanbul" ? "true" : "false")"
+                    tabindex="@(tab.Key == "istanbul" ? 0 : -1)" data-horeca-tab="@tab.Key">@tab.Label</button>
+        }
+    </div>
+    <div class="ct-restaurants__panel" id="@panelId" role="tabpanel" aria-labelledby="@(prefix + "-istanbul")" data-horeca-panel>
+        <p class="ct-restaurants__intro">Anlaşmalı otel ve restoranlarda Crystal ile %20, adios Premium, World Platinum, Platinum TLcard ve Fenerbahçe World ile %10 indirim ayrıcalığından yararlanabilirsiniz.</p>
+        @foreach (var restaurant in Model.Restaurants)
+        {
+            var detailsId = prefix + "-branches-" + rowIndex++;
+            <article class="ct-restaurant" data-ct-row data-restaurant-city="@restaurant.TabKey" hidden="@(restaurant.TabKey != "istanbul")">
+                <div class="ct-restaurant__logo">
+                    @if (!string.IsNullOrWhiteSpace(restaurant.Image))
+                    {
+                        <img src="@Url.Content(restaurant.Image)" alt="@restaurant.Name" loading="lazy" />
+                    }
+                </div>
+                <h3 class="ct-restaurant__name">@restaurant.Name</h3>
+                @if (restaurant.HasBranches)
+                {
+                    <button type="button" class="ct-restaurant__toggle" aria-expanded="false" aria-controls="@detailsId" data-horeca-toggle>
+                        Şubeler <span class="ct-restaurant__chevron" aria-hidden="true"></span>
+                    </button>
+                }
+                <div class="ct-restaurant__collapse @(restaurant.HasBranches ? "" : "is-expanded")"
+                     id="@detailsId" data-horeca-collapse
+                     aria-hidden="@(restaurant.HasBranches ? "true" : "false")" inert="@(restaurant.HasBranches ? "inert" : null)">
+                    <div class="ct-restaurant__collapse-inner">
+                        @foreach (var branch in restaurant.Branches)
+                        {
+                            <div class="ct-restaurant__branch">
+                                @if (!string.IsNullOrWhiteSpace(branch.BranchName))
+                                {
+                                    <h4 class="ct-restaurant__branch-name">@branch.BranchName:</h4>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(branch.Address))
+                                {
+                                    <p>@branch.Address</p>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(branch.PhoneNumber))
+                                {
+                                    <p>@branch.PhoneNumber</p>
+                                }
+                                @if (!string.IsNullOrWhiteSpace(branch.Website))
+                                {
+                                    <p><a href="@Url.Content(branch.Website)" target="_blank" rel="noopener noreferrer">@branch.Website</a></p>
+                                }
+                                @if (branch.Gallery.Count > 0)
+                                {
+                                    <div class="ct-restaurant__gallery" data-horeca-gallery>
+                                        @for (var imageIndex = 0; imageIndex < branch.Gallery.Count; imageIndex++)
+                                        {
+                                            <button type="button" class="ct-restaurant__thumbnail" data-horeca-image="@Url.Content(branch.Gallery[imageIndex])"
+                                                    data-horeca-caption="@restaurant.Name" aria-label="@(restaurant.Name + " görsel " + (imageIndex + 1) + " büyüt")">
+                                                <img src="@Url.Content(branch.Gallery[imageIndex])" alt="@(restaurant.Name + " – " + (imageIndex + 1))" loading="lazy" />
+                                            </button>
+                                        }
+                                    </div>
+                                }
+                            </div>
+                        }
+                    </div>
+                </div>
+            </article>
+        }
+    </div>
+</div>

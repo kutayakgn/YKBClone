@@ -1,0 +1,45 @@
+.ct-restaurants { color:#004990; line-height:1.6; }
+.ct-restaurants__tabs { display:flex; flex-wrap:wrap; gap:0 4px; align-items:stretch; }
+.ct-restaurants__tab { min-height:60px; margin:0; padding:15px 14px; border:1px solid #dce7f2; background:#f5faff; color:#004990; font:inherit; font-size:14px; cursor:pointer; }
+.ct-restaurants__tab[aria-selected="true"] { background:#fff; }
+.ct-restaurants__tab:focus-visible, .ct-restaurant__toggle:focus-visible, .ct-restaurant__thumbnail:focus-visible { outline:2px solid #1266b5; outline-offset:2px; }
+.ct-restaurants__panel { padding:32px 15px 8px; border:1px solid #e4e4e4; }
+.ct-restaurants__intro { margin:0 0 16px; font-size:15px; line-height:1.6; color:#004990; }
+.ct-restaurant { display:grid; grid-template-columns:96px minmax(0,1fr) 94px; column-gap:24px; row-gap:8px; padding:24px 0; border-bottom:1px solid #dce7f2; }
+.ct-restaurant:last-child { border-bottom:0; }
+.ct-restaurant__logo { grid-column:1; grid-row:1 / span 2; width:96px; height:96px; border:1px solid #ccc; background:#fff; }
+.ct-restaurant__logo img { display:block; width:100%; height:100%; object-fit:contain; }
+.ct-restaurant__name { grid-column:2; grid-row:1; margin:0; color:#004990; font-size:18px; line-height:1.5; font-weight:600; }
+.ct-restaurant__toggle { grid-column:3; grid-row:1; display:inline-flex; align-items:center; justify-content:center; gap:14px; min-height:32px; padding:6px 12px; border:0; border-radius:5px; background:#e5ebf4; color:#004990; font:inherit; font-size:12px; cursor:pointer; }
+.ct-restaurant__chevron { width:7px; height:7px; border-right:2px solid currentColor; border-bottom:2px solid currentColor; transform:rotate(45deg); transition:transform .25s ease; }
+.ct-restaurant__toggle[aria-expanded="true"] .ct-restaurant__chevron { transform:rotate(225deg); }
+.ct-restaurant__collapse { grid-column:2 / 4; grid-row:2; display:grid; grid-template-rows:0fr; opacity:0; transition:grid-template-rows .3s ease,opacity .25s ease; }
+.ct-restaurant__collapse.is-expanded { grid-template-rows:1fr; opacity:1; }
+.ct-restaurant__collapse-inner { min-height:0; overflow:hidden; }
+.ct-restaurant__branch { color:#62666e; font-size:13px; line-height:1.6; }
+.ct-restaurant__branch + .ct-restaurant__branch { margin-top:12px; }
+.ct-restaurant__branch-name { margin:0; font:inherit; color:#222; }
+.ct-restaurant__branch p { margin:0; white-space:pre-line; overflow-wrap:anywhere; }
+.ct-restaurant__branch a { color:#1683db; text-decoration:underline; overflow-wrap:anywhere; }
+.ct-restaurant__gallery { display:flex; flex-wrap:wrap; gap:3px; margin-top:6px; }
+.ct-restaurant__thumbnail { display:block; width:96px; height:64px; padding:0; overflow:hidden; border:0; border-radius:3px; background:#e5ebf4; cursor:pointer; }
+.ct-restaurant__thumbnail img { display:block; width:100%; height:100%; object-fit:cover; }
+.ct-horeca-lightbox { position:fixed; width:min(960px,calc(100vw - 32px)); max-width:none; max-height:calc(100dvh - 32px); padding:40px 16px 12px; border:0; border-radius:6px; background:#fff; color:#004990; box-sizing:border-box; }
+.ct-horeca-lightbox::backdrop { background:#000b; }
+.ct-horeca-lightbox__image { display:block; width:100%; max-height:calc(100dvh - 150px); object-fit:contain; }
+.ct-horeca-lightbox__close { position:absolute; top:4px; right:8px; width:32px; height:32px; padding:0; border:0; background:transparent; color:#004990; font-size:28px; cursor:pointer; }
+.ct-horeca-lightbox__toolbar { display:flex; align-items:center; justify-content:space-between; gap:12px; margin-top:12px; }
+.ct-horeca-lightbox__toolbar p { margin:0; text-align:center; font:14px/1.5 Arial,sans-serif; }
+.ct-horeca-lightbox__toolbar button { min-width:32px; min-height:32px; border:0; border-radius:3px; background:#e5ebf4; color:#004990; font-size:24px; cursor:pointer; }
+.ct-horeca-lightbox__toolbar button:disabled { opacity:.35; cursor:default; }
+@media(max-width:575px) {
+ .ct-restaurants__tab { min-height:44px; padding:10px 12px; font-size:13px; }
+ .ct-restaurants__panel { padding:20px 15px 0; }
+ .ct-restaurant { grid-template-columns:80px minmax(0,1fr); column-gap:16px; row-gap:12px; }
+ .ct-restaurant__logo { grid-column:1; grid-row:1 / span 2; width:80px; height:80px; }
+ .ct-restaurant__name { grid-column:2; grid-row:1; font-size:18px; }
+ .ct-restaurant__toggle { grid-column:2; grid-row:2; justify-self:start; }
+ .ct-restaurant__collapse { grid-column:1 / -1; grid-row:3; }
+ .ct-restaurant__branch { font-size:14px; }
+}
+@media(prefers-reduced-motion:reduce) { .ct-restaurant__collapse, .ct-restaurant__chevron { transition:none; } }

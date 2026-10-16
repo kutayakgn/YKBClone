@@ -7,7 +7,7 @@ const vm = require('node:vm');
 // only in this test VM; no test hooks are added to the production bundle.
 const source = fs.readFileSync(path.join(__dirname, '../Web/wwwroot/js/components/custom-table-feed.js'), 'utf8');
 const window = {};
-const document = { readyState: 'loading', addEventListener() {}, querySelectorAll: () => [] };
+const document = { readyState: 'loading', addEventListener() {}, dispatchEvent() {}, querySelectorAll: () => [] };
 class Element {
     constructor() {
         this.children = []; this.attributes = {}; this.listeners = {}; this.dataset = {};
@@ -32,7 +32,7 @@ class Element {
 document.createElement = () => new Element();
 vm.runInNewContext(source.replace('handlers.set("projects", projects);',
     'window.testInternals = { initialize, bulletins }; handlers.set("projects", projects);'),
-    { window, document, console });
+    { window, document, console, CustomEvent: class {} });
 const api = window.YKB.CustomTableFeeds;
 const { normalize, parseDate, isoDate, displayDate, previousMonth, unique } = api.utils;
 assert.equal(normalize(' İZMİR '), 'izmir');

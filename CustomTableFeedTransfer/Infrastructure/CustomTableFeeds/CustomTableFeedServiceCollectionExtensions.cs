@@ -16,6 +16,8 @@ public static class CustomTableFeedServiceCollectionExtensions
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomTableFeedSource, AllAssetAllocationRecommendationsSource>());
         services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomTableFeedSource, BasinBultenleriSource>());
         services.TryAddSingleton<IPressReleaseFeedService, KenticoPressReleaseFeedService>();
+        services.TryAddSingleton<HorecaRestaurantMapper>();
+        services.TryAddEnumerable(ServiceDescriptor.Singleton<ICustomTableFeedSource, HorecaRestaurantsSource>());
         return services;
     }
 }

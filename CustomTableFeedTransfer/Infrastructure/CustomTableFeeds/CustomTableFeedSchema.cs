@@ -10,6 +10,7 @@ public static class CustomTableFeedSchema
     public const string DailyAllMarketBullettins = "YkbYapikredi.DailyAllMarketBullettins";
     public const string AllAssetAllocationRecommendations = "YkbYapikredi.AllAssetAllocationRecommendations";
     public const string BasinBultenleri = "YkbYapikredi.BasinBultenleri";
+    public const string HorecaRestaurants = "YkbYapikredi.HorecaRestaurants";
     public const string BulletinDateField = "Tarih";
     public const string BulletinTypeField = "BultenTipi";
     public const string BulletinPdfField = "Pdf";
