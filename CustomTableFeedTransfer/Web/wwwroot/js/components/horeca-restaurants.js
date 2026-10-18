@@ -3,123 +3,57 @@
     window.YKB = window.YKB || {};
     if (window.YKB.HorecaRestaurants) { window.YKB.HorecaRestaurants.init(); return; }
     var state = { registered: false, dialog: null, images: [], index: 0, opener: null, refreshDialogImages: null };
-    // Shared by every restaurant feed and the gallery: limits are page-wide.
-    var imageLoader = createImageLoader();
-    function createImageLoader() {
-        var maxConcurrent = 6, errorCooldownMs = 60000;
-        var records = new WeakMap(), queue = [], active = 0, timer = null;
-        var blockedUntil = 0;
-        var observer = typeof window.IntersectionObserver === 'function'
-            ? new window.IntersectionObserver(function (entries) {
-                entries.forEach(function (entry) {
-                    var job = records.get(entry.target);
-                    if (!job) return;
-                    job.nearViewport = entry.isIntersecting;
-                    enqueue(job);
-                });
-            }, { rootMargin: '160px 0px' }) : null;
-        function visible(image) {
-            var lightbox = image.closest('dialog');
-            return image.isConnected && !image.closest('[hidden], [aria-hidden="true"]') && (!lightbox || lightbox.open);
-        }
-        function eligible(job) {
-            return records.get(job.image) === job && job.image.getAttribute('data-horeca-src') === job.source
-                && job.nearViewport && visible(job.image);
-        }
-        function enqueue(job) {
-            if (job.status !== 'idle' || !eligible(job)) return;
-            job.status = 'queued';
-            queue.push(job);
-            pump();
-        }
-        function pump() {
-            if (timer !== null || active >= maxConcurrent) return;
-            // Drop jobs hidden by pagination, closed branches or gallery navigation.
-            while (queue.length && !eligible(queue[0])) {
-                var skipped = queue.shift();
-                if (skipped.status === 'queued') skipped.status = 'idle';
+    function monitorImages(container) {
+        var selector = '.ct-restaurant__logo img, .ct-restaurant__thumbnail img, [data-horeca-large-image]';
+        var states = new WeakMap();
+        var retryDelays = [60000, 120000, 240000];
+        function imageState(image) {
+            var source = image.getAttribute('src') || '';
+            var current = states.get(image);
+            if (!current || current.source !== source) {
+                if (current && current.timer !== null) window.clearTimeout(current.timer);
+                current = { source: source, attempts: 0, timer: null, warned: false };
+                states.set(image, current);
             }
-            if (!queue.length) return;
-            var wait = blockedUntil - Date.now();
-            if (wait > 0) {
-                timer = window.setTimeout(function () { timer = null; pump(); }, wait);
+            return current;
+        }
+        function retry(image) {
+            var current = imageState(image);
+            if (!current.source || !image.isConnected || current.timer !== null) return;
+            if (current.attempts >= retryDelays.length) {
+                if (!current.warned) {
+                    current.warned = true;
+                    console.warn('Restoran görseli yeniden denemelere rağmen yüklenemedi:', image.src);
+                }
                 return;
             }
-            var job = queue.shift();
-            if (job.status !== 'queued') { pump(); return; }
-            job.status = 'active';
-            active++;
-            var timeout;
-            function finish(result) {
-                if (job.status !== 'active') return;
-                job.image.removeEventListener('load', loaded);
-                job.image.removeEventListener('error', failed);
-                window.clearTimeout(timeout);
-                job.cancel = null;
-                active--;
-                job.status = result;
-                if (result === 'failed') {
-                    // <img> exposes neither HTTP status nor Retry-After. Conservatively pause
-                    // ALL new image requests on any failure instead of flooding a 429 window.
-                    blockedUntil = Math.max(blockedUntil, Date.now() + errorCooldownMs);
-                    console.warn('Restoran görseli yüklenemedi; görsel kuyruğu bekletiliyor:', job.source);
-                    if (job.attempts < 2) {
-                        job.status = 'idle';
-                        enqueue(job); // at most one retry, after the shared cooldown
-                    }
-                }
-                pump();
-            }
-            function loaded() { finish('loaded'); }
-            function failed() { finish('failed'); }
-            job.cancel = function () {
-                job.image.removeEventListener('load', loaded);
-                job.image.removeEventListener('error', failed);
-                job.image.removeAttribute('src');
-                finish('canceled');
-            };
-            job.image.addEventListener('load', loaded);
-            job.image.addEventListener('error', failed);
-            timeout = window.setTimeout(function () {
-                // Stop a stalled transfer before releasing its concurrency slot.
-                job.image.removeEventListener('error', failed);
-                job.image.removeAttribute('src');
-                finish('failed');
-            }, 30000);
-            job.attempts++;
-            job.image.setAttribute('loading', 'eager');
-            // This assignment is the only place a managed image starts a network request.
-            // Keep the original URL/query string so normal browser/CDN caching can work.
-            job.image.src = job.source;
-            pump();
+            current.timer = window.setTimeout(function () {
+                current.timer = null;
+                if (imageState(image) !== current || !image.isConnected) return;
+                // Only retry a completed, broken image. Leave successes and in-flight loads alone.
+                if (!image.complete || image.naturalWidth > 0) return;
+                current.attempts++;
+                // Preserve CMS/signed URLs and normal browser caching.
+                image.src = current.source;
+            }, retryDelays[current.attempts]);
         }
-        function refresh(container) {
-            container.querySelectorAll('img[data-horeca-src], img[data-horeca-large-image]').forEach(function (image) {
-                var source = image.getAttribute('data-horeca-src') || '';
-                var job = records.get(image);
-                if (job && job.source !== source) {
-                    records.delete(image);
-                    if (observer) observer.unobserve(image);
-                    if (job.cancel) job.cancel();
-                    job.status = 'canceled';
-                    image.removeAttribute('src');
-                    job = null;
-                }
-                if (!source) return;
-                if (!job) {
-                    job = { image: image, source: source, status: 'idle', attempts: 0,
-                        nearViewport: !observer, cancel: null };
-                    records.set(image, job);
-                    if (observer) observer.observe(image);
-                }
-                enqueue(job);
+        container.addEventListener('error', function (event) {
+            if (event.target.matches && event.target.matches(selector)) retry(event.target);
+        }, true); // Image errors do not bubble.
+        container.addEventListener('load', function (event) {
+            var image = event.target;
+            if (!image.matches || !image.matches(selector)) return;
+            var current = imageState(image);
+            if (current.timer !== null) window.clearTimeout(current.timer);
+            current.timer = null;
+        }, true);
+        return function () {
+            container.querySelectorAll(selector).forEach(function (image) {
+                var current = imageState(image);
+                // Also detect cached failures which occurred before listeners were attached.
+                if (current.source && image.complete && image.naturalWidth === 0) retry(image);
             });
-            pump();
-        }
-        return { refresh: refresh };
-    }
-    function monitorImages(container) {
-        return function () { imageLoader.refresh(container); };
+        };
     }
     function factory(root, rows) {
         var form = root.querySelector('[data-ct-filters]');
@@ -168,6 +102,7 @@
             if (next !== undefined) { event.preventDefault(); select(tabs[next], true); }
         });
         root.querySelectorAll('[data-horeca-toggle]').forEach(button => collapse(button, false));
+        refreshImages();
         return function () {
             var city = input.value || 'istanbul';
             return row => row.dataset.restaurantCity === city;
@@ -176,7 +111,7 @@
     function updateImage() {
         var selected = state.images[state.index];
         var image = state.dialog.querySelector('[data-horeca-large-image]');
-        image.setAttribute('data-horeca-src', selected.dataset.horecaImage);
+        image.src = selected.dataset.horecaImage;
         image.alt = selected.dataset.horecaCaption || 'Restoran görseli';
         state.dialog.querySelector('[data-horeca-image-caption]').textContent = image.alt + ' — ' + (state.index + 1) + ' / ' + state.images.length;
         state.dialog.querySelector('[data-horeca-previous]').disabled = state.index === 0;
@@ -202,7 +137,7 @@
             if (event.key === 'ArrowRight' && state.index < state.images.length - 1) { event.preventDefault(); state.index++; updateImage(); }
         });
         element.addEventListener('close', function () {
-            element.querySelector('[data-horeca-large-image]').removeAttribute('data-horeca-src');
+            element.querySelector('[data-horeca-large-image]').removeAttribute('src');
             state.refreshDialogImages();
             if (state.opener && state.opener.isConnected) state.opener.focus({ preventScroll: true });
         });
