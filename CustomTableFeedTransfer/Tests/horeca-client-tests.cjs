@@ -29,9 +29,9 @@ function run(reverse) {
     assert.equal(visible(root).length,1); assert(visible(root)[0].textContent.includes('Banyan'));
     const thumbnail=visible(root)[0].querySelector('[data-horeca-image]'); thumbnail.click();
     const dialog=d.querySelector('dialog'); assert(dialog.open);
-    assert(dialog.querySelector('[data-horeca-large-image]').src.endsWith('horeca-gallery-1.svg'));
+    assert(dialog.querySelector('[data-horeca-large-image]').getAttribute('data-horeca-src').endsWith('horeca-gallery-1.svg'));
     dialog.querySelector('[data-horeca-next]').click();
-    assert(dialog.querySelector('[data-horeca-large-image]').src.endsWith('horeca-gallery-2.svg'));
+    assert(dialog.querySelector('[data-horeca-large-image]').getAttribute('data-horeca-src').endsWith('horeca-gallery-2.svg'));
     dialog.querySelector('[data-horeca-close]').click(); assert.equal(dialog.open,false);
     assert.equal(d.activeElement,thumbnail);
     root.querySelector('[data-horeca-tab="izmir"]').click();

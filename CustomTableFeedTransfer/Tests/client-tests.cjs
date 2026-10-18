@@ -21,6 +21,7 @@ class Element {
     toggleAttribute(name, on) { if (name === 'hidden') this.hidden = on; }
     setAttribute(name, value) { this.attributes[name] = value; }
     addEventListener(name, fn) { this.listeners[name] = fn; }
+    dispatchEvent(event) { if (this.listeners[event.type]) this.listeners[event.type](event); return true; }
     replaceChildren() { this.children = []; }
     appendChild(child) { this.children.push(child); }
     querySelector(selector) {
@@ -32,7 +33,7 @@ class Element {
 document.createElement = () => new Element();
 vm.runInNewContext(source.replace('handlers.set("projects", projects);',
     'window.testInternals = { initialize, bulletins }; handlers.set("projects", projects);'),
-    { window, document, console, CustomEvent: class {} });
+    { window, document, console, CustomEvent: class { constructor(type) { this.type = type; } } });
 const api = window.YKB.CustomTableFeeds;
 const { normalize, parseDate, isoDate, displayDate, previousMonth, unique } = api.utils;
 assert.equal(normalize(' İZMİR '), 'izmir');

@@ -2,12 +2,133 @@
     "use strict";
     window.YKB = window.YKB || {};
     if (window.YKB.HorecaRestaurants) { window.YKB.HorecaRestaurants.init(); return; }
-    var state = { registered: false, dialog: null, images: [], index: 0, opener: null };
+    var state = { registered: false, dialog: null, images: [], index: 0, opener: null, refreshDialogImages: null };
+    // Shared by every restaurant feed and the gallery: limits are page-wide.
+    var imageLoader = createImageLoader();
+    function createImageLoader() {
+        var maxConcurrent = 2, startIntervalMs = 1000, errorCooldownMs = 60000;
+        var records = new WeakMap(), queue = [], active = 0, timer = null;
+        var nextStart = 0, blockedUntil = 0;
+        var observer = typeof window.IntersectionObserver === 'function'
+            ? new window.IntersectionObserver(function (entries) {
+                entries.forEach(function (entry) {
+                    var job = records.get(entry.target);
+                    if (!job) return;
+                    job.nearViewport = entry.isIntersecting;
+                    enqueue(job);
+                });
+            }, { rootMargin: '160px 0px' }) : null;
+        function visible(image) {
+            var lightbox = image.closest('dialog');
+            return image.isConnected && !image.closest('[hidden], [aria-hidden="true"]') && (!lightbox || lightbox.open);
+        }
+        function eligible(job) {
+            return records.get(job.image) === job && job.image.getAttribute('data-horeca-src') === job.source
+                && job.nearViewport && visible(job.image);
+        }
+        function enqueue(job) {
+            if (job.status !== 'idle' || !eligible(job)) return;
+            job.status = 'queued';
+            queue.push(job);
+            pump();
+        }
+        function pump() {
+            if (timer !== null || active >= maxConcurrent) return;
+            // Drop jobs hidden by pagination, closed branches or gallery navigation.
+            while (queue.length && !eligible(queue[0])) {
+                var skipped = queue.shift();
+                if (skipped.status === 'queued') skipped.status = 'idle';
+            }
+            if (!queue.length) return;
+            var wait = Math.max(nextStart, blockedUntil) - Date.now();
+            if (wait > 0) {
+                timer = window.setTimeout(function () { timer = null; pump(); }, wait);
+                return;
+            }
+            var job = queue.shift();
+            if (job.status !== 'queued') { pump(); return; }
+            job.status = 'active';
+            active++;
+            nextStart = Date.now() + startIntervalMs;
+            var timeout;
+            function finish(result) {
+                if (job.status !== 'active') return;
+                job.image.removeEventListener('load', loaded);
+                job.image.removeEventListener('error', failed);
+                window.clearTimeout(timeout);
+                job.cancel = null;
+                active--;
+                job.status = result;
+                if (result === 'failed') {
+                    // <img> exposes neither HTTP status nor Retry-After. Conservatively pause
+                    // ALL new image requests on any failure instead of flooding a 429 window.
+                    blockedUntil = Math.max(blockedUntil, Date.now() + errorCooldownMs);
+                    console.warn('Restoran görseli yüklenemedi; görsel kuyruğu bekletiliyor:', job.source);
+                    if (job.attempts < 2) {
+                        job.status = 'idle';
+                        enqueue(job); // at most one retry, after the shared cooldown
+                    }
+                }
+                pump();
+            }
+            function loaded() { finish('loaded'); }
+            function failed() { finish('failed'); }
+            job.cancel = function () {
+                job.image.removeEventListener('load', loaded);
+                job.image.removeEventListener('error', failed);
+                job.image.removeAttribute('src');
+                finish('canceled');
+            };
+            job.image.addEventListener('load', loaded);
+            job.image.addEventListener('error', failed);
+            timeout = window.setTimeout(function () {
+                // Stop a stalled transfer before releasing its concurrency slot.
+                job.image.removeEventListener('error', failed);
+                job.image.removeAttribute('src');
+                finish('failed');
+            }, 30000);
+            job.attempts++;
+            job.image.setAttribute('loading', 'eager');
+            // This assignment is the only place a managed image starts a network request.
+            // Keep the original URL/query string so normal browser/CDN caching can work.
+            job.image.src = job.source;
+            pump();
+        }
+        function refresh(container) {
+            container.querySelectorAll('img[data-horeca-src], img[data-horeca-large-image]').forEach(function (image) {
+                var source = image.getAttribute('data-horeca-src') || '';
+                var job = records.get(image);
+                if (job && job.source !== source) {
+                    records.delete(image);
+                    if (observer) observer.unobserve(image);
+                    if (job.cancel) job.cancel();
+                    job.status = 'canceled';
+                    image.removeAttribute('src');
+                    job = null;
+                }
+                if (!source) return;
+                if (!job) {
+                    job = { image: image, source: source, status: 'idle', attempts: 0,
+                        nearViewport: !observer, cancel: null };
+                    records.set(image, job);
+                    if (observer) observer.observe(image);
+                }
+                enqueue(job);
+            });
+            pump();
+        }
+        return { refresh: refresh };
+    }
+    function monitorImages(container) {
+        return function () { imageLoader.refresh(container); };
+    }
     function factory(root, rows) {
         var form = root.querySelector('[data-ct-filters]');
         var input = root.querySelector('[data-horeca-city]');
         var panel = root.querySelector('[data-horeca-panel]');
         var tabs = Array.from(root.querySelectorAll('[data-horeca-tab]'));
+        var refreshImages = monitorImages(root);
+        root.addEventListener('ykb:customtablefeed-rendered', refreshImages);
         function collapse(button, expanded) {
             var article = button.closest('[data-ct-row]');
             var body = article.querySelector('[data-horeca-collapse]');
@@ -15,6 +136,7 @@
             body.setAttribute('aria-hidden', String(!expanded));
             body.inert = !expanded;
             body.classList.toggle('is-expanded', expanded);
+            if (expanded) refreshImages();
         }
         function select(tab, focus) {
             input.value = tab.dataset.horecaTab;
@@ -55,11 +177,12 @@
     function updateImage() {
         var selected = state.images[state.index];
         var image = state.dialog.querySelector('[data-horeca-large-image]');
-        image.src = selected.dataset.horecaImage;
+        image.setAttribute('data-horeca-src', selected.dataset.horecaImage);
         image.alt = selected.dataset.horecaCaption || 'Restoran görseli';
         state.dialog.querySelector('[data-horeca-image-caption]').textContent = image.alt + ' — ' + (state.index + 1) + ' / ' + state.images.length;
         state.dialog.querySelector('[data-horeca-previous]').disabled = state.index === 0;
         state.dialog.querySelector('[data-horeca-next]').disabled = state.index === state.images.length - 1;
+        state.refreshDialogImages();
     }
     function dialog() {
         if (state.dialog) return state.dialog;
@@ -80,10 +203,12 @@
             if (event.key === 'ArrowRight' && state.index < state.images.length - 1) { event.preventDefault(); state.index++; updateImage(); }
         });
         element.addEventListener('close', function () {
-            element.querySelector('[data-horeca-large-image]').removeAttribute('src');
+            element.querySelector('[data-horeca-large-image]').removeAttribute('data-horeca-src');
+            state.refreshDialogImages();
             if (state.opener && state.opener.isConnected) state.opener.focus({ preventScroll: true });
         });
         document.body.appendChild(element); state.dialog = element;
+        state.refreshDialogImages = monitorImages(element);
         return element;
     }
     document.addEventListener('click', function (event) {
@@ -99,6 +224,7 @@
         updateImage();
         if (typeof element.showModal === 'function') {
             if (!element.open) element.showModal();
+            state.refreshDialogImages();
         } else {
             // Older browsers can still open the selected image.
             window.open(button.dataset.horecaImage, '_blank', 'noopener,noreferrer');

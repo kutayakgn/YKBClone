@@ -29,7 +29,7 @@
                 <div class="ct-restaurant__logo">
                     @if (!string.IsNullOrWhiteSpace(restaurant.Image))
                     {
-                        <img src="@Url.Content(restaurant.Image)" alt="@restaurant.Name" loading="lazy" />
+                        <img data-horeca-src="@Url.Content(restaurant.Image)" alt="@restaurant.Name" width="96" height="96" decoding="async" />
                     }
                 </div>
                 <h3 class="ct-restaurant__name">@restaurant.Name</h3>
@@ -69,7 +69,7 @@
                                         {
                                             <button type="button" class="ct-restaurant__thumbnail" data-horeca-image="@Url.Content(branch.Gallery[imageIndex])"
                                                     data-horeca-caption="@restaurant.Name" aria-label="@(restaurant.Name + " görsel " + (imageIndex + 1) + " büyüt")">
-                                                <img src="@Url.Content(branch.Gallery[imageIndex])" alt="@(restaurant.Name + " – " + (imageIndex + 1))" loading="lazy" />
+                                                <img data-horeca-src="@Url.Content(branch.Gallery[imageIndex])" alt="@(restaurant.Name + " – " + (imageIndex + 1))" width="96" height="64" decoding="async" />
                                             </button>
                                         }
                                     </div>

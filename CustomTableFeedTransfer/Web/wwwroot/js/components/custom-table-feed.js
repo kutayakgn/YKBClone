@@ -326,6 +326,7 @@
             visible(empty, matches.length === 0);
             paging(pagination, page, size > 0 ? count : 1, number => { page = number; render(); });
             status.textContent = matches.length === 0 ? "Kayıt bulunamadı." : `${matches.length} kayıttan ${offset + 1}–${Math.min(offset + selected.size, matches.length)} arası gösteriliyor.`;
+            root.dispatchEvent(new CustomEvent("ykb:customtablefeed-rendered"));
         };
         form.addEventListener("submit", event => {
             event.preventDefault();

@@ -120,13 +120,40 @@ Galeri küçük görselleri satırın altında gösterilir. Tıklama native dial
 
 Üstteki indirim açıklaması view içinde statiktir; CMS alanı eklenmez. Ekran daraldığında adres, şubeler ve galeriler logo/başlık satırının altına geçer. Preview'daki logolar ve galeri görselleri örnek SVG'lerdir; gerçek uygulamada CMS URL'leri kullanılır.
 
+### Görsellerde HTTP 429 ve kontrollü yükleme
+
+Canlı siteden bildirilen HTTP 429, görsel isteğinin hız sınırına takıldığını gösterir. İstek sınırını uygulayan katman bu repoda bulunmuyor; sunucu/CDN/proxy ayarının nerede olduğunu belirlemek için hata veren tam URL, Response Headers (`Retry-After` dahil) ve sunucu logları gerekir. Önceki tüm görünür görselleri eager yükleme + 400/1200 ms hızlı retry yaklaşımı bu hata için kaldırılmıştır.
+
+Logo ve thumbnail URL'leri view'da **src yerine `data-horeca-src`** içinde tutulur. Böylece tarayıcı HTML'yi okurken yüzlerce isteği kuyruğa girmeden başlatamaz. `IntersectionObserver` görselin ekranın 160 px yakınına geldiğini bildirince, satır/şube de görünürse istek sıraya alınır. Kapalı şubeler, diğer sayfalar ve diğer şehirlerin görselleri ertelenir. Observer olmayan tarayıcıda yalnızca görünür satırların görselleri aynı hız sınırlı kuyruğa girer.
+
+`horeca-restaurants.js` içindeki `createImageLoader` varsayılanları:
+
+```js
+var maxConcurrent = 2, startIntervalMs = 1000, errorCooldownMs = 60000;
+```
+
+- Bütün restoran feed'leri ve lightbox aynı kuyruğu paylaşır: aynı anda en fazla **2** aktif görsel, yeni istekler arasında en az **1 saniye**.
+- Herhangi bir görsel hatasında bütün yeni istekler en az **60 saniye** durur. Başarısız görsel için en fazla **bir** ek deneme yapılır. Başka sayfaya/şehre geçmek beklemeyi sıfırlamaz.
+- Native `<img>` error olayı HTTP status/`Retry-After` başlığını açığa çıkarmaz. Bu yüzden tüm hatalara aynı korumacı bekleme uygulanır; otomatik başlık okunduğu iddia edilmez. Sunucunun gerçek `Retry-After` süresi daha uzunsa `errorCooldownMs` değerini en az bu süreye çıkarın. `startIntervalMs` değerini de gerçek sunucu bütçesine göre ayarlayın; 1 saniye keyfi bir sunucu limitine uyumu garanti etmez.
+- 30 saniyeden uzun bekleyen bir görsel isteği sonlandırılıp slotu serbest bırakılır ve aynı hata beklemesi uygulanır.
+- Başarılı görsel sekme/sayfa değişiminde tekrar atanmaz. Galeri değişimi/kapanışı eski işi iptal eder. Kaynak URL/query string değiştirilmez; rastgele cache parametresi yoktur. Tarayıcı cache'inin ve CDN'nin aynı URL'yi kullanması korunur.
+
+Sunucuda oran sınırlamasını hangi katmanın uyguladığını tespit edin (uygulama, IIS/proxy veya CDN/WAF). Herkese açık medya dosyalarının trafik bütçesini ve cache başlıklarını bu kullanıma göre düzenleyin; genel sınırı kapatmak yerine medya politikasını değerlendirin. `/getmedia/...` yerine doğrudan medya URL'sine geçiş, ancak dosyaların herkese açık olması ve canlı site depolamasına erişim doğrulandıktan sonra ayrıca kararlaştırılmalıdır; importer mevcut medya bağlantılarını korur.
+
+Gerçek projeye düzeltmeyi taşırken `_HorecaRestaurants.cshtml`, `custom-table-feed.js` ve `horeca-restaurants.js` dosyalarının **üçünü birlikte** güncelleyin; bundle kullanıyorsanız yeniden oluşturun. Yeni view ile eski JS eşleşirse `data-horeca-src` doldurulmaz ve görseller görünmez. Görsellerin yüklenmesi bu component'in JavaScript'ini gerektirir. CMS verisini tekrar import etmeyin. Aktif 429 penceresinde art arda refresh yapmayın; varsa sunucunun `Retry-After` süresini bekleyin.
+
+Kaynaklar: [HTTP 429 ve Retry-After](https://developer.mozilla.org/en-US/docs/Web/HTTP/Reference/Status/429), [IntersectionObserver](https://developer.mozilla.org/en-US/docs/Web/API/Intersection_Observer_API).
+
 ## 8. Doğrulama
 
 ```sh
 node --check CustomTableFeedTransfer/Web/wwwroot/js/components/horeca-restaurants.js
 node CustomTableFeedTransfer/Tests/horeca-client-tests.cjs
+node CustomTableFeedTransfer/Tests/horeca-image-tests.cjs
 ```
 
 Client testi jsdom gerektirir (bu makinede /tmp/ykb-export-check/node_modules altında mevcut). Gerekirse ayrı test ortamına jsdom kurun; MVC uygulaması için npm bağımlılığı gerekmez. Testler İstanbul varsayılanı, restaurant bazlı pagination, PageSize=0, bağımsız feed'ler, şube toggle/inert, boş sekme, sayfa sıfırlama, galeri gezinmesi/odak dönüşü, tekrar yükleme ve iki bundle sırası için geçti. Native dialog ve şubeler tarayıcı önizlemesinde de kontrol edildi. C# syntax parser kontrolü geçti; bu ortamda gerçek Kentico DLL/DB ve .NET SDK bulunmadığından C#/Razor build doğrulanamadı.
 
 Yerel önizleme: Preview/horeca-restaurants.html. Gerçek JS/CSS dosyalarını kullanır; örnek veriler içerir.
+
+Görsel testi, jsdom ile viewport observer, yerel img load/error olayları ve timer'ları simüle eder: src ataması öncesi erteleme, sayfa genelinde iki aktif istek sınırı, istek başlangıçları arası bir saniye, hatada 60 saniye global bekleme, tek retry sınırı, gizli satır/şube, galeri iptali, timeout, observer fallback ve iki bundle sırası doğrulanır. Canlı Kentico medya HTTP yanıtlarını veya gerçek tarayıcı ağ davranışını test etmez.
