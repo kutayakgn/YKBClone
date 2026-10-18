@@ -6,9 +6,9 @@
     // Shared by every restaurant feed and the gallery: limits are page-wide.
     var imageLoader = createImageLoader();
     function createImageLoader() {
-        var maxConcurrent = 2, startIntervalMs = 1000, errorCooldownMs = 60000;
+        var maxConcurrent = 6, errorCooldownMs = 60000;
         var records = new WeakMap(), queue = [], active = 0, timer = null;
-        var nextStart = 0, blockedUntil = 0;
+        var blockedUntil = 0;
         var observer = typeof window.IntersectionObserver === 'function'
             ? new window.IntersectionObserver(function (entries) {
                 entries.forEach(function (entry) {
@@ -40,7 +40,7 @@
                 if (skipped.status === 'queued') skipped.status = 'idle';
             }
             if (!queue.length) return;
-            var wait = Math.max(nextStart, blockedUntil) - Date.now();
+            var wait = blockedUntil - Date.now();
             if (wait > 0) {
                 timer = window.setTimeout(function () { timer = null; pump(); }, wait);
                 return;
@@ -49,7 +49,6 @@
             if (job.status !== 'queued') { pump(); return; }
             job.status = 'active';
             active++;
-            nextStart = Date.now() + startIntervalMs;
             var timeout;
             function finish(result) {
                 if (job.status !== 'active') return;

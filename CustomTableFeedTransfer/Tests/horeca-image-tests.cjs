@@ -9,8 +9,9 @@ const core = fs.readFileSync(path.join(base, 'Web/wwwroot/js/components/custom-t
 const extension = fs.readFileSync(path.join(base, 'Web/wwwroot/js/components/horeca-restaurants.js'), 'utf8');
 const fixture = fs.readFileSync(path.join(__dirname, 'horeca-fixture.html'), 'utf8');
 
-function setup(reverse, withObserver = true, twoFeeds = false) {
-    const html = fixture + (twoFeeds ? fixture.replaceAll('horeca-test', 'horeca-other').replace('data-page-size="2"', 'data-page-size="0"') : '');
+function setup(reverse, withObserver = true, multipleFeeds = false) {
+    const html = fixture + (multipleFeeds ? ['horeca-other', 'horeca-third'].map(id =>
+        fixture.replaceAll('horeca-test', id).replace('data-page-size="2"', 'data-page-size="0"')).join('') : '');
     const dom = new JSDOM('<body>' + html + '</body>', { url: 'https://example.test/restaurants', runScripts: 'outside-only' });
     const w = dom.window, d = w.document;
     const timers = new Map(), requests = [], active = new Set(), warnings = [], observers = [];
@@ -31,7 +32,7 @@ function setup(reverse, withObserver = true, twoFeeds = false) {
         configurable: true, get() { return src.get.call(this); },
         set(value) {
             requests.push({ image: this, source: value, at: now }); active.add(this);
-            assert(active.size <= 2, 'no more than two native image requests may be active page-wide');
+            assert(active.size <= 6, 'no more than six native image requests may be active page-wide');
             src.set.call(this, value);
         }
     });
@@ -75,12 +76,17 @@ for (const reverse of [false, true]) {
     assert.equal(h.observers.length, 1, 'all feed instances share one viewport observer');
     const logos = [...h.d.querySelectorAll('.ct-restaurant__logo img')].filter(img => !img.closest('[hidden]'));
     logos.forEach(img => h.near(img));
-    assert.equal(h.requests.length, 1);
-    h.advance(999); assert.equal(h.requests.length, 1);
-    h.advance(1); assert.equal(h.requests.length, 2);
-    h.advance(1000); assert.equal(h.requests.length, 2, 'concurrency blocks a third request');
-    h.result(logos[0], true); assert.equal(h.requests.length, 3);
-    for (let n = 1; n < h.requests.length; n++) assert(h.requests[n].at - h.requests[n - 1].at >= 1000);
+    assert.equal(h.requests.length, 6, 'six visible images start together without a per-second delay');
+    assert(h.requests.every(request => request.at === 0));
+    h.advance(500); assert.equal(h.requests.length, 6, 'concurrency blocks the remaining requests');
+    const thirdFeed = h.d.querySelector('#horeca-third');
+    thirdFeed.hidden = true;
+    h.result(logos[0], true); assert.equal(h.requests.length, 6, 'newly hidden queued images do not start');
+    thirdFeed.hidden = false;
+    thirdFeed.dispatchEvent(new h.w.CustomEvent('ykb:customtablefeed-rendered'));
+    assert.equal(h.requests.length, 7, 'free slot is filled immediately without a start timer');
+    h.result(logos[1], true); assert.equal(h.requests.length, 8);
+    assert.equal(h.requests[6].at, 500); assert.equal(h.requests[7].at, 500);
     h.dom.window.close();
 
     // HTTP status is unavailable on <img>; any error invokes conservative global backoff.
@@ -100,9 +106,13 @@ for (const reverse of [false, true]) {
 
     h = setup(reverse);
     const second = h.d.querySelectorAll('.ct-restaurant__logo img')[1];
-    h.near(h.first); h.near(second); h.result(h.first, false);
-    h.advance(59999); assert.equal(h.requests.length, 1, 'backoff pauses other queued images too');
-    h.advance(1); assert.equal(h.requests.length, 2);
+    h.near(h.first); h.near(second); h.result(h.first, false); h.result(second, true);
+    h.d.querySelector('[data-horeca-toggle]').click();
+    const queuedThumb = h.d.querySelector('.ct-restaurant__thumbnail img');
+    h.near(queuedThumb);
+    h.advance(59999); assert.equal(h.requests.length, 2, 'backoff pauses other queued images too');
+    h.advance(1); assert.equal(h.requests.length, 4);
+    assert(h.requests.slice(2).every(request => request.at === 60000));
     h.dom.window.close();
 
     // Scroll, city, page and branch visibility determine eligibility before starting a request.
@@ -124,14 +134,9 @@ for (const reverse of [false, true]) {
     toggle.click(); assert.equal(h.requests.at(-1).image, thumb);
     h.dom.window.close();
 
-    // A queued page-one image is dropped after pagination; a stalled transfer releases its slot.
+    // A stalled transfer releases its slot and starts the error cooldown.
     h = setup(reverse);
-    h.near(h.first); h.near(h.d.querySelectorAll('.ct-restaurant__logo img')[1]);
-    h.d.querySelector('[data-ct-pagination] [aria-label="2. sayfa"]').click();
-    h.advance(1000); assert.equal(h.requests.length, 1, 'newly hidden queued image never starts');
-    h.result(h.first, true);
-    const pageTwo = h.d.querySelector('[data-ct-row]:not([hidden])');
-    h.near(pageTwo.querySelector('.ct-restaurant__logo img'));
+    h.near(h.first);
     h.advance(30000); assert.equal(h.active.size, 0, 'stalled request is aborted before slot release');
     h.dom.window.close();
 
@@ -142,18 +147,19 @@ for (const reverse of [false, true]) {
     const large = h.d.querySelector('dialog img');
     h.near(large); assert(h.requests.at(-1).source.endsWith('horeca-gallery-1.svg'));
     h.d.querySelector('[data-horeca-next]').click(); h.near(large);
-    h.advance(1000); assert(h.requests.at(-1).source.endsWith('horeca-gallery-2.svg'));
+    assert(h.requests.at(-1).source.endsWith('horeca-gallery-2.svg'));
+    assert.equal(h.requests.at(-1).at, 0, 'gallery navigation starts immediately when a slot is free');
     h.d.querySelector('[data-horeca-close]').click();
     h.advance(90000);
     assert.equal(h.requests.length, 2); assert.equal(h.active.size, 0);
     assert.equal(large.hasAttribute('src'), false); assert.equal(h.warnings.length, 0);
     h.dom.window.close();
 
-    // No observer: still honor visibility, the global concurrency limit and start spacing.
+    // No observer: honor visibility and concurrency without delaying visible images.
     h = setup(reverse, false);
-    assert.equal(h.requests.length, 1); h.advance(1000); assert.equal(h.requests.length, 2);
+    assert.equal(h.requests.length, 2); assert(h.requests.every(request => request.at === 0));
     h.result(h.first, true); h.advance(1000);
     assert.equal(h.requests.length, 2, 'hidden page/city/branch are excluded in fallback mode');
     h.dom.window.close();
 }
-console.log('PASS: viewport-only sources, shared 2-request cap, 1-second pacing, 60-second global backoff, one retry, cache-safe URLs, hidden pages/branches, gallery cancellation, request timeout, no-observer fallback, both bundle orders.');
+console.log('PASS: viewport-only sources, six immediate parallel requests, immediate slot refill, 60-second error backoff, one retry, cache-safe URLs, hidden pages/branches, gallery cancellation, request timeout, no-observer fallback, both bundle orders.');

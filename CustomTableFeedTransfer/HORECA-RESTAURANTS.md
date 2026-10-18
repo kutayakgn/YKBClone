@@ -124,17 +124,17 @@ Galeri küçük görselleri satırın altında gösterilir. Tıklama native dial
 
 Canlı siteden bildirilen HTTP 429, görsel isteğinin hız sınırına takıldığını gösterir. İstek sınırını uygulayan katman bu repoda bulunmuyor; sunucu/CDN/proxy ayarının nerede olduğunu belirlemek için hata veren tam URL, Response Headers (`Retry-After` dahil) ve sunucu logları gerekir. Önceki tüm görünür görselleri eager yükleme + 400/1200 ms hızlı retry yaklaşımı bu hata için kaldırılmıştır.
 
-Logo ve thumbnail URL'leri view'da **src yerine `data-horeca-src`** içinde tutulur. Böylece tarayıcı HTML'yi okurken yüzlerce isteği kuyruğa girmeden başlatamaz. `IntersectionObserver` görselin ekranın 160 px yakınına geldiğini bildirince, satır/şube de görünürse istek sıraya alınır. Kapalı şubeler, diğer sayfalar ve diğer şehirlerin görselleri ertelenir. Observer olmayan tarayıcıda yalnızca görünür satırların görselleri aynı hız sınırlı kuyruğa girer.
+Logo ve thumbnail URL'leri view'da **src yerine `data-horeca-src`** içinde tutulur. Böylece tarayıcı HTML'yi okurken yüzlerce isteği kuyruğa girmeden başlatamaz. `IntersectionObserver` görselin ekranın 160 px yakınına geldiğini bildirince, satır/şube de görünürse istek sıraya alınır. Kapalı şubeler, diğer sayfalar ve diğer şehirlerin görselleri ertelenir. Observer olmayan tarayıcıda yalnızca görünür satırların görselleri aynı eşzamanlılık sınırlı kuyruğa girer.
 
 `horeca-restaurants.js` içindeki `createImageLoader` varsayılanları:
 
 ```js
-var maxConcurrent = 2, startIntervalMs = 1000, errorCooldownMs = 60000;
+var maxConcurrent = 6, errorCooldownMs = 60000;
 ```
 
-- Bütün restoran feed'leri ve lightbox aynı kuyruğu paylaşır: aynı anda en fazla **2** aktif görsel, yeni istekler arasında en az **1 saniye**.
+- Bütün restoran feed'leri ve lightbox aynı kuyruğu paylaşır: ekrana yakın en fazla **6** görsel aynı anda başlatılır. İstek başlangıçları arasında yapay süre sınırı yoktur; bir görsel tamamlanır tamamlanmaz boşalan slota sıradaki görünür görsel girer. Normal yüklemede saniyelik bekleme uygulanmaz.
 - Herhangi bir görsel hatasında bütün yeni istekler en az **60 saniye** durur. Başarısız görsel için en fazla **bir** ek deneme yapılır. Başka sayfaya/şehre geçmek beklemeyi sıfırlamaz.
-- Native `<img>` error olayı HTTP status/`Retry-After` başlığını açığa çıkarmaz. Bu yüzden tüm hatalara aynı korumacı bekleme uygulanır; otomatik başlık okunduğu iddia edilmez. Sunucunun gerçek `Retry-After` süresi daha uzunsa `errorCooldownMs` değerini en az bu süreye çıkarın. `startIntervalMs` değerini de gerçek sunucu bütçesine göre ayarlayın; 1 saniye keyfi bir sunucu limitine uyumu garanti etmez.
+- Native `<img>` error olayı HTTP status/`Retry-After` başlığını açığa çıkarmaz. Bu yüzden tüm hatalara aynı korumacı bekleme uygulanır; otomatik başlık okunduğu iddia edilmez. Sunucunun gerçek `Retry-After` süresi daha uzunsa `errorCooldownMs` değerini en az bu süreye çıkarın. Eşzamanlılık sınırı saniye/dakika başına istek kotası değildir; bu nedenle sunucunun gerçek trafik bütçesine uyumu tek başına garanti etmez. Normal yüklemeyi yavaşlatmak yerine, devam eden 429 için herkese açık medya cache'i ve sunucu medya politikası ayrıca değerlendirilmelidir.
 - 30 saniyeden uzun bekleyen bir görsel isteği sonlandırılıp slotu serbest bırakılır ve aynı hata beklemesi uygulanır.
 - Başarılı görsel sekme/sayfa değişiminde tekrar atanmaz. Galeri değişimi/kapanışı eski işi iptal eder. Kaynak URL/query string değiştirilmez; rastgele cache parametresi yoktur. Tarayıcı cache'inin ve CDN'nin aynı URL'yi kullanması korunur.
 
@@ -156,4 +156,4 @@ Client testi jsdom gerektirir (bu makinede /tmp/ykb-export-check/node_modules al
 
 Yerel önizleme: Preview/horeca-restaurants.html. Gerçek JS/CSS dosyalarını kullanır; örnek veriler içerir.
 
-Görsel testi, jsdom ile viewport observer, yerel img load/error olayları ve timer'ları simüle eder: src ataması öncesi erteleme, sayfa genelinde iki aktif istek sınırı, istek başlangıçları arası bir saniye, hatada 60 saniye global bekleme, tek retry sınırı, gizli satır/şube, galeri iptali, timeout, observer fallback ve iki bundle sırası doğrulanır. Canlı Kentico medya HTTP yanıtlarını veya gerçek tarayıcı ağ davranışını test etmez.
+Görsel testi, jsdom ile viewport observer, yerel img load/error olayları ve timer'ları simüle eder: src ataması öncesi erteleme, sayfa genelinde altı aktif istek sınırı, altı isteğin aynı anda başlaması ve boşalan slotun gecikmesiz doldurulması, hatada 60 saniye global bekleme, tek retry sınırı, gizli satır/şube, galeri iptali, timeout, observer fallback ve iki bundle sırası doğrulanır. Canlı Kentico medya HTTP yanıtlarını veya gerçek tarayıcı ağ davranışını test etmez.
