@@ -56,6 +56,10 @@
 
     function synchronizeLink(button) {
         var state = linkState(button);
+        if (button.getAttribute("aria-disabled") === "true") {
+            button.removeAttribute("href");
+            return state;
+        }
         var target = state.target;
         var href = state.url;
 
@@ -128,6 +132,11 @@
     function handleLinkClick(event) {
         var button = event.target.closest("[data-ykb-button]");
         if (!button) return;
+        if (button.getAttribute("aria-disabled") === "true") {
+            event.preventDefault();
+            event.stopImmediatePropagation();
+            return;
+        }
         var state = synchronizeLink(button);
         if (event.defaultPrevented || event.ctrlKey || event.metaKey ||
             event.shiftKey || event.altKey || event.button > 0) return;
@@ -201,7 +210,7 @@
             '[data-ykb-button][data-auto-open="true"]'
         )).find(function (button) {
             var element = findModal(button);
-            return element && !hasSeen(element.id);
+            return button.getAttribute("aria-disabled") !== "true" && element && !hasSeen(element.id);
         });
         if (!autoButton) return;
         var element = findModal(autoButton);

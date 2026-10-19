@@ -240,4 +240,21 @@ check('unrelated anchors keep native behavior', () => {
     assert.equal(a.calls.assign.length, 0); assert.equal(a.calls.open.length, 0);
     a.dom.window.close();
 });
+check('disabled URL buttons cannot navigate, including modifier clicks and resize', () => {
+    const a = setup({ mobile: true, html: button('_blank', '/mobile', 'aria-disabled="true"') });
+    assert.equal(a.document.getElementById('button').hasAttribute('href'), false);
+    assert.equal(a.click('label', { ctrlKey: true }), true);
+    a.resize(true);
+    assert.equal(a.document.getElementById('button').hasAttribute('href'), false);
+    assert.equal(a.click('button'), true);
+    assert.equal(a.calls.open.length + a.calls.assign.length, 0);
+    a.dom.window.close();
+});
+check('disabled modal button cannot open automatically or manually', () => {
+    const a = setup({ mobile: true, html: button('_modal', '', 'aria-disabled="true" data-modal-id="m" data-auto-open="true"') + '<div id="m" class="ykb-modal"></div>' });
+    assert.equal(a.calls.show.length, 0);
+    assert.equal(a.click('label'), true);
+    assert.equal(a.calls.show.length, 0);
+    a.dom.window.close();
+});
 console.log(`${checks} regression scenarios passed.`);

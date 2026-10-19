@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Kentico · Animasyonlu CTA önizleme</title>
+    <style>
+        body { margin: 32px; background: #eef3f8; color: #183650; font: 15px Arial,sans-serif; }
+        h1 { font-size: 26px; margin-bottom: 10px; } p { line-height: 1.6; }
+        .samples { display: flex; align-items: start; gap: 24px; flex-wrap: wrap; max-width: 800px; }
+        output { display: block; padding-top: 8px; font-size: 12px; color: #466275; }
+        iframe { border: 0; border-radius: 8px; box-shadow: 0 8px 24px #14365a15; height: 210px; }
+        .wide { margin-top: 28px; overflow: auto; } .wide iframe { height: 170px; }
+        code { background: white; padding: 4px 7px; border-radius: 4px; }
+    </style>
+</head>
+<body>
+<h1>ButtonComponent · animated-cta</h1>
+<p>Orijinal Lottie animasyonu, mevcut mobil URL ve modal davranışıyla aynı butonda.<br>
+Görünüm <code>768px altında</code> gösterilir. Mevcut URL/hedef seçimi <code>992px</code> eşiğini korur.</p>
+<div class="samples">
+    <section><h2>358px</h2><iframe title="358px mobil" src="frame.html" width="358"></iframe><output>Kontrol ediliyor…</output></section>
+    <section><h2>390px</h2><iframe title="390px mobil" src="frame.html" width="390"></iframe><output>Kontrol ediliyor…</output></section>
+    <section><h2>320px</h2><iframe title="320px mobil" src="frame.html" width="320"></iframe><output>Kontrol ediliyor…</output></section>
+</div>
+<div class="wide"><h2>767px · görünür</h2><iframe title="767px mobil" src="frame.html" width="767"></iframe><output>Kontrol ediliyor…</output></div>
+<div class="wide"><h2>768px · gizli</h2><iframe title="768px masaüstü" src="frame.html" width="768"></iframe><output>Kontrol ediliyor…</output></div>
+<div class="wide"><h2>992px · gizli</h2><iframe title="992px masaüstü" src="frame.html" width="992"></iframe><output>Kontrol ediliyor…</output></div>
+<script>
+window.addEventListener('message', function (event) {
+    if (event.origin !== location.origin || !event.data || event.data.type !== 'animated-button-preview') return;
+    var frame = Array.from(document.querySelectorAll('iframe')).find(function (f) { return f.contentWindow === event.source; });
+    if (!frame) return;
+    var info = event.data;
+    frame.nextElementSibling.textContent = info.display === 'none'
+        ? 'Gizli · oynatıcı yüklenmedi: ' + (info.playerScripts === 0)
+        : 'SVG hazır: ' + info.ready + ' · animasyon değişimi: ' + info.changes + ' · yatay taşma: ' + info.overflow;
+});
+</script>
+</body>
+</html>

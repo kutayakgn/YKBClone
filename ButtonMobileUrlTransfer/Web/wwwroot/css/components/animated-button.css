@@ -1,0 +1,86 @@
+/* Reference CTA is mobile-only (<768px). Link target selection stays at 992px. */
+.ykb-animated-button {
+    display: none;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    min-height: 72px;
+    grid-template-columns: 94px minmax(0, 1fr) 24px;
+    align-items: center;
+    padding: 0 20px 0 0;
+    border: 0;
+    border-radius: 0 6px 6px 0;
+    background: #d9322d;
+    color: #fff;
+    font-family: Ubuntu, Arial, sans-serif;
+    font-size: 16px;
+    font-weight: 500;
+    line-height: 1.25;
+    text-align: left;
+    text-decoration: none;
+    -webkit-tap-highlight-color: transparent;
+}
+
+.ykb-animated-button:hover,
+.ykb-animated-button:focus {
+    background: #d9322d;
+    color: #fff;
+    text-decoration: none;
+}
+
+.ykb-animated-button:focus-visible {
+    outline: 3px solid #0058b9;
+    outline-offset: 4px;
+}
+
+.ykb-animated-button__media {
+    position: relative;
+    display: block;
+    width: 64px;
+    height: 64px;
+    margin: 0 15px;
+    pointer-events: none;
+}
+
+.ykb-animated-button__poster,
+.ykb-animated-button__player {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+}
+
+.ykb-animated-button__player { visibility: hidden; }
+.ykb-animated-button.is-animation-ready .ykb-animated-button__player { visibility: visible; }
+.ykb-animated-button.is-animation-ready .ykb-animated-button__poster { visibility: hidden; }
+.ykb-animated-button__text { padding: 12px 8px 12px 0; overflow-wrap: anywhere; }
+.ykb-animated-button__arrow { display: block; width: 24px; height: 24px; pointer-events: none; }
+.ykb-animated-button[aria-disabled="true"] { opacity: .55; cursor: default; pointer-events: none; }
+
+@media (max-width: 767.98px) {
+    .ykb-animated-button {
+        display: grid;
+        animation: ykb-animated-button-enter 1s ease-in-out .5s both;
+    }
+}
+
+@media (max-width: 340px) {
+    .ykb-animated-button { font-size: 13px; }
+}
+
+@media (max-width: 300px) {
+    .ykb-animated-button { font-size: 10px; grid-template-columns: 74px minmax(0, 1fr) 24px; }
+    .ykb-animated-button__media { margin-left: 5px; margin-right: 5px; }
+}
+
+@keyframes ykb-animated-button-enter {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .ykb-animated-button { animation: none; }
+    .ykb-animated-button .ykb-animated-button__player { visibility: hidden; }
+    .ykb-animated-button .ykb-animated-button__poster { visibility: visible; }
+}

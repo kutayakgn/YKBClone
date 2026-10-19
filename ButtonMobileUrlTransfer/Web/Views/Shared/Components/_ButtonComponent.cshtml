@@ -9,7 +9,10 @@
         : null;
 
     var isActionLink = Model.ButtonClass == "action-link";
-    var cssClass = isActionLink
+    var isAnimated = Model.ButtonClass == "animated-cta";
+    var cssClass = isAnimated
+        ? "ykb-animated-button"
+        : isActionLink
         ? "ykb-action-link"
         : $"ykb-btn ykb-btn--{Model.ButtonClass} ykb-btn--{Model.ButtonSize}";
 
@@ -26,23 +29,39 @@
             : Model.MobilUrl;
 }
 
-<a href="@href"
+<a href="@(Model.IsDisabled ? null : href)"
    class="@cssClass @(Model.IsDisabled ? "disabled" : "")"
    data-ykb-button
+   data-ykb-animation="@(isAnimated ? "true" : "false")"
+   data-animation-url="@(isAnimated ? Url.Content("~/assets/animations/become-customer.json") : null)"
+   data-player-url="@(isAnimated ? Url.Content("~/lib/lottie-web/lottie_light.min.js") : null)"
    data-url="@href"
    data-mobile-url="@mobileHref"
    data-target-desktop="@Model.DesktopTarget"
    data-target-mobile="@Model.MobilTarget"
    data-modal-id="@modal?.DomId"
    data-auto-open="@(Model.OpenModalOnPageLoad && modal is not null ? "true" : "false")"
-   aria-haspopup="@(modal is not null ? "dialog" : null)">
-    @if (!string.IsNullOrWhiteSpace(Model.Icon))
+   aria-haspopup="@(modal is not null ? "dialog" : null)"
+   aria-disabled="@(Model.IsDisabled ? "true" : null)"
+   tabindex="@(Model.IsDisabled ? "-1" : null)">
+    @if (isAnimated)
+    {
+        @await Html.PartialAsync("~/Views/Shared/Components/_AnimatedButtonIcon.cshtml")
+    }
+    else if (!string.IsNullOrWhiteSpace(Model.Icon))
     {
         <i class="@(isActionLink ? Model.Icon + " ykb-action-link__icon" : Model.Icon)"
            aria-hidden="true"></i>
     }
 
-    @if (isActionLink)
+    @if (isAnimated)
+    {
+        <span class="ykb-animated-button__text">@Model.Label</span>
+        <svg class="ykb-animated-button__arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+            <path d="M3 12h17M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5" />
+        </svg>
+    }
+    else if (isActionLink)
     {
         <span class="ykb-action-link__text">@Model.Label</span>
     }

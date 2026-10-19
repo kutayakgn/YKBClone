@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>Animasyonlu buton</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Ubuntu:400,500,700&subset=latin-ext&display=swap">
+    <link rel="stylesheet" href="../Web/wwwroot/css/components/animated-button.css">
+    <style>
+        * { box-sizing: border-box; }
+        body { margin: 0; background: #1868af; font-family: Ubuntu,Arial,sans-serif; }
+        main { margin: 9px 0 0 13px; padding: 15px 13px 24px 0; border-radius: 6px; background: white; }
+        h2 { margin: 15px 15px 8px; color: #003584; font-size: 23px; }
+        p { margin: 0 15px; color: #34465b; font-size: 13px; }
+    </style>
+</head>
+<body>
+<main>
+    <!-- Fixture mirrors _ButtonComponent.cshtml with animated-cta selected. -->
+    <a href="#mobile-demo" class="ykb-animated-button" data-ykb-button data-ykb-animation="true"
+       data-url="#desktop-demo" data-mobile-url="#mobile-demo" data-target-desktop="_self" data-target-mobile="_self"
+       data-animation-url="../Web/wwwroot/assets/animations/become-customer.json"
+       data-player-url="../Web/wwwroot/lib/lottie-web/lottie_light.min.js">
+        <span class="ykb-animated-button__media" aria-hidden="true">
+            <img class="ykb-animated-button__poster" src="../Web/wwwroot/assets/animations/become-customer-poster.svg" width="64" height="64" loading="lazy" decoding="async" alt="">
+            <span class="ykb-animated-button__player"></span>
+        </span>
+        <span class="ykb-animated-button__text">HEMEN YAPI KREDİLİ OL</span>
+        <svg class="ykb-animated-button__arrow" viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M3 12h17M13 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="2.5"></path></svg>
+    </a>
+    <h2>Yapı Kredi Mobil’i Hemen İndirin</h2>
+    <p>Örnek görünüm · Bağlantı yalnızca bu önizlemede sayfa içi adrese gider.</p>
+</main>
+<script src="../Web/wwwroot/js/button-modals.js"></script>
+<script src="../Web/wwwroot/js/components/animated-button.js"></script>
+<script src="verify.js"></script>
+</body>
+</html>

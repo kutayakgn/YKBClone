@@ -1,4 +1,8 @@
-# Button MobilUrl güncellemesi
+# ButtonComponent güncellemeleri
+
+Animasyonlu mobil buton için **[ANIMATED-BUTTON.md](ANIMATED-BUTTON.md)**: mevcut ButtonComponent’e `animated-cta` görünümü eklenir; tam mapper/view/CSS/JS dosyaları, orijinal Lottie verisi ve Kentico/bundle kurulum adımları bu pakettedir.
+
+## MobilUrl güncellemesi
 
 Bu klasördeki Web dosyalarını gerçek Kentico MVC projesindeki aynı hedeflere kopyalayın:
 
