@@ -4,7 +4,9 @@ Bu klasördeki Web dosyalarını gerçek Kentico MVC projesindeki aynı hedefler
 
 - `Web/Views/Shared/Components/_ButtonComponent.cshtml`
 - `Web/Views/Shared/Components/_SubBannerComponent.cshtml`
-- `Web/wwwroot/js/components/button-modal.js` (mevcut buton JS dosyanızın içeriğini bununla değiştirin; ikinci kopya eklemeyin).
+- `Web/wwwroot/js/button-modals.js` (mevcut buton JS dosyanızın içeriğini bununla değiştirin; ikinci kopya eklemeyin). Mevcut bundle girdiniz `js/button-modals.js` olarak kalır. Önceki bağlantılar için `components/button-modal.js` de aynı içerikle korunmuştur; ikisini birlikte bundle'a eklemeyin.
+
+Minifier'ın kapsam dışındaki WeakMap referansını kaybetmesiyle oluşan `i is not defined` hatasına karşı `linkState` artık modül kapsamından WeakMap veya media-query değişkeni yakalamaz. Normal URL `data-url` üzerinde korunur, ekran ölçümü `isDesktop()` ile yapılır. Dosyada blok kapsamlı `let`/`const` veya arrow function sözdizimi kullanılmaz. Kullanılan WebOptimizer/minifier kurulumu bu repoda bulunmadığından minify edilmiş çıktı hedef uygulamada doğrulanmalıdır.
 
 JS'i mevcut bundle girdisine dahil edip bundle'ı yeniden oluşturun. Sayfaya ayrıca script etiketi eklemeyin. Razor değişikliği de gereklidir: `MobilUrl`, `data-mobile-url` üzerinden tarayıcıya aktarılır. `~/` ile başlayan her iki URL de Razor'da uygulama köküne göre çözümlenir.
 
@@ -37,7 +39,7 @@ console.table([...document.querySelectorAll('[data-ykb-button]')].map(b => ({
 })));
 ```
 
-`undefined`, bu dosyanın tarayıcıda çalışmadığını gösterir. Bundle girdisini, script yüklenme hatalarını ve Console hatalarını kontrol edin. `object` durumunda `url` seçilen adresi, `mobile` ise ekranın 992px altında olup olmadığını gösterir. `/asd-desktop` ve `/asd-mobil` örneğinde mobilde `url: /asd-mobil` beklenir. Doğru adres seçilip navigasyondan sonra farklı adrese gidiliyorsa Network üzerinden sunucu yönlendirmelerini de kontrol edin.
+`undefined`, başlatmanın tamamlanmadığını gösterir; dosya yüklenmemiş veya çalışırken hata almış olabilir. Önce Console hatalarını, ardından bundle girdisini ve script yüklenmesini kontrol edin. `object` durumunda `url` seçilen adresi, `mobile` ise ekranın 992px altında olup olmadığını gösterir. `/asd-desktop` ve `/asd-mobil` örneğinde mobilde `url: /asd-mobil` beklenir. Doğru adres seçilip navigasyondan sonra farklı adrese gidiliyorsa Network üzerinden sunucu yönlendirmelerini de kontrol edin.
 
 Mevcut modal gösterme/gizleme, manuel tekrar açma, ilk görülmemiş otomatik modal, `shown.bs.modal` cookie kaydı, 1 yıllık cookie süresi ve popup ölçüleri korunmuştur. Paylaşılan metinde yorum satırına birleşmiş `const autoButton` ve popup engellenmesi durumundaki `window.location.assign(url)` ifadeleri ayrı kod satırları olarak yazılmıştır.
 

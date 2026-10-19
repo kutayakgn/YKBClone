@@ -5,7 +5,7 @@ const vm = require('node:vm');
 let JSDOM;
 try { ({ JSDOM } = require('jsdom')); }
 catch { ({ JSDOM } = require('/tmp/ykb-export-check/node_modules/jsdom')); }
-const source = fs.readFileSync(path.join(__dirname, '../Web/wwwroot/js/components/button-modal.js'), 'utf8');
+const source = fs.readFileSync(path.join(__dirname, '../Web/wwwroot/js/button-modals.js'), 'utf8');
 let checks = 0;
 
 function setup(options = {}) {

@@ -3,59 +3,61 @@
 
     if (window.YkbButtonLinks) return;
 
+    // Kapsam dışından yakalanan let/const/WeakMap durumuna ihtiyaç yoktur.
     // Mevcut breakpoint korunur: 992px ve üzeri masaüstü.
-    const desktopMedia = window.matchMedia("(min-width: 992px)");
-    const originalUrls = new WeakMap();
+    function isDesktop() {
+        return window.matchMedia("(min-width: 992px)").matches;
+    }
 
     function cookieName(modalId) {
         return "ykb_modal_seen_" + modalId;
     }
 
     function hasSeen(modalId) {
-        const prefix = cookieName(modalId) + "=";
-        return document.cookie.split("; ").some(part => part.startsWith(prefix));
+        var prefix = cookieName(modalId) + "=";
+        return document.cookie.split("; ").some(function (part) {
+            return part.indexOf(prefix) === 0;
+        });
     }
 
     function markSeen(modalId) {
-        let cookie = cookieName(modalId) +
+        var cookie = cookieName(modalId) +
             "=1; Max-Age=31536000; Path=/; SameSite=Lax";
         if (location.protocol === "https:") cookie += "; Secure";
         document.cookie = cookie;
     }
 
     function findModal(button) {
-        const modalId = button.dataset.modalId;
+        var modalId = button.dataset.modalId;
         return modalId ? document.getElementById(modalId) : null;
     }
 
     function currentTarget(button) {
-        return ((desktopMedia.matches
+        return ((isDesktop()
             ? button.getAttribute("data-target-desktop")
             : button.getAttribute("data-target-mobile")) || "_self").trim();
     }
 
     function linkState(button) {
         // href mobil URL ile güncellense de masaüstü URL kaybolmaz.
-        if (!originalUrls.has(button)) {
-            originalUrls.set(button, button.getAttribute("href") || "");
+        if (!button.hasAttribute("data-url")) {
+            button.setAttribute("data-url", button.getAttribute("href") || "");
         }
 
-        const normalUrl = !button.hasAttribute("data-url")
-            ? originalUrls.get(button)
-            : button.getAttribute("data-url");
-        const mobileUrl = (button.getAttribute("data-mobile-url") || "").trim();
-        const target = currentTarget(button);
-        const href = !desktopMedia.matches && target !== "_modal" && mobileUrl
+        var normalUrl = button.getAttribute("data-url") || "";
+        var mobileUrl = (button.getAttribute("data-mobile-url") || "").trim();
+        var target = currentTarget(button);
+        var href = !isDesktop() && target !== "_modal" && mobileUrl
             ? mobileUrl
             : normalUrl;
 
-        return { target: target, url: (href || "").trim(), mobile: !desktopMedia.matches };
+        return { target: target, url: (href || "").trim(), mobile: !isDesktop() };
     }
 
     function synchronizeLink(button) {
-        const state = linkState(button);
-        const target = state.target;
-        const href = state.url;
+        var state = linkState(button);
+        var target = state.target;
+        var href = state.url;
 
         if (href) button.setAttribute("href", href);
         else button.removeAttribute("href");
@@ -75,7 +77,7 @@
     }
 
     function toggleModal(button) {
-        const element = findModal(button);
+        var element = findModal(button);
         if (!element) {
             console.warn("Butona bağlı modal sayfada bulunamadı.");
             return;
@@ -84,31 +86,31 @@
             console.error("Bootstrap 5 JavaScript yüklenmemiş.");
             return;
         }
-        const modal = window.bootstrap.Modal.getOrCreateInstance(element);
+        var modal = window.bootstrap.Modal.getOrCreateInstance(element);
         if (element.classList.contains("show")) modal.hide();
         else modal.show();
     }
 
     function openPopupWindow(url) {
-        const screenLeft = typeof window.screenLeft === "number"
+        var screenLeft = typeof window.screenLeft === "number"
             ? window.screenLeft : window.screenX;
-        const screenTop = typeof window.screenTop === "number"
+        var screenTop = typeof window.screenTop === "number"
             ? window.screenTop : window.screenY;
-        const availableWidth = window.innerWidth ||
+        var availableWidth = window.innerWidth ||
             document.documentElement.clientWidth || screen.width;
-        const availableHeight = window.innerHeight ||
+        var availableHeight = window.innerHeight ||
             document.documentElement.clientHeight || screen.height;
-        const width = Math.min(900, availableWidth);
-        const height = Math.min(800, availableHeight);
-        const left = screenLeft + Math.max(0, (availableWidth - width) / 2);
-        const top = screenTop + Math.max(0, (availableHeight - height) / 2);
-        const features = [
+        var width = Math.min(900, availableWidth);
+        var height = Math.min(800, availableHeight);
+        var left = screenLeft + Math.max(0, (availableWidth - width) / 2);
+        var top = screenTop + Math.max(0, (availableHeight - height) / 2);
+        var features = [
             "popup=yes", "width=" + Math.round(width), "height=" + Math.round(height),
             "left=" + Math.round(left), "top=" + Math.round(top),
             "resizable=yes", "scrollbars=yes", "toolbar=no", "menubar=no",
             "location=no", "status=no"
         ].join(",");
-        const popup = window.open(url, "_blank", features);
+        var popup = window.open(url, "_blank", features);
         if (popup) {
             popup.opener = null;
             popup.focus();
@@ -119,14 +121,14 @@
     }
 
     function synchronizeEventLink(event) {
-        const button = event.target.closest("[data-ykb-button]");
+        var button = event.target.closest("[data-ykb-button]");
         if (button) synchronizeLink(button);
     }
 
     function handleLinkClick(event) {
-        const button = event.target.closest("[data-ykb-button]");
+        var button = event.target.closest("[data-ykb-button]");
         if (!button) return;
-        const state = synchronizeLink(button);
+        var state = synchronizeLink(button);
         if (event.defaultPrevented || event.ctrlKey || event.metaKey ||
             event.shiftKey || event.altKey || event.button > 0) return;
         if (state.target === "_modal") return;
@@ -138,7 +140,7 @@
         if (!state.url || state.url === "#") return;
 
         // Navigasyon href'in daha sonra değişmesine bağlı değildir.
-        const url = new URL(state.url, document.baseURI).href;
+        var url = new URL(state.url, document.baseURI).href;
         if (state.target === "_popupwindow") {
             openPopupWindow(url);
         } else if (state.target === "_blank") {
@@ -156,6 +158,7 @@
     document.addEventListener("click", handleLinkClick, true);
     document.addEventListener("auxclick", synchronizeEventLink, true);
 
+    var desktopMedia = window.matchMedia("(min-width: 992px)");
     if (desktopMedia.addEventListener) {
         desktopMedia.addEventListener("change", synchronizeLinks);
     } else {
@@ -173,10 +176,10 @@
     window.YkbButtonModalInitialized = true;
 
     document.addEventListener("click", function (event) {
-        const button = event.target.closest("[data-ykb-button]");
+        var button = event.target.closest("[data-ykb-button]");
         if (!button) return;
 
-        const target = currentTarget(button);
+        var target = currentTarget(button);
         if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
 
         if (target === "_modal") {
@@ -194,14 +197,14 @@
         });
 
         // Henüz görülmemiş ilk otomatik modal açılır.
-        const autoButton = Array.from(document.querySelectorAll(
+        var autoButton = Array.from(document.querySelectorAll(
             '[data-ykb-button][data-auto-open="true"]'
         )).find(function (button) {
-            const element = findModal(button);
+            var element = findModal(button);
             return element && !hasSeen(element.id);
         });
         if (!autoButton) return;
-        const element = findModal(autoButton);
+        var element = findModal(autoButton);
         if (window.bootstrap && window.bootstrap.Modal) {
             window.bootstrap.Modal.getOrCreateInstance(element).show();
         }
