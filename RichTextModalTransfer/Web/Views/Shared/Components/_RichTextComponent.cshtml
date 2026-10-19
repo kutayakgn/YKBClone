@@ -1,0 +1,11 @@
+@using System.Globalization
+@model YkbYapikredi.Application.Components.RichTextComponentModel
+
+@if (!string.IsNullOrWhiteSpace(Model.Content))
+{
+    var culture = ViewData["Culture"]?.ToString() ?? CultureInfo.CurrentUICulture.Name;
+    <section class="rich-text-component" data-rich-text data-culture="@culture"
+             data-modal-endpoint="@(Model.ContainsModalLinks ? Url.Action("Modal", "RichTextModal") : null)">
+        @Html.Raw(Model.Content)
+    </section>
+}

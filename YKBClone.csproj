@@ -8,9 +8,9 @@
 
   <!-- Transfer package targets the external Kentico/Clean Architecture solution. -->
   <ItemGroup>
-    <Compile Remove="CustomTableFeedTransfer/**/*.cs;cardgroupcomponent/**/*.cs;HorecaImportTransfer/**/*.cs" />
-    <Content Remove="CustomTableFeedTransfer/**;cardgroupcomponent/**;HorecaImportTransfer/**" />
-    <None Include="CustomTableFeedTransfer/**/*.cs;CustomTableFeedTransfer/**/*.cshtml;cardgroupcomponent/**/*.cs;cardgroupcomponent/**/*.cshtml;HorecaImportTransfer/**/*.cs" />
+    <Compile Remove="CustomTableFeedTransfer/**/*.cs;cardgroupcomponent/**/*.cs;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs" />
+    <Content Remove="CustomTableFeedTransfer/**;cardgroupcomponent/**;HorecaImportTransfer/**;RichTextModalTransfer/**" />
+    <None Include="CustomTableFeedTransfer/**/*.cs;CustomTableFeedTransfer/**/*.cshtml;cardgroupcomponent/**/*.cs;cardgroupcomponent/**/*.cshtml;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;RichTextModalTransfer/**/*.cshtml" />
   </ItemGroup>
 
 </Project>
