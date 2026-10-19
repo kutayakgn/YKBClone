@@ -35,10 +35,12 @@ function setup(options = {}) {
     }) } };
     document.body.innerHTML = options.html || '';
     if (options.seen) document.cookie = 'ykb_modal_seen_' + options.seen + '=1; Path=/';
-    const context = vm.createContext({ window, document, location: window.location,
+    const context = vm.createContext({ window, document, URL, location: window.location,
         screen: { width: 1280, height: 900 },
         console: { warn: message => calls.errors.push(message), error: message => calls.errors.push(message) }
     });
+    if (options.legacyInitialized) window.YkbButtonModalInitialized = true;
+    if (options.legacyUrlsInitialized) window.YkbButtonMobileUrlsInitialized = true;
     vm.runInContext(source, context);
     const click = (id, modifiers = {}) => {
         const event = new dom.window.MouseEvent('click', { bubbles: true, cancelable: true, ...modifiers });
@@ -47,7 +49,7 @@ function setup(options = {}) {
         document.addEventListener('click', preventNavigation);
         document.getElementById(id).dispatchEvent(event);
         document.removeEventListener('click', preventNavigation);
-        return prevented;
+        return prevented === undefined ? event.defaultPrevented : prevented;
     };
     return { dom, document, window, media, calls, popup, click,
         resize: desktop => { media.matches = desktop; mediaListeners.forEach(fn => fn()); },
@@ -66,9 +68,10 @@ for (const target of ['_self', '_blank', '_popupwindow']) {
             const expected = mobileUrl.trim() || '/normal';
             assert.equal(a.document.getElementById('button').getAttribute('href'), expected);
             const prevented = a.click('label');
-            assert.equal(prevented, target === '_popupwindow');
-            if (target === '_popupwindow') assert.equal(a.calls.open[0][0], 'https://example.test' + expected);
-            else assert.equal(a.document.getElementById('button').target, target);
+            assert.equal(prevented, true);
+            if (target === '_self') assert.deepEqual(a.calls.assign, ['https://example.test' + expected]);
+            else assert.equal(a.calls.open[0][0], 'https://example.test' + expected);
+            assert.equal(a.document.getElementById('button').target, target === '_blank' ? '_blank' : '_self');
             if (target === '_blank') assert.equal(a.document.getElementById('button').rel, 'noopener noreferrer');
             a.dom.window.close();
         });
@@ -80,7 +83,8 @@ for (const target of ['_self', '_blank', '_popupwindow']) {
         assert.equal(a.document.getElementById('button').getAttribute('href'), '/mobile');
         a.resize(true); a.click('button');
         assert.equal(a.document.getElementById('button').getAttribute('href'), '/normal');
-        if (target === '_popupwindow') assert.equal(a.calls.open[0][0], 'https://example.test/normal');
+        if (target === '_self') assert.deepEqual(a.calls.assign, ['https://example.test/normal']);
+        else assert.equal(a.calls.open[0][0], 'https://example.test/normal');
         a.dom.window.close();
     });
 }
@@ -92,7 +96,8 @@ check('legacy anchors without data-url restore original href', () => {
 });
 check('mobile-only URL works; empty desktop URL prevents navigation', () => {
     const a = setup({ mobile: true, html: button('_self').replaceAll('/normal', '#') });
-    assert.equal(a.click('button'), false);
+    assert.equal(a.click('button'), true);
+    assert.deepEqual(a.calls.assign, ['https://example.test/mobile']);
     assert.equal(a.document.getElementById('button').getAttribute('href'), '/mobile');
     a.resize(true); assert.equal(a.click('button'), true);
     a.dom.window.close();
@@ -111,7 +116,7 @@ check('modal ignores mobile URL; show/hide, seen cookie, manual reopen preserved
 check('distinct desktop/mobile targets preserved across resize', () => {
     const a = setup({ html: button('_modal', '/mobile', 'data-modal-id="m"').replace('data-target-mobile="_modal"', 'data-target-mobile="_blank"') + '<div id="m" class="ykb-modal"></div>' });
     a.click('button'); assert.equal(a.calls.show.length, 1);
-    a.resize(false); assert.equal(a.click('button'), false);
+    a.resize(false); assert.equal(a.click('button'), true);
     assert.equal(a.document.getElementById('button').target, '_blank');
     assert.equal(a.document.getElementById('button').getAttribute('href'), '/mobile');
     a.dom.window.close();
@@ -153,11 +158,43 @@ check('duplicate script does not install duplicate click handlers', () => {
     const a = setup({ html: button('_popupwindow') }); a.repeat(); a.click('button');
     assert.equal(a.calls.open.length, 1); a.dom.window.close();
 });
+check('legacy modal initialized flag does not block mobile URL update', () => {
+    const a = setup({ legacyInitialized: true, mobile: true, html: button('_self') });
+    assert.equal(a.document.getElementById('button').dataset.mobileUrl, '/mobile');
+    assert.equal(a.document.getElementById('button').getAttribute('href'), '/mobile');
+    a.click('button');
+    assert.equal(a.document.getElementById('button').getAttribute('href'), '/mobile');
+    a.dom.window.close();
+});
+check('old element redirect cannot override selected mobile URL', () => {
+    const a = setup({ mobile: true, legacyInitialized: true, html: button('_self') });
+    const b = a.document.getElementById('button');
+    b.setAttribute('href', '/normal');
+    let usedUrl;
+    b.addEventListener('click', () => {
+        usedUrl = '/normal';
+        a.window.location.assign('https://example.test/normal');
+    });
+    a.click('label');
+    assert.equal(usedUrl, undefined);
+    assert.deepEqual(a.calls.assign, ['https://example.test/mobile']);
+    assert.equal(a.calls.open.length, 0);
+    a.dom.window.close();
+});
+check('dynamically inserted button gets mobile href for middle click', () => {
+    const a = setup({ mobile: true });
+    a.document.body.innerHTML = button('_blank');
+    a.document.getElementById('button').dispatchEvent(new a.dom.window.MouseEvent('auxclick', {
+        bubbles: true, cancelable: true, button: 1
+    }));
+    assert.equal(a.document.getElementById('button').getAttribute('href'), '/mobile');
+    a.dom.window.close();
+});
 check('DOMContentLoaded initialization and nested-label click work', () => {
     const a = setup({ loading: true, mobile: true, html: button('_self') });
     a.document.dispatchEvent(new a.dom.window.Event('DOMContentLoaded'));
     assert.equal(a.document.getElementById('button').getAttribute('href'), '/mobile');
-    assert.equal(a.click('label'), false); a.dom.window.close();
+    assert.equal(a.click('label'), true); a.dom.window.close();
 });
 check('missing modal and Bootstrap retain guarded behavior', () => {
     const a = setup({ noBootstrap: true, html: button('_modal', '', 'data-modal-id="m"') });
@@ -176,5 +213,31 @@ check('cookie retains one-year duration and HTTPS Secure flag', () => {
         assert.equal(written.includes('; Secure'), !http);
         a.dom.window.close();
     }
+});
+check('old mobile initialization flag does not block new navigation controller', () => {
+    const a = setup({ mobile: true, legacyInitialized: true, legacyUrlsInitialized: true, html: button('_self') });
+    assert(a.window.YkbButtonLinks);
+    a.click('button');
+    assert.deepEqual(a.calls.assign, ['https://example.test/mobile']);
+    a.dom.window.close();
+});
+check('SubBanner anchor uses MobilLink via the shared data-mobile-url attribute', () => {
+    const a = setup({ mobile: true, html: '<section class="sub-banner-component"><a id="button" class="sub-banner_detail-button" href="/banner-desktop" data-url="/banner-desktop" data-mobile-url="/banner-mobile" data-target-desktop="_self" data-target-mobile="_self" data-ykb-button>Details</a></section>' });
+    a.click('button'); assert.deepEqual(a.calls.assign, ['https://example.test/banner-mobile']);
+    a.resize(true); a.click('button');
+    assert.deepEqual(a.calls.assign, ['https://example.test/banner-mobile', 'https://example.test/banner-desktop']);
+    a.dom.window.close();
+});
+check('blank opens selected URL once with noopener/noreferrer', () => {
+    const a = setup({ mobile: true, html: button('_blank') });
+    a.click('button');
+    assert.deepEqual(a.calls.open, [['https://example.test/mobile', '_blank', 'noopener,noreferrer']]);
+    assert.equal(a.calls.assign.length, 0); a.dom.window.close();
+});
+check('unrelated anchors keep native behavior', () => {
+    const a = setup({ mobile: true, html: '<a id="other" href="/other">Other</a>' });
+    assert.equal(a.click('other'), false);
+    assert.equal(a.calls.assign.length, 0); assert.equal(a.calls.open.length, 0);
+    a.dom.window.close();
 });
 console.log(`${checks} regression scenarios passed.`);

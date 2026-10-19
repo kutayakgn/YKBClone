@@ -1,8 +1,7 @@
 (function () {
     "use strict";
 
-    if (window.YkbButtonModalInitialized) return;
-    window.YkbButtonModalInitialized = true;
+    if (window.YkbButtonLinks) return;
 
     // Mevcut breakpoint korunur: 992px ve üzeri masaüstü.
     const desktopMedia = window.matchMedia("(min-width: 992px)");
@@ -30,25 +29,33 @@
     }
 
     function currentTarget(button) {
-        return desktopMedia.matches
-            ? button.dataset.targetDesktop
-            : button.dataset.targetMobile;
+        return ((desktopMedia.matches
+            ? button.getAttribute("data-target-desktop")
+            : button.getAttribute("data-target-mobile")) || "_self").trim();
     }
 
-    function synchronizeLink(button) {
+    function linkState(button) {
         // href mobil URL ile güncellense de masaüstü URL kaybolmaz.
         if (!originalUrls.has(button)) {
             originalUrls.set(button, button.getAttribute("href") || "");
         }
 
-        const normalUrl = button.dataset.url === undefined
+        const normalUrl = !button.hasAttribute("data-url")
             ? originalUrls.get(button)
-            : button.dataset.url;
-        const mobileUrl = (button.dataset.mobileUrl || "").trim();
+            : button.getAttribute("data-url");
+        const mobileUrl = (button.getAttribute("data-mobile-url") || "").trim();
         const target = currentTarget(button);
         const href = !desktopMedia.matches && target !== "_modal" && mobileUrl
             ? mobileUrl
             : normalUrl;
+
+        return { target: target, url: (href || "").trim(), mobile: !desktopMedia.matches };
+    }
+
+    function synchronizeLink(button) {
+        const state = linkState(button);
+        const target = state.target;
+        const href = state.url;
 
         if (href) button.setAttribute("href", href);
         else button.removeAttribute("href");
@@ -60,7 +67,7 @@
             else button.removeAttribute("rel");
         }
 
-        return target;
+        return state;
     }
 
     function synchronizeLinks() {
@@ -111,12 +118,65 @@
         }
     }
 
+    function synchronizeEventLink(event) {
+        const button = event.target.closest("[data-ykb-button]");
+        if (button) synchronizeLink(button);
+    }
+
+    function handleLinkClick(event) {
+        const button = event.target.closest("[data-ykb-button]");
+        if (!button) return;
+        const state = synchronizeLink(button);
+        if (event.defaultPrevented || event.ctrlKey || event.metaKey ||
+            event.shiftKey || event.altKey || event.button > 0) return;
+        if (state.target === "_modal") return;
+
+        // Bu bağlantının URL işlemini tek dinleyici yönetir. Sonraki eski
+        // dinleyiciler masaüstü URL'siyle ikinci bir yönlendirme yapamaz.
+        event.preventDefault();
+        event.stopImmediatePropagation();
+        if (!state.url || state.url === "#") return;
+
+        // Navigasyon href'in daha sonra değişmesine bağlı değildir.
+        const url = new URL(state.url, document.baseURI).href;
+        if (state.target === "_popupwindow") {
+            openPopupWindow(url);
+        } else if (state.target === "_blank") {
+            window.open(url, "_blank", "noopener,noreferrer");
+        } else {
+            window.location.assign(url);
+        }
+    }
+
+    window.YkbButtonLinks = {
+        refresh: synchronizeLinks,
+        inspect: linkState
+    };
+
+    document.addEventListener("click", handleLinkClick, true);
+    document.addEventListener("auxclick", synchronizeEventLink, true);
+
+    if (desktopMedia.addEventListener) {
+        desktopMedia.addEventListener("change", synchronizeLinks);
+    } else {
+        desktopMedia.addListener(synchronizeLinks);
+    }
+
+    if (document.readyState === "loading") {
+        document.addEventListener("DOMContentLoaded", synchronizeLinks, { once: true });
+    } else {
+        synchronizeLinks();
+    }
+
+    // Eski modal kodu zaten çalışıyorsa modal dinleyicilerini çoğaltma.
+    if (window.YkbButtonModalInitialized) return;
+    window.YkbButtonModalInitialized = true;
+
     document.addEventListener("click", function (event) {
         const button = event.target.closest("[data-ykb-button]");
         if (!button) return;
 
-        // Değiştirici tuşlarla yapılan doğal tıklamalarda da doğru href kullanılır.
-        const target = synchronizeLink(button);
+        const target = currentTarget(button);
         if (event.ctrlKey || event.metaKey || event.shiftKey || event.altKey) return;
 
         if (target === "_modal") {
@@ -124,19 +184,9 @@
             toggleModal(button);
             return;
         }
-        const href = button.getAttribute("href");
-        if (!href || href === "#") {
-            event.preventDefault();
-            return;
-        }
-        if (target === "_popupwindow") {
-            event.preventDefault();
-            openPopupWindow(button.href || href);
-        }
     });
 
     function initializeModals() {
-        synchronizeLinks();
         document.querySelectorAll(".ykb-modal").forEach(function (element) {
             element.addEventListener("shown.bs.modal", function () {
                 markSeen(element.id);
@@ -155,12 +205,6 @@
         if (window.bootstrap && window.bootstrap.Modal) {
             window.bootstrap.Modal.getOrCreateInstance(element).show();
         }
-    }
-
-    if (desktopMedia.addEventListener) {
-        desktopMedia.addEventListener("change", synchronizeLinks);
-    } else {
-        desktopMedia.addListener(synchronizeLinks);
     }
 
     if (document.readyState === "loading") {

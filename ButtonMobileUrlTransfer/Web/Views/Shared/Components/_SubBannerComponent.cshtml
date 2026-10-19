@@ -1,0 +1,58 @@
+@using System
+@model YkbYapikredi.Application.Components.SubBannerComponentModel
+
+@{
+    var normalLink = string.IsNullOrWhiteSpace(Model.Link)
+        ? "#"
+        : Model.Link.StartsWith("~/", StringComparison.Ordinal)
+            ? Url.Content(Model.Link)
+            : Model.Link;
+
+    var mobileLink = string.IsNullOrWhiteSpace(Model.MobilLink)
+        ? string.Empty
+        : Model.MobilLink.StartsWith("~/", StringComparison.Ordinal)
+            ? Url.Content(Model.MobilLink)
+            : Model.MobilLink;
+
+    var hasLink = !string.IsNullOrWhiteSpace(Model.Link) ||
+        !string.IsNullOrWhiteSpace(Model.MobilLink);
+
+    var target = string.IsNullOrWhiteSpace(Model.Target)
+        ? "_self"
+        : Model.Target;
+}
+
+<section class="sub-banner-component">
+    <div class="bannerImgCont">
+        <div class="sub-banner">
+            @if (!string.IsNullOrWhiteSpace(Model.Title))
+            {
+                <h2 class="fs-32 semibold color-white">@Model.Title</h2>
+            }
+
+            @if (!string.IsNullOrWhiteSpace(Model.ImageUrl))
+            {
+                <div class="img-cont">
+                    <img class="image" src="@Model.ImageUrl" alt="@Model.ImageAlt" />
+                </div>
+            }
+
+            @if (hasLink && !string.IsNullOrWhiteSpace(Model.LinkText))
+            {
+                <div class="sub-banner_button-content">
+                    <a href="@normalLink"
+                       class="sub-banner_detail-button"
+                       target="@target"
+                       rel="@(target == "_blank" ? "noopener noreferrer" : null)"
+                       data-ykb-button
+                       data-url="@normalLink"
+                       data-mobile-url="@mobileLink"
+                       data-target-desktop="@target"
+                       data-target-mobile="@target">
+                        @Model.LinkText
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+</section>
