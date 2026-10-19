@@ -1,0 +1,53 @@
+@using System
+@using YkbYapikredi.Application.Layout
+@model YkbYapikredi.Application.Components.ButtonComponentModel
+
+@{
+    var layout = ViewData["LayoutData"] as LayoutData;
+    var modal = Model.UsesModal
+        ? layout?.Modal(Model.ModalReference)
+        : null;
+
+    var isActionLink = Model.ButtonClass == "action-link";
+    var cssClass = isActionLink
+        ? "ykb-action-link"
+        : $"ykb-btn ykb-btn--{Model.ButtonClass} ykb-btn--{Model.ButtonSize}";
+
+    var href = string.IsNullOrWhiteSpace(Model.Url)
+        ? "#"
+        : Model.Url.StartsWith("~/", StringComparison.Ordinal)
+            ? Url.Content(Model.Url)
+            : Model.Url;
+
+    var mobileHref = string.IsNullOrWhiteSpace(Model.MobilUrl)
+        ? string.Empty
+        : Model.MobilUrl.StartsWith("~/", StringComparison.Ordinal)
+            ? Url.Content(Model.MobilUrl)
+            : Model.MobilUrl;
+}
+
+<a href="@href"
+   class="@cssClass @(Model.IsDisabled ? "disabled" : "")"
+   data-ykb-button
+   data-url="@href"
+   data-mobile-url="@mobileHref"
+   data-target-desktop="@Model.DesktopTarget"
+   data-target-mobile="@Model.MobilTarget"
+   data-modal-id="@modal?.DomId"
+   data-auto-open="@(Model.OpenModalOnPageLoad && modal is not null ? "true" : "false")"
+   aria-haspopup="@(modal is not null ? "dialog" : null)">
+    @if (!string.IsNullOrWhiteSpace(Model.Icon))
+    {
+        <i class="@(isActionLink ? Model.Icon + " ykb-action-link__icon" : Model.Icon)"
+           aria-hidden="true"></i>
+    }
+
+    @if (isActionLink)
+    {
+        <span class="ykb-action-link__text">@Model.Label</span>
+    }
+    else
+    {
+        <span>@Model.Label</span>
+    }
+</a>
