@@ -165,6 +165,51 @@ const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascri
             });
             assert.deepEqual(urls, ['/asd?q=1#detay', 'https://example.com/asd']);
         });
+        await check('all 107 images load eagerly, including hidden pagination rows', async () => {
+            await load(1);
+            await page.waitForFunction(() => Array.from(document.querySelectorAll('.slogo'))
+                .every(image => image.complete && image.naturalWidth > 0));
+            assert.equal(await page.locator('.slogo[loading="eager"]').count(), 107);
+            assert.equal(await page.locator('.slogo[data-ipo-image-state="loaded"]').count(), 107);
+            assert.equal(await count(), 1);
+        });
+        await check('transient image failures retry original URL and recover once', async () => {
+            const target = rows[0].imageFileName;
+            let requests = 0;
+            const requestedUrls = [];
+            const intercept = async route => {
+                if (new URL(route.request().url()).pathname.endsWith('/' + target)) {
+                    requests++; requestedUrls.push(route.request().url());
+                    if (requests <= 2) return route.abort('failed');
+                }
+                return route.continue();
+            };
+            await page.route('**/Export/images/*', intercept);
+            await load(1);
+            await page.evaluate(() => { window.YKB.IpoCalendar.init(); window.YKB.IpoCalendar.init(); });
+            await page.waitForFunction(() => document.querySelector('.slogo').dataset.ipoImageState === 'loaded', null, { timeout: 10000 });
+            assert.equal(requests, 3);
+            assert.equal(new Set(requestedUrls).size, 1);
+            assert.equal(await page.locator('.slogo').first().getAttribute('data-ipo-image-retries'), '2');
+            await page.unroute('**/Export/images/*', intercept);
+        });
+        await check('permanent image failure stops after three retries despite repeated init', async () => {
+            const target = rows[0].imageFileName;
+            let requests = 0;
+            const intercept = async route => {
+                if (new URL(route.request().url()).pathname.endsWith('/' + target)) {
+                    requests++; return route.abort('failed');
+                }
+                return route.continue();
+            };
+            await page.route('**/Export/images/*', intercept);
+            await load(1);
+            await page.evaluate(() => { window.YKB.IpoCalendar.init(); window.YKB.CustomTableFeeds.init(); });
+            await page.waitForFunction(() => document.querySelector('.slogo').dataset.ipoImageState === 'failed', null, { timeout: 12000 });
+            assert.equal(requests, 4);
+            assert.equal(await page.locator('.slogo').first().getAttribute('data-ipo-image-retries'), '3');
+            await page.unroute('**/Export/images/*', intercept);
+        });
         await page.goto(`${base}/Preview/index.html`, { waitUntil: 'networkidle' });
         await page.evaluate(() => document.fonts.ready);
         assert.equal(await page.locator('[data-ct-feed]').count(), 1);

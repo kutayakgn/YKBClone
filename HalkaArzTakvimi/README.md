@@ -156,7 +156,7 @@ Component node'unda TableKey=IpoCalendar, Title=`Halka Arz Listesi`, PageSize=0 
 
 PageSize=0 tüm kayıtları gösterir. Pozitif değer, yıl sayısını değil toplam kayıt sayısını sınırlar. Yeni yıldan eski yıla, her yıl içinde başlangıç ay/gününe göre yeniden eskiye sıralanır; eşit tarihte ItemID kaynak sırasını korur. Sayfa sınırı bir yılı ikiye bölüyorsa ilgili yıl başlığı her iki sayfada da görünür. O sayfada kaydı olmayan yılların başlığı gizlenir.
 
-Filtre olmadığı için gizli, boş bir `data-ct-filters` formu ortak API sözleşmesini sağlar. Pagination/görünür kayıtlar mevcut ortak CustomTableFeed JS'i tarafından yönetilir; yeni JS yalnız yıl başlıklarını senkronize eden handler kaydeder. URL veya tüm sayfa yenilenmez. Bu, mevcut altyapıdaki istemci pagination'ıdır; her sayfa tıklamasında DB sorgusu yoktur.
+Filtre olmadığı için gizli, boş bir `data-ct-filters` formu ortak API sözleşmesini sağlar. Pagination/görünür kayıtlar mevcut ortak CustomTableFeed JS'i tarafından yönetilir; yeni JS yıl başlıklarını senkronize eder ve görsel yüklemelerini takip eder. URL veya tüm sayfa yenilenmez. Bu, mevcut altyapıdaki istemci pagination'ıdır; her sayfa tıklamasında DB sorgusu yoktur.
 
 ## Görünüm
 
@@ -179,3 +179,12 @@ Bu ortamda .NET SDK bulunmadığından bu C# testi burada çalıştırılamadı.
 `Preview/index.html` ve masaüstü/mobil ekran görüntüleri hazırdır. Önizleme CSS/JS'inin vendor altındaki ortak feed kopyaları yalnız önizleme içindir; bunlarla hedef projedeki ortak dosyaları değiştirmeyin. Önizlemeyi yerel HTTP sunucusuyla açın; Ubuntu için canlı sitedeki Google Fonts bağlantısını kullanır. Testler Playwright ve Chrome/Chromium bulunan ortamda `node HalkaArzTakvimi/Tests/browser-tests.cjs` ile çalışır.
 
 API referansları: [Kentico 13 custom table örnekleri](https://docs.kentico.com/13api/content-management/custom-table-data), [Kentico 13 MediaFileURLProvider](https://devnet.kentico.com/docs/13_0/api/html/Methods_T_CMS_MediaLibrary_MediaFileURLProvider.htm).
+
+
+## Görsellerin başlangıçta yüklenmesi ve yeniden deneme
+
+Güncel `_IpoCalendar.cshtml` ve `ipo-calendar.js` dosyalarını birlikte kopyalayın; JS bundle'ını yeniden oluşturun. Görseller `loading="eager"` kullanır. Böylece ekran dışında veya pagination nedeniyle gizli olan satırların görselleri de ilk sayfa yüklemesinde istenir; kaydırma/sayfa seçimi beklenmez. `decoding="async"` görseller çözülürken sayfanın çizilmesini engellemez. Ağ ve tarayıcı bağlantı sınırları nedeniyle tüm isteklerin aynı milisaniyede tamamlanması garanti edilemez.
+
+İlk yüklemede hata alan her görsel, sırasıyla 600 ms, 1500 ms ve 3000 ms beklenerek en fazla üç kez yeniden istenir (ilk istekle birlikte en fazla dört deneme). Bundle çalışmadan önce oluşan hatalar da `complete` / `naturalWidth` kontrolüyle yakalanır. Başarılı görsel yeniden yüklenmez; tekrar init çağrıları listener veya deneme sayısını çoğaltmaz. Yeniden deneme orijinal URL'yi korur; Kentico imzalı URL'lerine rastgele query eklenmez.
+
+Tarayıcıda her görselin `data-ipo-image-state` değeri `loading`, `retrying`, `loaded` veya `failed`; `data-ipo-image-retries` değeri tekrar deneme sayısıdır. Kalıcı olarak eksik medya / yetkisiz bağlantı gibi sunucu hataları üç tekrar sonunda düzelmiyorsa `failed` olarak kalır; ilgili medya kaydı ve sunucu yanıtı kontrol edilmelidir.

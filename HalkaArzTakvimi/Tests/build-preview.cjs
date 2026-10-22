@@ -25,7 +25,7 @@ function markup(pageSize = 0, id = 'ipo-preview') {
             const date = `${year}-${String(row.month).padStart(2, '0')}-${String(startDay).padStart(2, '0')}`;
             return `<article class="index-list" data-ct-row data-stock-code="${esc(row.stockCode)}" data-date="${date}">
                 <div class="il-badge" aria-hidden="true">&nbsp;</div>
-                <a class="ipo-calendar__logo-link" href="${esc(row.url)}"><img class="slogo" src="../Export/images/${esc(row.imageFileName)}" alt="${esc(row.title)}" loading="lazy"></a>
+                <a class="ipo-calendar__logo-link" href="${esc(row.url)}"><img class="slogo" src="../Export/images/${esc(row.imageFileName)}" alt="${esc(row.title)}" loading="eager" decoding="async" data-ipo-image></a>
                 <div class="il-content"><p class="subTxt">${esc(row.stockCode)}</p><div class="title-with-red-badge"><h3 class="il-halka-arz-sirket"><a href="${esc(row.url)}">${esc(row.title)}</a></h3></div><p class="ipo-calendar__date"><time>${esc(formatDate(row))}</time></p></div></article>`;
         }).join('');
         return `<section class="ipo-calendar__year" data-ipo-year-group data-year="${year}"><h2 class="ipo-calendar__year-title">${year} Halka Arzları</h2>${articles}</section>`;

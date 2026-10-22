@@ -1,5 +1,5 @@
 {
-  "browserScenariosPassed": 14,
+  "browserScenariosPassed": 17,
   "liveRecords": 107,
   "downloadedImages": 107,
   "kenticoDatabaseImportExecuted": false,
@@ -15,5 +15,8 @@
   "webpImagesVerified": 107,
   "losslessPixelComparisonPassed": 107,
   "siteRelativeUrlsVerified": 107,
-  "databaseUrlMigrationExecuted": false
+  "databaseUrlMigrationExecuted": false,
+  "eagerImagesVerified": 107,
+  "transientImageRetryVerified": true,
+  "permanentImageRetryLimitVerified": true
 }

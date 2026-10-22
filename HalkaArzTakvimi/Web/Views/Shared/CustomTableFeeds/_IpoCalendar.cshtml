@@ -25,13 +25,13 @@
                         @if (!string.IsNullOrWhiteSpace(url))
                         {
                             <a href="@url" class="ipo-calendar__logo-link">
-                                <img class="slogo" src="@image" alt="@item.Title" loading="lazy" />
+                                <img class="slogo" src="@image" alt="@item.Title" loading="eager" decoding="async" data-ipo-image />
                             </a>
                         }
                         else
                         {
                             <span class="ipo-calendar__logo-link">
-                                <img class="slogo" src="@image" alt="@item.Title" loading="lazy" />
+                                <img class="slogo" src="@image" alt="@item.Title" loading="eager" decoding="async" data-ipo-image />
                             </span>
                         }
                     }
