@@ -1,0 +1,14 @@
+{
+  "browserScenariosPassed": 11,
+  "liveRecords": 107,
+  "downloadedImages": 107,
+  "kenticoDatabaseImportExecuted": false,
+  "kenticoRazorCompilationExecuted": false,
+  "dateTextCmsFieldRequired": false,
+  "datesGeneratedFrom": [
+    "Days",
+    "Month",
+    "Year"
+  ],
+  "csharpDateTestsExecuted": false
+}

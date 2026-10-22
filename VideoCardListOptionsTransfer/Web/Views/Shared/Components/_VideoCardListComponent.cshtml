@@ -1,0 +1,102 @@
+@using System
+@using System.Linq
+@model YkbYapikredi.Application.Components.VideoCardListComponentModel
+
+@{
+    var items = Model.Items
+        .Where(item => item.Year > 0)
+        .OrderBy(item => item.Order)
+        .ToList();
+    var years = Model.Years;
+    var selectedYear = years.FirstOrDefault();
+    var dropdownId = $"{Model.DomId}-year-dropdown";
+    var optionsId = $"{Model.DomId}-year-options";
+    var labelId = $"{Model.DomId}-year-label";
+    var selectedLabelId = $"{Model.DomId}-selected-year";
+    var desktopColumns = Model.RowCardCount > 0 ? Model.RowCardCount : 3;
+    var tabletColumns = Math.Min(desktopColumns, 2);
+    var unfilteredTitle = string.IsNullOrWhiteSpace(Model.Name) ? "Videolar" : Model.Name;
+}
+
+<section class="video-card-list"
+         id="@Model.DomId"
+         data-video-card-list
+         data-page-size="@Model.PageSize"
+         data-filter-active="@(Model.IsFliterActive ? "true" : "false")"
+         data-row-card-count="@desktopColumns"
+         data-unfiltered-title="@unfilteredTitle"
+         style="--video-card-columns: @desktopColumns; --video-card-tablet-columns: @tabletColumns;">
+    @if (years.Count > 0 && (Model.IsTitleVisible || Model.IsFliterActive))
+    {
+        <div class="video-card-list__header">
+            @if (Model.IsTitleVisible)
+            {
+                <h2 class="video-card-list__year" data-video-card-year-heading>
+                    @(Model.IsFliterActive ? selectedYear.ToString() : unfilteredTitle)
+                </h2>
+            }
+
+            @if (Model.IsFliterActive)
+            {
+                <div class="video-card-list__filter">
+                    <span id="@labelId" class="video-card-list__filter-label">Yıl seçiniz</span>
+                    <div class="video-year-dropdown" data-video-year-dropdown>
+                        <input type="hidden" value="@selectedYear" data-video-card-year />
+                        <button type="button"
+                                class="video-year-dropdown__trigger"
+                                aria-labelledby="@labelId @selectedLabelId"
+                                aria-haspopup="listbox"
+                                aria-expanded="false"
+                                aria-controls="@dropdownId"
+                                data-video-year-trigger>
+                            <span id="@selectedLabelId" data-video-year-selected>@selectedYear</span>
+                            <span class="video-year-dropdown__arrow" aria-hidden="true"></span>
+                        </button>
+                        <div class="video-year-dropdown__panel" id="@dropdownId" data-video-year-panel hidden>
+                            <div class="video-year-dropdown__search-wrap">
+                                <input type="search"
+                                       class="video-year-dropdown__search"
+                                       aria-label="Yıl ara"
+                                       aria-controls="@optionsId"
+                                       autocomplete="off"
+                                       placeholder="Yıl ara"
+                                       data-video-year-search />
+                            </div>
+                            <div class="video-year-dropdown__options" id="@optionsId"
+                                 role="listbox" aria-labelledby="@labelId">
+                                @foreach (var year in years.OrderBy(year => year))
+                                {
+                                    <button type="button" class="video-year-dropdown__option"
+                                            role="option" tabindex="-1"
+                                            aria-selected="@(year == selectedYear ? "true" : "false")"
+                                            data-video-year-option data-value="@year">@year</button>
+                                }
+                            </div>
+                            <p class="video-year-dropdown__empty" role="status" data-video-year-empty hidden>
+                                Yıl bulunamadı.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+
+    <div class="video-card-list__grid" data-video-card-grid>
+        @foreach (var item in items)
+        {
+            @await Html.PartialAsync(item.ViewName, item)
+        }
+    </div>
+    <p class="video-card-list__empty" role="status" data-video-card-empty hidden="@(items.Count > 0)">
+        Gösterilecek video bulunamadı.
+    </p>
+    <nav class="video-card-list__pagination" aria-label="Video listesi sayfaları"
+         data-video-card-pagination hidden></nav>
+    <p class="visually-hidden" role="status" aria-live="polite" aria-atomic="true" data-video-card-status></p>
+
+    @foreach (var item in items.Where(item => item.HasVideo))
+    {
+        @await Html.PartialAsync("~/Views/Shared/Components/_VideoCardModal.cshtml", item)
+    }
+</section>

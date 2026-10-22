@@ -1,0 +1,18 @@
+using YkbYapikredi.Infrastructure.CustomTableFeeds;
+
+// Mevcut AddCustomTableFeeds() çağrınızı koruyun; ikinci kez eklemeyin.
+services.AddCustomTableFeeds();
+services.AddIpoCalendarFeed();
+
+// Program.cs'de services yerine builder.Services kullanılıyorsa:
+// builder.Services.AddCustomTableFeeds();
+// builder.Services.AddIpoCalendarFeed();
+
+// Mevcut JS bundle girdilerine ekleyin (custom-table-feed.js'den sonra):
+// "js/components/ipo-calendar.js"
+
+// Mevcut CSS bundle girdilerine ekleyin (custom-table-feed.css'den sonra):
+// "css/components/ipo-calendar.css"
+
+// Yeni MVC route/endpoint veya ViewComponent kaydı gerekmez.
+// Mevcut attribute routing/controller mapping'iniz import controller'ını da açar.

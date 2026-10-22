@@ -1,0 +1,751 @@
+[
+  {
+    "stockCode": "NETGL",
+    "days": "9,10,11",
+    "month": 9,
+    "year": 2026,
+    "dateText": "9-10-11 Eylül 2026"
+  },
+  {
+    "stockCode": "BKRGY",
+    "days": "24,25,26",
+    "month": 8,
+    "year": 2026,
+    "dateText": "24-25-26 Ağustos 2026"
+  },
+  {
+    "stockCode": "TKNKA",
+    "days": "12,13,14",
+    "month": 8,
+    "year": 2026,
+    "dateText": "12-13-14 Ağustos 2026"
+  },
+  {
+    "stockCode": "KPEKS",
+    "days": "12,13,14",
+    "month": 8,
+    "year": 2026,
+    "dateText": "12-13-14 Ağustos 2026"
+  },
+  {
+    "stockCode": "VEYAS",
+    "days": "12,13,14",
+    "month": 8,
+    "year": 2026,
+    "dateText": "12-13-14 Ağustos 2026"
+  },
+  {
+    "stockCode": "CITAS",
+    "days": "10,11,12",
+    "month": 8,
+    "year": 2026,
+    "dateText": "10-11-12 Ağustos 2026"
+  },
+  {
+    "stockCode": "QUICK",
+    "days": "29,30,31",
+    "month": 7,
+    "year": 2026,
+    "dateText": "29-30-31 Temmuz 2026"
+  },
+  {
+    "stockCode": "BEWEN",
+    "days": "29,30,31",
+    "month": 7,
+    "year": 2026,
+    "dateText": "29-30-31 Temmuz 2026"
+  },
+  {
+    "stockCode": "KARCL",
+    "days": "22,23,24",
+    "month": 7,
+    "year": 2026,
+    "dateText": "22-23-24 Temmuz 2026"
+  },
+  {
+    "stockCode": "MASFN",
+    "days": "22,23,24",
+    "month": 7,
+    "year": 2026,
+    "dateText": "22-23-24 Temmuz 2026"
+  },
+  {
+    "stockCode": "METEN",
+    "days": "20,21,22",
+    "month": 7,
+    "year": 2026,
+    "dateText": "20-21-22 Temmuz 2026"
+  },
+  {
+    "stockCode": "SARAE",
+    "days": "8,9,10",
+    "month": 7,
+    "year": 2026,
+    "dateText": "8-9-10 Temmuz 2026"
+  },
+  {
+    "stockCode": "SSAAT",
+    "days": "6,7,8",
+    "month": 7,
+    "year": 2026,
+    "dateText": "6-7-8 Temmuz 2026"
+  },
+  {
+    "stockCode": "EKIM",
+    "days": "1,2,3",
+    "month": 7,
+    "year": 2026,
+    "dateText": "1-2-3 Temmuz 2026"
+  },
+  {
+    "stockCode": "ISVEA",
+    "days": "1,2,3",
+    "month": 7,
+    "year": 2026,
+    "dateText": "1-2-3 Temmuz 2026"
+  },
+  {
+    "stockCode": "ORZAX",
+    "days": "29,30,1",
+    "month": 6,
+    "year": 2026,
+    "dateText": "29-30 Haziran - 1 Temmuz 2026"
+  },
+  {
+    "stockCode": "BETAE",
+    "days": "23,24,25",
+    "month": 6,
+    "year": 2026,
+    "dateText": "23-24-25 Haziran 2026"
+  },
+  {
+    "stockCode": "EKDMR",
+    "days": "13,14,15",
+    "month": 5,
+    "year": 2026,
+    "dateText": "13-14-15 Mayıs 2026"
+  },
+  {
+    "stockCode": "AAGYO",
+    "days": "1,2,3",
+    "month": 4,
+    "year": 2026,
+    "dateText": "1-2-3 Nisan 2026"
+  },
+  {
+    "stockCode": "EMPAE",
+    "days": "19,20",
+    "month": 2,
+    "year": 2026,
+    "dateText": "19-20 Şubat 2026"
+  },
+  {
+    "stockCode": "AKHAN",
+    "days": "28,29,30",
+    "month": 1,
+    "year": 2026,
+    "dateText": "28-29-30 Ocak 2026"
+  },
+  {
+    "stockCode": "NETCD",
+    "days": "28,29,30",
+    "month": 1,
+    "year": 2026,
+    "dateText": "28-29-30 Ocak 2026"
+  },
+  {
+    "stockCode": "UCAYM",
+    "days": "14,15,16",
+    "month": 1,
+    "year": 2026,
+    "dateText": "14-15-16 Ocak 2026"
+  },
+  {
+    "stockCode": "FRMPL",
+    "days": "7,8,9",
+    "month": 1,
+    "year": 2026,
+    "dateText": "7-8-9 Ocak 2026"
+  },
+  {
+    "stockCode": "ZGYO",
+    "days": "7,8,9",
+    "month": 1,
+    "year": 2026,
+    "dateText": "7-8-9 Ocak 2026"
+  },
+  {
+    "stockCode": "ZERGY",
+    "days": "10,11,12",
+    "month": 12,
+    "year": 2025,
+    "dateText": "10-11-12 Aralık 2025"
+  },
+  {
+    "stockCode": "VAKFA",
+    "days": "12,13,14",
+    "month": 11,
+    "year": 2025,
+    "dateText": "12-13-14 Kasım 2025"
+  },
+  {
+    "stockCode": "PAHOL",
+    "days": "12,13,14",
+    "month": 11,
+    "year": 2025,
+    "dateText": "12-13-14 Kasım 2025"
+  },
+  {
+    "stockCode": "ECOGR",
+    "days": "22,23,24",
+    "month": 10,
+    "year": 2025,
+    "dateText": "22-23-24 Ekim 2025"
+  },
+  {
+    "stockCode": "DOFRB",
+    "days": "3,4,5",
+    "month": 9,
+    "year": 2025,
+    "dateText": "3-4-5 Eylül 2025"
+  },
+  {
+    "stockCode": "DMLKT",
+    "days": "4,5,6,7,8",
+    "month": 8,
+    "year": 2025,
+    "dateText": "4-5-6-7-8 Ağustos 2025"
+  },
+  {
+    "stockCode": "BALSU",
+    "days": "12,13,14",
+    "month": 2,
+    "year": 2025,
+    "dateText": "12-13-14 Şubat 2025"
+  },
+  {
+    "stockCode": "KLYPV",
+    "days": "5,6,7",
+    "month": 2,
+    "year": 2025,
+    "dateText": "5-6-7 Şubat 2025"
+  },
+  {
+    "stockCode": "ENDAE",
+    "days": "5,6,7",
+    "month": 2,
+    "year": 2025,
+    "dateText": "5-6-7 Şubat 2025"
+  },
+  {
+    "stockCode": "SERNT",
+    "days": "27,28,29",
+    "month": 1,
+    "year": 2025,
+    "dateText": "27-28-29 Ocak 2025"
+  },
+  {
+    "stockCode": "DNYVA",
+    "days": "22,23,24",
+    "month": 1,
+    "year": 2025,
+    "dateText": "22-23-24 Ocak 2025"
+  },
+  {
+    "stockCode": "AKFIS",
+    "days": "15,16,17",
+    "month": 1,
+    "year": 2025,
+    "dateText": "15-16-17 Ocak 2025"
+  },
+  {
+    "stockCode": "GLRMK",
+    "days": "8,9,10",
+    "month": 1,
+    "year": 2025,
+    "dateText": "8-9-10 Ocak 2025"
+  },
+  {
+    "stockCode": "EGEGY",
+    "days": "6,7,8",
+    "month": 1,
+    "year": 2025,
+    "dateText": "6-7-8 Ocak 2025"
+  },
+  {
+    "stockCode": "ARMGD",
+    "days": "25,26,27",
+    "month": 12,
+    "year": 2024,
+    "dateText": "25-26-27 Aralık 2024"
+  },
+  {
+    "stockCode": "SMRVA",
+    "days": "12,13",
+    "month": 12,
+    "year": 2024,
+    "dateText": "12-13 Aralık 2024"
+  },
+  {
+    "stockCode": "CGCAM",
+    "days": "11,12",
+    "month": 12,
+    "year": 2024,
+    "dateText": "11-12 Aralık 2024"
+  },
+  {
+    "stockCode": "BINBN",
+    "days": "3,4",
+    "month": 10,
+    "year": 2024,
+    "dateText": "3-4 Ekim 2024"
+  },
+  {
+    "stockCode": "DURKN",
+    "days": "11,12",
+    "month": 9,
+    "year": 2024,
+    "dateText": "11-12 Eylül 2024"
+  },
+  {
+    "stockCode": "AHSGY",
+    "days": "21,22,23",
+    "month": 8,
+    "year": 2024,
+    "dateText": "21-22-23 Ağustos 2024"
+  },
+  {
+    "stockCode": "DCTTR",
+    "days": "25,26",
+    "month": 7,
+    "year": 2024,
+    "dateText": "25-26 Temmuz 2024"
+  },
+  {
+    "stockCode": "SEGMN",
+    "days": "26,27,28",
+    "month": 6,
+    "year": 2024,
+    "dateText": "26-27-28 Haziran 2024"
+  },
+  {
+    "stockCode": "EFORC",
+    "days": "26,27,28",
+    "month": 6,
+    "year": 2024,
+    "dateText": "26-27-28 Haziran 2024"
+  },
+  {
+    "stockCode": "YIGIT",
+    "days": "29,30,31",
+    "month": 5,
+    "year": 2024,
+    "dateText": "29-30-31 Mayıs 2024"
+  },
+  {
+    "stockCode": "HOROZ",
+    "days": "29,30,31",
+    "month": 5,
+    "year": 2024,
+    "dateText": "29-30-31 Mayıs 2024"
+  },
+  {
+    "stockCode": "ALKLC",
+    "days": "29,30",
+    "month": 5,
+    "year": 2024,
+    "dateText": "29-30 Mayıs 2024"
+  },
+  {
+    "stockCode": "OZYSR",
+    "days": "23,24",
+    "month": 5,
+    "year": 2024,
+    "dateText": "23-24 Mayıs 2024"
+  },
+  {
+    "stockCode": "ONRYT",
+    "days": "22,23",
+    "month": 5,
+    "year": 2024,
+    "dateText": "22-23 Mayıs 2024"
+  },
+  {
+    "stockCode": "HRKET",
+    "days": "15,16,17",
+    "month": 5,
+    "year": 2024,
+    "dateText": "15-16-17 Mayıs 2024"
+  },
+  {
+    "stockCode": "ALTNY",
+    "days": "8,9,10",
+    "month": 5,
+    "year": 2024,
+    "dateText": "8-9-10 Mayıs 2024"
+  },
+  {
+    "stockCode": "KOTON",
+    "days": "30,2,3",
+    "month": 4,
+    "year": 2024,
+    "dateText": "30 Nisan - 2-3 Mayıs 2024"
+  },
+  {
+    "stockCode": "LILAK",
+    "days": "30,2,3",
+    "month": 4,
+    "year": 2024,
+    "dateText": "30 Nisan - 2-3 Mayıs 2024"
+  },
+  {
+    "stockCode": "RGYAS",
+    "days": "17,18,19",
+    "month": 4,
+    "year": 2024,
+    "dateText": "17-18-19 Nisan 2024"
+  },
+  {
+    "stockCode": "ENTRA",
+    "days": "27,28,29",
+    "month": 3,
+    "year": 2024,
+    "dateText": "27-28-29 Mart 2024"
+  },
+  {
+    "stockCode": "ODINE",
+    "days": "13,14,15",
+    "month": 3,
+    "year": 2024,
+    "dateText": "13-14-15 Mart 2024"
+  },
+  {
+    "stockCode": "MOGAN",
+    "days": "28,29,1",
+    "month": 2,
+    "year": 2024,
+    "dateText": "28-29 Şubat - 1 Mart 2024"
+  },
+  {
+    "stockCode": "OBAMS",
+    "days": "22,23",
+    "month": 2,
+    "year": 2024,
+    "dateText": "22-23 Şubat 2024"
+  },
+  {
+    "stockCode": "LMKDC",
+    "days": "14,15,16",
+    "month": 2,
+    "year": 2024,
+    "dateText": "14-15-16 Şubat 2024"
+  },
+  {
+    "stockCode": "BORSK",
+    "days": "7,8,9",
+    "month": 2,
+    "year": 2024,
+    "dateText": "7-8-9 Şubat 2024"
+  },
+  {
+    "stockCode": "PATEK",
+    "days": "6,7",
+    "month": 2,
+    "year": 2024,
+    "dateText": "6-7 Şubat 2024"
+  },
+  {
+    "stockCode": "AVPGY",
+    "days": "13,14,15",
+    "month": 12,
+    "year": 2023,
+    "dateText": "13-14-15 Aralık 2023"
+  },
+  {
+    "stockCode": "MEGMT",
+    "days": "7,8",
+    "month": 12,
+    "year": 2023,
+    "dateText": "7-8 Aralık 2023"
+  },
+  {
+    "stockCode": "KBORU",
+    "days": "7,8",
+    "month": 12,
+    "year": 2023,
+    "dateText": "7-8 Aralık 2023"
+  },
+  {
+    "stockCode": "SURGY",
+    "days": "7,8",
+    "month": 12,
+    "year": 2023,
+    "dateText": "7-8 Aralık 2023"
+  },
+  {
+    "stockCode": "CATES",
+    "days": "30,1",
+    "month": 11,
+    "year": 2023,
+    "dateText": "30 Kasım - 1 Aralık 2023"
+  },
+  {
+    "stockCode": "SKYMD",
+    "days": "30,1",
+    "month": 11,
+    "year": 2023,
+    "dateText": "30 Kasım - 1 Aralık 2023"
+  },
+  {
+    "stockCode": "BEGYO",
+    "days": "30,1",
+    "month": 11,
+    "year": 2023,
+    "dateText": "30 Kasım - 1 Aralık 2023"
+  },
+  {
+    "stockCode": "EKOS",
+    "days": "15,16",
+    "month": 11,
+    "year": 2023,
+    "dateText": "15-16 Kasım 2023"
+  },
+  {
+    "stockCode": "BINHO",
+    "days": "14,15",
+    "month": 11,
+    "year": 2023,
+    "dateText": "14-15 Kasım 2023"
+  },
+  {
+    "stockCode": "MARBL",
+    "days": "2,3",
+    "month": 11,
+    "year": 2023,
+    "dateText": "2-3 Kasım 2023"
+  },
+  {
+    "stockCode": "TABGD",
+    "days": "18,19,20",
+    "month": 10,
+    "year": 2023,
+    "dateText": "18-19-20 Ekim 2023"
+  },
+  {
+    "stockCode": "VRGYO",
+    "days": "18,19,20",
+    "month": 10,
+    "year": 2023,
+    "dateText": "18-19-20 Ekim 2023"
+  },
+  {
+    "stockCode": "MHRGY",
+    "days": "12,13",
+    "month": 10,
+    "year": 2023,
+    "dateText": "12-13 Ekim 2023"
+  },
+  {
+    "stockCode": "BORLS",
+    "days": "11,12,13",
+    "month": 10,
+    "year": 2023,
+    "dateText": "11-12-13 Ekim 2023"
+  },
+  {
+    "stockCode": "DOFER",
+    "days": "10,11",
+    "month": 10,
+    "year": 2023,
+    "dateText": "10-11 Ekim 2023"
+  },
+  {
+    "stockCode": "MEKAG",
+    "days": "5,6",
+    "month": 10,
+    "year": 2023,
+    "dateText": "5-6 Ekim 2023"
+  },
+  {
+    "stockCode": "ADGYO",
+    "days": "14,15",
+    "month": 9,
+    "year": 2023,
+    "dateText": "14-15 Eylül 2023"
+  },
+  {
+    "stockCode": "REEDR",
+    "days": "13,14,15",
+    "month": 9,
+    "year": 2023,
+    "dateText": "13-14-15 Eylül 2023"
+  },
+  {
+    "stockCode": "TARKM",
+    "days": "5,6",
+    "month": 9,
+    "year": 2023,
+    "dateText": "5-6 Eylül 2023"
+  },
+  {
+    "stockCode": "EBEBK",
+    "days": "29,31,1",
+    "month": 8,
+    "year": 2023,
+    "dateText": "29-31 Ağustos, 1 Eylül 2023"
+  },
+  {
+    "stockCode": "BYDNR",
+    "days": "15,16",
+    "month": 8,
+    "year": 2023,
+    "dateText": "15-16 Ağustos 2023"
+  },
+  {
+    "stockCode": "ENERY",
+    "days": "14,15,16",
+    "month": 8,
+    "year": 2023,
+    "dateText": "14-15-16 Ağustos 2023"
+  },
+  {
+    "stockCode": "OFSYM",
+    "days": "10,11",
+    "month": 8,
+    "year": 2023,
+    "dateText": "10-11 Ağustos 2023"
+  },
+  {
+    "stockCode": "IZENR",
+    "days": "8,9,10",
+    "month": 8,
+    "year": 2023,
+    "dateText": "8-9-10 Ağustos 2023"
+  },
+  {
+    "stockCode": "ASGYO",
+    "days": "27,28",
+    "month": 7,
+    "year": 2023,
+    "dateText": "27-28 Temmuz 2023"
+  },
+  {
+    "stockCode": "KLSER",
+    "days": "20,21",
+    "month": 7,
+    "year": 2023,
+    "dateText": "20-21 Temmuz 2023"
+  },
+  {
+    "stockCode": "FZLGY",
+    "days": "20,21",
+    "month": 7,
+    "year": 2023,
+    "dateText": "20-21 Temmuz 2023"
+  },
+  {
+    "stockCode": "ATAKP",
+    "days": "19,20,21",
+    "month": 7,
+    "year": 2023,
+    "dateText": "19-20-21 Temmuz 2023"
+  },
+  {
+    "stockCode": "FORTE",
+    "days": "8,9",
+    "month": 6,
+    "year": 2023,
+    "dateText": "8-9 Haziran 2023"
+  },
+  {
+    "stockCode": "KTLEV",
+    "days": "6,7",
+    "month": 6,
+    "year": 2023,
+    "dateText": "6-7 Haziran 2023"
+  },
+  {
+    "stockCode": "BIENY",
+    "days": "11,12",
+    "month": 5,
+    "year": 2023,
+    "dateText": "11-12 Mayıs 2023"
+  },
+  {
+    "stockCode": "KAYSE",
+    "days": "10,11,12",
+    "month": 5,
+    "year": 2023,
+    "dateText": "10-11-12 Mayıs 2023"
+  },
+  {
+    "stockCode": "BIGCH",
+    "days": "3,4,5",
+    "month": 5,
+    "year": 2023,
+    "dateText": "3-4-5 Mayıs 2023"
+  },
+  {
+    "stockCode": "CWENE",
+    "days": "26,27,28",
+    "month": 4,
+    "year": 2023,
+    "dateText": "26-27-28 Nisan 2023"
+  },
+  {
+    "stockCode": "GRTRK",
+    "days": "18,19",
+    "month": 4,
+    "year": 2023,
+    "dateText": "18-19 Nisan 2023"
+  },
+  {
+    "stockCode": "EUPWR",
+    "days": "12,13,14",
+    "month": 4,
+    "year": 2023,
+    "dateText": "12-13-14 Nisan 2023"
+  },
+  {
+    "stockCode": "KOPOL",
+    "days": "5,6,7",
+    "month": 4,
+    "year": 2023,
+    "dateText": "5-6-7 Nisan 2023"
+  },
+  {
+    "stockCode": "EKSUN",
+    "days": "15,16,17",
+    "month": 3,
+    "year": 2023,
+    "dateText": "15-16-17 Mart 2023"
+  },
+  {
+    "stockCode": "GOKNR",
+    "days": "1,2,3",
+    "month": 3,
+    "year": 2023,
+    "dateText": "1-2-3 Mart 2023"
+  },
+  {
+    "stockCode": "ASTOR",
+    "days": "11,12,13",
+    "month": 1,
+    "year": 2023,
+    "dateText": "11-12-13 Ocak 2023"
+  },
+  {
+    "stockCode": "TNZTP",
+    "days": "5,6",
+    "month": 1,
+    "year": 2023,
+    "dateText": "5-6 Ocak 2023"
+  },
+  {
+    "stockCode": "SOKE",
+    "days": "4,5,6",
+    "month": 1,
+    "year": 2023,
+    "dateText": "4-5-6 Ocak 2023"
+  }
+]
