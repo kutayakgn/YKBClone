@@ -7,7 +7,7 @@ const { chromium } = require('playwright');
 const { html, rows, build, formatDate } = require('./build-preview.cjs');
 const dateCases = require('./source-date-cases.json');
 const root = path.resolve(__dirname, '..');
-const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.jpg': 'image/jpeg', '.json': 'application/json' };
+const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css', '.jpg': 'image/jpeg', '.webp': 'image/webp', '.json': 'application/json' };
 
 (async () => {
     build();
@@ -118,6 +118,25 @@ const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascri
                 return { invalid: rejected('31 Şubat 2026'), leap: api.parseDate('28-29 Şubat - 1 Mart 2024').days };
             });
             assert.deepEqual(result, { invalid: true, leap: '28,29,1' });
+        });
+        await check('export converter produces real WebP, preserves size and reuses WebP sources', async () => {
+            const result = await page.evaluate(async () => {
+                const canvas = document.createElement('canvas');
+                canvas.width = 24; canvas.height = 18;
+                const context = canvas.getContext('2d');
+                context.fillStyle = '#004990'; context.fillRect(0, 0, 24, 18);
+                const source = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
+                const bytes = await window.YkbIpoExport.toWebp(new Uint8Array(await source.arrayBuffer()));
+                const decoded = await createImageBitmap(new Blob([bytes], { type: 'image/webp' }));
+                const dimensions = [decoded.width, decoded.height]; decoded.close();
+                const reused = await window.YkbIpoExport.toWebp(bytes);
+                let invalidRejected = false;
+                try { await window.YkbIpoExport.toWebp(new TextEncoder().encode('<html>Error</html>')); }
+                catch { invalidRejected = true; }
+                return { extension: window.YkbIpoExport.imageExtension(bytes), dimensions,
+                    reused: reused === bytes, invalidRejected };
+            });
+            assert.deepEqual(result, { extension: 'webp', dimensions: [24, 18], reused: true, invalidRejected: true });
         });
         await check('display dates are generated only from Days/Month/Year for all 107 records', async () => {
             for (const row of rows) {

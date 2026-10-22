@@ -169,6 +169,8 @@ public sealed class IpoCalendarImportController : Controller
             string mediaUrl = null;
             if (row.ImageFileName.Length == 0 || row.ImageFileName.IndexOfAny(new[] { '/', '\\' }) >= 0)
                 report.Errors.Add(prefix + "ImageFileName yalnızca dosya adı olmalı.");
+            else if (!row.ImageFileName.EndsWith(".webp", StringComparison.OrdinalIgnoreCase))
+                report.Errors.Add(prefix + "ImageFileName .webp formatında olmalı; güncel export JSON'unu kullanın.");
             else if (!media.TryGetValue(row.ImageFileName, out var files) || files.Length != 1)
                 report.Errors.Add(prefix + "Tekil medya bulunamadı: " + IpoCalendarSchema.MediaFolder + "/" + row.ImageFileName);
             else

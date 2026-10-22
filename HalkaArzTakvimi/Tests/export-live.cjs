@@ -61,8 +61,10 @@ const sourceUrl = 'https://www.yapikredi.com.tr/bireysel-bankacilik/yatirim-urun
         });
         assert.equal(result.length, articles.length);
         for (const row of result) {
-            assert(row.imageFileName.match(/\.(webp|png|jpg|gif|avif|svg)$/));
-            assert((await fs.stat(path.join(output, 'images', row.imageFileName))).size > 0);
+            assert(row.imageFileName.endsWith('.webp'));
+            const bytes = await fs.readFile(path.join(output, 'images', row.imageFileName));
+            assert.equal(bytes.toString('ascii', 0, 4), 'RIFF');
+            assert.equal(bytes.toString('ascii', 8, 12), 'WEBP');
         }
         const json = JSON.parse(await fs.readFile(path.join(output, 'halka-arz-takvimi.json'), 'utf8'));
         assert.deepEqual(json, result);

@@ -63,14 +63,14 @@ Bu sözleşme ardışık aylara yayılan kayıtları destekler; arada boş ay at
 
 ## 3. JSON ve görselleri export
 
-`Export/halka-arz-takvimi.json` ve `Export/images/` içinde 22.10.2026 canlı export'u hazırdır: 107 kayıt ve 107 JPEG görsel. İsterseniz bunları doğrudan kullanabilirsiniz. Daha güncel çıktı için aşağıdaki scripti yeniden çalıştırın. Gerçek dosya/JSON eşleşmeleri `Tests/live-export-verification.json` dosyasında raporlanır.
+`Export/halka-arz-takvimi.json` ve `Export/images/` içinde 22.10.2026 canlı export'u hazırdır: 107 kayıt ve 107 gerçek WebP görsel. Hazır görseller JPEG kaynaklarından kayıpsız dönüştürüldü; ölçüleri ve pikselleri korundu. İsterseniz bunları doğrudan kullanabilirsiniz. Daha güncel çıktı için aşağıdaki scripti yeniden çalıştırın. Gerçek dosya/JSON eşleşmeleri `Tests/live-export-verification.json` dosyasında raporlanır.
 
 1. Kaynak URL'yi masaüstü Chrome veya Edge'de açın.
 2. `Scripts/export-ipo-calendar.console.js` dosyasının tamamını DevTools Console'a yapıştırın.
 3. Sağ alttaki **JSON ve görselleri kaydet** düğmesine tıklayın, boş bir çıktı klasörü seçin.
 4. Sonuç: `halka-arz-takvimi.json`, `export-info.json` ve `images/` içindeki görseller.
 
-Script görsel uzantısını URL'den tahmin etmez; dosya içeriğinden PNG/JPEG/WebP/GIF/AVIF/SVG olarak belirler. Medya indirme başarısızsa `export-errors.json` yazar ve yeni import JSON'u üretmez. Başarılı export bitmeden import yapmayın. Aynı hedefte eski bir JSON varsa yeniden export başarısız olduğunda eski dosyayı yanlışlıkla kullanmayın.
+Script kaynak formatını dosya içeriğinden belirler. Kaynak zaten WebP ise aynı dosyayı kullanır; diğer kaynakları tarayıcı canvas encoder'ı ile **gerçek WebP** olarak kaydeder (kalite 0.95, ölçüler korunur). Yalnız uzantı değiştirmez; çıktı MIME ve RIFF/WEBP imzasını kontrol eder. İndirme veya dönüşüm başarısızsa `export-errors.json` yazar ve yeni import JSON'u üretmez. Başarılı export bitmeden import yapmayın. Aynı hedefte eski bir JSON varsa yeniden export başarısız olduğunda eski dosyayı yanlışlıkla kullanmayın. Yeni export için boş bir klasör seçin; script önceden kalmış JPG/PNG dosyalarını silmez.
 
 JSON örneği:
 
@@ -82,20 +82,22 @@ JSON örneği:
     "days": "9,10,11",
     "month": 9,
     "year": 2026,
-    "imageFileName": "netgl-2026-09-09.jpg",
+    "imageFileName": "netgl-2026-09-09.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/netglbl_72894/view?webPScale=2x",
     "url": "https://www.yapikredi.com.tr/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/net-global-halka-arz"
   }
 ]
 ```
 
-Gerçek uzantı indirilen dosyaya göre belirlenir; farklı tarayıcıda sunucu farklı görsel formatı döndürebilir. `imageSourceUrl` export bilgisi olarak JSON'da kalır; ayrı CMS alanı gerekmez. JSON kayıtlarında da DateText/dateParts yoktur. Eski JSON'daki ek dateText/dateParts özellikleri varsa importer onları kullanmaz; gösterim her durumda Days/Month/Year'dan hesaplanır.
+Çıktı dosya adı her zaman `.webp` ile biter; sunucu kaynak görseli farklı formatta döndürse de sonuç WebP'dir. `imageSourceUrl` export bilgisi olarak JSON'da kalır; ayrı CMS alanı gerekmez. JSON kayıtlarında da DateText/dateParts yoktur. Eski JSON'daki ek dateText/dateParts özellikleri varsa importer onları kullanmaz; gösterim her durumda Days/Month/Year'dan hesaplanır.
 
 ## 4. Medya yükleme ve tek seferlik import
 
 1. İlgili sitenin Media libraries uygulamasında **code name'i** `YapikrediMedia` olan kütüphaneyi kullanın.
 2. İçinde `HalkaArzTakvimi` klasörü oluşturun.
 3. Export edilen `images/` klasöründeki dosyaları **adlarını değiştirmeden** bu klasöre Kentico Media libraries arayüzünden yükleyin.
+
+Önceki JPEG sürümünü zaten aktardıysanız yeni WebP dosyalarını aynı Kentico medya klasörüne yükleyin, paketteki güncel import controller'ını kopyalayın ve güncellenmiş JSON ile tekrar çalıştırın. Aynı kayıtların Image URL'leri WebP medya kayıtlarıyla güncellenir; custom table satırları çoğalmaz. Importer dosya adının `.webp` ile bitmesini de kontrol eder. CMS alanlarında format için ek değişiklik gerekmez.
 
 Dosyaları yalnız diskte `/YapikrediMedia/HalkaArzTakvimi` altına kopyalamak yeterli değildir; Kentico'nun MediaFile kayıtları da olmalıdır. Importer kütüphanenin code name'i, klasör yolu ve dosya adıyla tekil eşleştirme yapar. Kütüphane içindeki FilePath `HalkaArzTakvimi/netgl-2026-09-09.webp` biçimindedir; başına tekrar YapikrediMedia eklenmez.
 

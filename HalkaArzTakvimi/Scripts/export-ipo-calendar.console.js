@@ -94,6 +94,45 @@
         if (/<svg[\s>]/i.test(text)) return "svg";
         throw new Error("Sunucudan tanınan bir görsel gelmedi (HTML hata sayfası olabilir).");
     }
+    async function toWebp(bytes) {
+        var extension = imageExtension(bytes);
+        // Kaynak zaten WebP ise tekrar sıkıştırma yapma.
+        if (extension === "webp") return bytes;
+        var mimeTypes = { png: "image/png", jpg: "image/jpeg", gif: "image/gif",
+            avif: "image/avif", svg: "image/svg+xml" };
+        var source = new Blob([bytes], { type: mimeTypes[extension] });
+        var drawable = null;
+        var objectUrl = null;
+        var canvas = document.createElement("canvas");
+        try {
+            try {
+                drawable = await createImageBitmap(source);
+            } catch (error) {
+                // Örneğin SVG için ImageBitmap yerine normal görsel decoder'ı.
+                objectUrl = URL.createObjectURL(source);
+                drawable = document.createElement("img");
+                drawable.src = objectUrl;
+                await drawable.decode();
+            }
+            canvas.width = drawable.naturalWidth || drawable.width;
+            canvas.height = drawable.naturalHeight || drawable.height;
+            if (!canvas.width || !canvas.height) throw new Error("Görsel ölçüleri okunamadı.");
+            var context = canvas.getContext("2d");
+            if (!context) throw new Error("Canvas başlatılamadı.");
+            context.drawImage(drawable, 0, 0);
+            var result = await new Promise(function (resolve) {
+                canvas.toBlob(resolve, "image/webp", 0.95);
+            });
+            if (!result || result.type !== "image/webp") throw new Error("Tarayıcı WebP oluşturamadı.");
+            var converted = new Uint8Array(await result.arrayBuffer());
+            if (imageExtension(converted) !== "webp") throw new Error("Çıktı gerçek WebP değil.");
+            return converted;
+        } finally {
+            if (drawable && typeof drawable.close === "function") drawable.close();
+            if (objectUrl) URL.revokeObjectURL(objectUrl);
+            canvas.width = canvas.height = 0;
+        }
+    }
     async function write(directory, name, content) {
         var file = await directory.getFileHandle(name, { create: true });
         var writable = await file.createWritable();
@@ -112,8 +151,9 @@
                     var response = await fetch(row.imageSourceUrl, { credentials: "same-origin" });
                     if (!response.ok) throw new Error("HTTP " + response.status);
                     var bytes = new Uint8Array(await response.arrayBuffer());
-                    row.imageFileName += "." + imageExtension(bytes);
-                    await write(images, row.imageFileName, bytes);
+                    var webp = await toWebp(bytes);
+                    row.imageFileName += ".webp";
+                    await write(images, row.imageFileName, webp);
                     progress.done++;
                 } catch (error) {
                     progress.failures.push({ stockCode: row.stockCode, url: row.imageSourceUrl, error: error.message });
@@ -129,13 +169,13 @@
         await write(directory, "halka-arz-takvimi.json", JSON.stringify(rows, null, 2));
         await write(directory, "export-info.json", JSON.stringify({
             sourceUrl: location.href, exportedAt: new Date().toISOString(), count: rows.length,
-            mediaLibrary: "YapikrediMedia", mediaFolder: "HalkaArzTakvimi"
+            mediaLibrary: "YapikrediMedia", mediaFolder: "HalkaArzTakvimi", imageFormat: "webp"
         }, null, 2));
         return rows;
     }
 
     window.YkbIpoExport = { collect: collect, parseDate: parseDate,
-        imageExtension: imageExtension, exportToDirectory: exportToDirectory };
+        imageExtension: imageExtension, toWebp: toWebp, exportToDirectory: exportToDirectory };
     var oldPanel = document.getElementById("ykb-ipo-export-panel");
     if (oldPanel) oldPanel.remove();
     var panel = document.createElement("div");

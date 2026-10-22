@@ -1,5 +1,5 @@
 {
-  "browserScenariosPassed": 11,
+  "browserScenariosPassed": 12,
   "liveRecords": 107,
   "downloadedImages": 107,
   "kenticoDatabaseImportExecuted": false,
@@ -10,5 +10,8 @@
     "Month",
     "Year"
   ],
-  "csharpDateTestsExecuted": false
+  "csharpDateTestsExecuted": false,
+  "imageFormat": "webp",
+  "webpImagesVerified": 107,
+  "losslessPixelComparisonPassed": 107
 }
