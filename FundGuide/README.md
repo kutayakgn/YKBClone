@@ -32,7 +32,6 @@ Class name: **YkbYapikredi.FundGuideMonthly**
 | Year | Integer number | Evet | Text box; en az 2026 |
 | Month | Integer number | Evet | 1–12; isterseniz ay dropdown'ı |
 | Title | Text (1000) | Evet | Text box; örn. Eylül 2026 |
-| FileName | Text (50) | Evet | Text box; indirilmiş dosyanın uzantılı adı |
 | FileUrl | Text (2000) | Evet | Media selection; belge URL'sini saklayan kontrol |
 
 JSON: `Export/2026-ve-sonrasi/fund-guides.json`
@@ -61,7 +60,6 @@ Class name: **YkbYapikredi.FundGuideLegacy**
 | FundCode | Text (100) | Evet | Text box; örn. YFCKL / CKL |
 | FundName | Text (2000) | Evet | Text box |
 | Year | Integer number | Evet | 1900–2025 |
-| FileName | Text (50) | Evet | Text box; indirilmiş dosyanın uzantılı adı |
 | FileUrl | Text (2000) | Evet | Media selection; belge URL'sini saklayan kontrol |
 
 JSON: `Export/2026-oncesi/fund-guides.json`
@@ -81,7 +79,7 @@ Belgeler: `Export/2026-oncesi/files/`
 
 Özel sıralama alanı yoktur. 2026 ve sonrasındaki kayıtlar `Year DESC, Month DESC, ItemID ASC` ile sıralanır. 2026 öncesinde seçilen yılın kayıtları `ItemID ASC` ile, mevcut eklenme sırasıyla gösterilir. İlk import JSON dizisinin sırasıyla satır eklediği için canlıdaki sıra korunur. Var olan kayıtların tekrar aktarımı ItemID değerlerini değiştirmez.
 
-Fon kodu tekil değildir: aynı fonun farklı raporları korunur. Import anahtarı `Year + FileName` olur. Aynı JSON tekrar aktarılırsa satır çoğaltılmaz. Güncel pakette iki custom table'da da `SortOrder` alanı oluşturmayın; daha önce oluşturduysanız alanı CMS üzerinden kaldırabilirsiniz. Mevcut kayıtları silip yeniden eklemeniz gerekmez.
+Fon kodu tekil değildir: aynı fonun farklı raporları korunur. Import anahtarı `Year + FileUrl içindeki medya GUID’si` olur. Mevcut satır eşleştirmesi yalnızca `Year` ve `FileUrl` alanlarını okur; eski URL domainli veya `~/` ile başlayan biçimde olsa da aynı medya GUID’si eşleşir. Aynı JSON tekrar aktarılırsa satır çoğaltılmaz. JSON’daki `fileName` yalnızca indirilmiş belgeyi medya kütüphanesinde bulmak içindir; custom table alanı değildir ve tabloya yazılmaz. Güncel pakette iki custom table'da da `FileName` veya `SortOrder` alanı oluşturmayın; daha önce oluşturduysanız alanı CMS üzerinden kaldırabilirsiniz. Mevcut kayıtları silip yeniden eklemeniz gerekmez. Alanları kaldırdıktan sonra güncel controller ile aktarım yapılabilir; mevcut `FileUrl` doluysa kayıt medya GUID’si üzerinden bulunup güncellenir. `FileUrl` boş olan eski satırlar otomatik olarak eşleştirilemez; bunları önce medya URL’siyle tamamlayın.
 
 ## 2. Medya klasörü ve belgeler
 
@@ -160,7 +158,7 @@ Mevcut shared dosyalar bundle'a zaten ekliyse birer kez kalmalıdır. Yeni JS'de
 ## 5. JSON aktarımı
 
 1. İki custom table'ı oluşturun, tüm belgeleri Kentico medyasına yükleyin.
-2. `FundGuideImportController.cs` dosyasını Web/Controllers'a ekleyin. Ayrı servis kaydı gerekmez.
+2. `FundGuideImportController.cs` dosyasını Web/Controllers'a ekleyin. Kentico’nun yerleşik `IMediaFileUrlRetriever` servisi kullanılır; yeni özel servis kaydı gerekmez.
 3. Uygulamayı localhost üzerinde **Development** ortamında çalıştırın. Mevcut MVC attribute route desteği kullanılmalıdır.
 4. **`/local-tools/fund-guide-import`** adresini açın.
 5. Site code name'i kontrol edin. “2026 ve sonrası” grubunu seçip ilgili JSON'u yükleyin. “Ön kontrol” ile eksik alan/medya olmadığını kontrol edin; ardından formdan “Aktar / Güncelle” işlemini yapın.
@@ -169,7 +167,11 @@ Mevcut shared dosyalar bundle'a zaten ekliyse birer kez kalmalıdır. Yeni JS'de
 
 GET kayıt yazmaz. POST antiforgery korumalıdır; yalnızca loopback + Development ortamında çalışır. Hatalı bir kayıt varsa o dosyanın tüm aktarımı durur. Her JSON aktarımı kendi transaction'ında uygulanır; iki JSON ayrı işlemdir. Başarısız ön kontrol hiçbir kayıt yazmaz. Aynı anahtarlı mevcut satırlar güncellenir; başka satırlar silinmez.
 
-`FileUrl`, Kentico'nun GUID içeren kalıcı medya URL'sidir; domain kaydedilmez. Medya kayıtlarını GUID'leriyle ve custom table verilerini staging üzerinden birlikte taşıyın. Böylece hedef ortam kendi domaininde aynı site içi medya bağlantısını açar. Componentte bütün belge linkleri `target="_blank" rel="noopener noreferrer"` kullanır.
+`FileUrl`, Kentico'nun GUID içeren kalıcı medya URL'sidir; domain kaydedilmez. Medya kayıtlarını GUID'leriyle ve custom table verilerini staging üzerinden birlikte taşıyın. Böylece hedef ortam kendi domaininde aynı site içi medya bağlantısını açar. Componentte bütün belge linkleri `target="_blank" rel="noopener noreferrer"` kullanır; `download` niteliği eklenmez. Importer, Kentico'nun `IMediaFileUrlRetriever` API'sini `WithOptions(new FileUrlOptions { AttachmentContentDisposition = false })` ile kullanarak tarayıcıda görüntüleme amaçlı URL üretir. Mevcut kayıtların URL'lerini güncellemek için güncel controller ile iki JSON'u tekrar aktarın; aynı yıl ve medya GUID'si üzerinden eşleşen kayıtların URL'leri güncellenir, ItemID ve sıra korunur.
+
+Kentico API referansı: https://docs.kentico.com/13api/content-management/media-libraries
+
+PDF'nin tarayıcıda açılması için medya MIME türü `application/pdf` olmalı ve tarayıcının PDF ayarı indirmeye zorlamamalıdır. DOC/DOCX gibi tarayıcıda yerleşik görüntüleyicisi bulunmayan biçimler `inline` istendiğinde bile indirilebilir; bu dosyalar için ayrıca belge görüntüleyici veya PDF dönüşümü gerekir. Bu pakette indirilen mevcut 1838 belge PDF'dir.
 
 ## 6. Sayfaya ekleme
 

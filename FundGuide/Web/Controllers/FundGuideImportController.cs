@@ -14,6 +14,7 @@ using CMS.FormEngine;
 using CMS.Helpers;
 using CMS.MediaLibrary;
 using CMS.SiteProvider;
+using Kentico.Content.Web.Mvc;
 using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -31,10 +32,16 @@ public sealed class FundGuideImportController : Controller
     private static readonly object ImportLock = new object();
     private readonly IWebHostEnvironment environment;
     private readonly IAntiforgery antiforgery;
+    private readonly IMediaFileUrlRetriever mediaFileUrlRetriever;
     private readonly ILogger<FundGuideImportController> logger;
     public FundGuideImportController(IWebHostEnvironment environment, IAntiforgery antiforgery,
-        ILogger<FundGuideImportController> logger)
-    { this.environment = environment; this.antiforgery = antiforgery; this.logger = logger; }
+        ILogger<FundGuideImportController> logger, IMediaFileUrlRetriever mediaFileUrlRetriever)
+    {
+        this.environment = environment;
+        this.antiforgery = antiforgery;
+        this.logger = logger;
+        this.mediaFileUrlRetriever = mediaFileUrlRetriever;
+    }
 
     [HttpGet]
     public IActionResult Index()
@@ -92,7 +99,6 @@ public sealed class FundGuideImportController : Controller
                     {
                         var item = row.Existing ?? CustomTableItem.New(tableName);
                         item.SetValue("Year", row.Source.Year);
-                        item.SetValue("FileName", row.Source.FileName);
                         item.SetValue("FileUrl", row.MediaUrl);
                         if (monthly)
                         {
@@ -130,7 +136,7 @@ public sealed class FundGuideImportController : Controller
         if (table == null || !table.ClassIsCustomTable)
         { report.Errors.Add("Custom table bulunamadı: " + tableName); return report; }
         var form = new FormInfo(table.ClassFormDefinition);
-        var fields = new[] { "Year", "FileName", "FileUrl" }
+        var fields = new[] { "Year", "FileUrl" }
             .Concat(monthly ? new[] { "Month", "Title" } : new[] { "FundCode", "FundName" });
         foreach (var field in fields)
             if (form.GetFormField(field) == null) report.Errors.Add("Eksik alan: " + field);
@@ -142,7 +148,7 @@ public sealed class FundGuideImportController : Controller
             .GroupBy(file => Leaf(file.FilePath), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(group => group.Key, group => group.ToArray(), StringComparer.OrdinalIgnoreCase);
         var existing = CustomTableItemProvider.GetItems(tableName).ToArray()
-            .GroupBy(item => Key(ValidationHelper.GetInteger(item.GetValue("Year"), 0), Text(item, "FileName")), StringComparer.OrdinalIgnoreCase)
+            .GroupBy(item => Key(ValidationHelper.GetInteger(item.GetValue("Year"), 0), Text(item, "FileUrl")), StringComparer.OrdinalIgnoreCase)
             .ToDictionary(group => group.Key, group => group.ToArray(), StringComparer.OrdinalIgnoreCase);
         var keys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         for (var index = 0; index < rows.Count; index++)
@@ -161,16 +167,16 @@ public sealed class FundGuideImportController : Controller
                 report.Errors.Add(prefix + "FundCode 1–100 ve FundName 1–2000 karakter olmalı.");
             if (row.FileName.Length > 50 || !Regex.IsMatch(row.FileName, @"^[a-zA-Z0-9][a-zA-Z0-9._-]*\.(pdf|docx?|xlsx?|pptx?)$", RegexOptions.IgnoreCase))
                 report.Errors.Add(prefix + "FileName uzantı dahil en fazla 50 ASCII karakter ve desteklenen belge uzantısında olmalı.");
-            var key = Key(row.Year, row.FileName);
-            if (!keys.Add(key)) report.Errors.Add(prefix + "JSON'da tekrarlanan kayıt.");
-            existing.TryGetValue(key, out var matches);
-            if (matches != null && matches.Length != 1) report.Errors.Add(prefix + "Tabloda aynı anahtarlı birden fazla kayıt var.");
             string mediaUrl = null;
             if (!media.TryGetValue(row.FileName, out var files) || files.Length != 1)
                 report.Errors.Add(prefix + "Tekil medya bulunamadı: FundGuide/" + row.FileName);
             else
             {
-                mediaUrl = MediaFileURLProvider.GetMediaFileUrl(files[0].FileGUID, Leaf(files[0].FilePath));
+                // Content-Disposition: attachment isteme; tarayıcı destekliyorsa belgeyi görüntülesin.
+                // Kentico kendi URL seçeneklerini ve gerekiyorsa imzalarını oluşturur.
+                mediaUrl = mediaFileUrlRetriever.Retrieve(files[0])
+                    .WithOptions(new FileUrlOptions { AttachmentContentDisposition = false })
+                    .RelativePath;
                 // Ortama ait domaini tabloya kaydetme; GUID içeren kalıcı link staging ile korunur.
                 if (Uri.TryCreate(mediaUrl, UriKind.Absolute, out var uri) && (uri.Scheme == "http" || uri.Scheme == "https"))
                     mediaUrl = uri.PathAndQuery + uri.Fragment;
@@ -179,6 +185,13 @@ public sealed class FundGuideImportController : Controller
                     (mediaUrl.StartsWith("/", StringComparison.Ordinal) && !mediaUrl.StartsWith("//", StringComparison.Ordinal))))
                     report.Errors.Add(prefix + "Geçerli site içi kalıcı medya URL'si üretilemedi.");
             }
+            if (report.Errors.Count != before) continue;
+            // FileName yalnızca JSON -> medya eşleştirmesinde kullanılır; CMS alanı değildir.
+            var key = Key(row.Year, mediaUrl);
+            if (!keys.Add(key)) report.Errors.Add(prefix + "JSON'da aynı yıl ve medya için tekrarlanan kayıt.");
+            existing.TryGetValue(key, out var matches);
+            if (matches != null && matches.Length != 1)
+                report.Errors.Add(prefix + "Tabloda aynı yıl ve medya için birden fazla kayıt var.");
             if (report.Errors.Count == before)
                 plan.Add(new PlannedRow { Source = row, Existing = matches == null ? null : matches[0], MediaUrl = mediaUrl });
         }
@@ -194,7 +207,20 @@ public sealed class FundGuideImportController : Controller
         if (ip != null && ip.IsIPv4MappedToIPv6) ip = ip.MapToIPv4();
         return environment.IsDevelopment() && ip != null && IPAddress.IsLoopback(ip);
     }
-    private static string Key(int year, string fileName) => year + "|" + Clean(fileName).ToLowerInvariant();
+    private static string Key(int year, string fileUrl)
+    {
+        var path = Clean(fileUrl);
+        if (Uri.TryCreate(path, UriKind.Absolute, out var uri) && (uri.Scheme == "http" || uri.Scheme == "https"))
+            path = uri.AbsolutePath;
+        path = path.Split(new[] { '?', '#' }, 2)[0];
+        if (path.StartsWith("~/", StringComparison.Ordinal)) path = path.Substring(1);
+        // Domain, dosyanın görünen adı ve query değişse de aynı Kentico medya GUID'si eşleşir.
+        var guid = Regex.Match(path,
+            @"/getmedia/(?<id>[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})(?:/|$)",
+            RegexOptions.IgnoreCase);
+        var identity = guid.Success ? guid.Groups["id"].Value : path;
+        return year + "|" + identity.ToLowerInvariant();
+    }
     private static string Text(CustomTableItem item, string field) => ValidationHelper.GetString(item.GetValue(field), string.Empty);
     private static string Clean(string value) => (value ?? string.Empty).Trim().Normalize(NormalizationForm.FormC);
     private static string E(string value) => WebUtility.HtmlEncode(value ?? string.Empty);
