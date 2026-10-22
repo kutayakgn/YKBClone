@@ -1,0 +1,537 @@
+[
+  {
+    "stockCode": "NETGL",
+    "before": "https://www.yapikredi.com.tr/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/net-global-halka-arz",
+    "after": "/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/net-global-halka-arz"
+  },
+  {
+    "stockCode": "BKRGY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BKRGY",
+    "after": "/yatirimci-kosesi/hisse-senedi/BKRGY"
+  },
+  {
+    "stockCode": "TKNKA",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/TNKA",
+    "after": "/yatirimci-kosesi/hisse-senedi/TNKA"
+  },
+  {
+    "stockCode": "KPEKS",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KPEKS",
+    "after": "/yatirimci-kosesi/hisse-senedi/KPEKS"
+  },
+  {
+    "stockCode": "VEYAS",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/VEYAS",
+    "after": "/yatirimci-kosesi/hisse-senedi/VEYAS"
+  },
+  {
+    "stockCode": "CITAS",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/CITAS",
+    "after": "/yatirimci-kosesi/hisse-senedi/CITAS"
+  },
+  {
+    "stockCode": "QUICK",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/QUICK",
+    "after": "/yatirimci-kosesi/hisse-senedi/QUICK"
+  },
+  {
+    "stockCode": "BEWEN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BEWEN",
+    "after": "/yatirimci-kosesi/hisse-senedi/BEWEN"
+  },
+  {
+    "stockCode": "KARCL",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KARCL",
+    "after": "/yatirimci-kosesi/hisse-senedi/KARCL"
+  },
+  {
+    "stockCode": "MASFN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MASFN",
+    "after": "/yatirimci-kosesi/hisse-senedi/MASFN"
+  },
+  {
+    "stockCode": "METEN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/METEN",
+    "after": "/yatirimci-kosesi/hisse-senedi/METEN"
+  },
+  {
+    "stockCode": "SARAE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SARAE",
+    "after": "/yatirimci-kosesi/hisse-senedi/SARAE"
+  },
+  {
+    "stockCode": "SSAAT",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SSAAT",
+    "after": "/yatirimci-kosesi/hisse-senedi/SSAAT"
+  },
+  {
+    "stockCode": "EKIM",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EKIM",
+    "after": "/yatirimci-kosesi/hisse-senedi/EKIM"
+  },
+  {
+    "stockCode": "ISVEA",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ISVEA",
+    "after": "/yatirimci-kosesi/hisse-senedi/ISVEA"
+  },
+  {
+    "stockCode": "ORZAX",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ORZAX",
+    "after": "/yatirimci-kosesi/hisse-senedi/ORZAX"
+  },
+  {
+    "stockCode": "BETAE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BETAE",
+    "after": "/yatirimci-kosesi/hisse-senedi/BETAE"
+  },
+  {
+    "stockCode": "EKDMR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EKDMR",
+    "after": "/yatirimci-kosesi/hisse-senedi/EKDMR"
+  },
+  {
+    "stockCode": "AAGYO",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AAGYO",
+    "after": "/yatirimci-kosesi/hisse-senedi/AAGYO"
+  },
+  {
+    "stockCode": "EMPAE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EMPAE",
+    "after": "/yatirimci-kosesi/hisse-senedi/EMPAE"
+  },
+  {
+    "stockCode": "AKHAN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AKHAN",
+    "after": "/yatirimci-kosesi/hisse-senedi/AKHAN"
+  },
+  {
+    "stockCode": "NETCD",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/NETCD",
+    "after": "/yatirimci-kosesi/hisse-senedi/NETCD"
+  },
+  {
+    "stockCode": "UCAYM",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/UCAYM",
+    "after": "/yatirimci-kosesi/hisse-senedi/UCAYM"
+  },
+  {
+    "stockCode": "FRMPL",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/FRMPL",
+    "after": "/yatirimci-kosesi/hisse-senedi/FRMPL"
+  },
+  {
+    "stockCode": "ZGYO",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ZGYO",
+    "after": "/yatirimci-kosesi/hisse-senedi/ZGYO"
+  },
+  {
+    "stockCode": "ZERGY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ZERGY",
+    "after": "/yatirimci-kosesi/hisse-senedi/ZERGY"
+  },
+  {
+    "stockCode": "VAKFA",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/VAKFA",
+    "after": "/yatirimci-kosesi/hisse-senedi/VAKFA"
+  },
+  {
+    "stockCode": "PAHOL",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/PAHOL",
+    "after": "/yatirimci-kosesi/hisse-senedi/PAHOL"
+  },
+  {
+    "stockCode": "ECOGR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ECOGR",
+    "after": "/yatirimci-kosesi/hisse-senedi/ECOGR"
+  },
+  {
+    "stockCode": "DOFRB",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DOFRB",
+    "after": "/yatirimci-kosesi/hisse-senedi/DOFRB"
+  },
+  {
+    "stockCode": "DMLKT",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DMLKT",
+    "after": "/yatirimci-kosesi/hisse-senedi/DMLKT"
+  },
+  {
+    "stockCode": "BALSU",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BALSU",
+    "after": "/yatirimci-kosesi/hisse-senedi/BALSU"
+  },
+  {
+    "stockCode": "KLYPV",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KLYPV",
+    "after": "/yatirimci-kosesi/hisse-senedi/KLYPV"
+  },
+  {
+    "stockCode": "ENDAE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ENDAE",
+    "after": "/yatirimci-kosesi/hisse-senedi/ENDAE"
+  },
+  {
+    "stockCode": "SERNT",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SERNT",
+    "after": "/yatirimci-kosesi/hisse-senedi/SERNT"
+  },
+  {
+    "stockCode": "DNYVA",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DNYVA",
+    "after": "/yatirimci-kosesi/hisse-senedi/DNYVA"
+  },
+  {
+    "stockCode": "AKFIS",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AKFIS",
+    "after": "/yatirimci-kosesi/hisse-senedi/AKFIS"
+  },
+  {
+    "stockCode": "GLRMK",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/GLRMK",
+    "after": "/yatirimci-kosesi/hisse-senedi/GLRMK"
+  },
+  {
+    "stockCode": "EGEGY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EGEGY",
+    "after": "/yatirimci-kosesi/hisse-senedi/EGEGY"
+  },
+  {
+    "stockCode": "ARMGD",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ARMGD",
+    "after": "/yatirimci-kosesi/hisse-senedi/ARMGD"
+  },
+  {
+    "stockCode": "SMRVA",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SMRVA",
+    "after": "/yatirimci-kosesi/hisse-senedi/SMRVA"
+  },
+  {
+    "stockCode": "CGCAM",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/CGCAM",
+    "after": "/yatirimci-kosesi/hisse-senedi/CGCAM"
+  },
+  {
+    "stockCode": "BINBN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BINBN",
+    "after": "/yatirimci-kosesi/hisse-senedi/BINBN"
+  },
+  {
+    "stockCode": "DURKN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DURKN",
+    "after": "/yatirimci-kosesi/hisse-senedi/DURKN"
+  },
+  {
+    "stockCode": "AHSGY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AHSGY",
+    "after": "/yatirimci-kosesi/hisse-senedi/AHSGY"
+  },
+  {
+    "stockCode": "DCTTR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DCTTR",
+    "after": "/yatirimci-kosesi/hisse-senedi/DCTTR"
+  },
+  {
+    "stockCode": "SEGMN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SEGMN",
+    "after": "/yatirimci-kosesi/hisse-senedi/SEGMN"
+  },
+  {
+    "stockCode": "EFORC",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EFORC",
+    "after": "/yatirimci-kosesi/hisse-senedi/EFORC"
+  },
+  {
+    "stockCode": "YIGIT",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/YIGIT",
+    "after": "/yatirimci-kosesi/hisse-senedi/YIGIT"
+  },
+  {
+    "stockCode": "HOROZ",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/HOROZ",
+    "after": "/yatirimci-kosesi/hisse-senedi/HOROZ"
+  },
+  {
+    "stockCode": "ALKLC",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ALKLC",
+    "after": "/yatirimci-kosesi/hisse-senedi/ALKLC"
+  },
+  {
+    "stockCode": "OZYSR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/OZYSR",
+    "after": "/yatirimci-kosesi/hisse-senedi/OZYSR"
+  },
+  {
+    "stockCode": "ONRYT",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ONRYT",
+    "after": "/yatirimci-kosesi/hisse-senedi/ONRYT"
+  },
+  {
+    "stockCode": "HRKET",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/HRKET",
+    "after": "/yatirimci-kosesi/hisse-senedi/HRKET"
+  },
+  {
+    "stockCode": "ALTNY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ALTNY",
+    "after": "/yatirimci-kosesi/hisse-senedi/ALTNY"
+  },
+  {
+    "stockCode": "KOTON",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KOTON",
+    "after": "/yatirimci-kosesi/hisse-senedi/KOTON"
+  },
+  {
+    "stockCode": "LILAK",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/LILAK",
+    "after": "/yatirimci-kosesi/hisse-senedi/LILAK"
+  },
+  {
+    "stockCode": "RGYAS",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/RGYAS",
+    "after": "/yatirimci-kosesi/hisse-senedi/RGYAS"
+  },
+  {
+    "stockCode": "ENTRA",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ENTRA",
+    "after": "/yatirimci-kosesi/hisse-senedi/ENTRA"
+  },
+  {
+    "stockCode": "ODINE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ODINE",
+    "after": "/yatirimci-kosesi/hisse-senedi/ODINE"
+  },
+  {
+    "stockCode": "MOGAN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MOGAN",
+    "after": "/yatirimci-kosesi/hisse-senedi/MOGAN"
+  },
+  {
+    "stockCode": "OBAMS",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/OBAMS",
+    "after": "/yatirimci-kosesi/hisse-senedi/OBAMS"
+  },
+  {
+    "stockCode": "LMKDC",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/LMKDC",
+    "after": "/yatirimci-kosesi/hisse-senedi/LMKDC"
+  },
+  {
+    "stockCode": "BORSK",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BORSK",
+    "after": "/yatirimci-kosesi/hisse-senedi/BORSK"
+  },
+  {
+    "stockCode": "PATEK",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/PATEK",
+    "after": "/yatirimci-kosesi/hisse-senedi/PATEK"
+  },
+  {
+    "stockCode": "AVPGY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AVPGY",
+    "after": "/yatirimci-kosesi/hisse-senedi/AVPGY"
+  },
+  {
+    "stockCode": "MEGMT",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MEGMT",
+    "after": "/yatirimci-kosesi/hisse-senedi/MEGMT"
+  },
+  {
+    "stockCode": "KBORU",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KBORU",
+    "after": "/yatirimci-kosesi/hisse-senedi/KBORU"
+  },
+  {
+    "stockCode": "SURGY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SURGY",
+    "after": "/yatirimci-kosesi/hisse-senedi/SURGY"
+  },
+  {
+    "stockCode": "CATES",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/CATES",
+    "after": "/yatirimci-kosesi/hisse-senedi/CATES"
+  },
+  {
+    "stockCode": "SKYMD",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SKYMD",
+    "after": "/yatirimci-kosesi/hisse-senedi/SKYMD"
+  },
+  {
+    "stockCode": "BEGYO",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BEGYO",
+    "after": "/yatirimci-kosesi/hisse-senedi/BEGYO"
+  },
+  {
+    "stockCode": "EKOS",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EKOS",
+    "after": "/yatirimci-kosesi/hisse-senedi/EKOS"
+  },
+  {
+    "stockCode": "BINHO",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BINHO",
+    "after": "/yatirimci-kosesi/hisse-senedi/BINHO"
+  },
+  {
+    "stockCode": "MARBL",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MARBL",
+    "after": "/yatirimci-kosesi/hisse-senedi/MARBL"
+  },
+  {
+    "stockCode": "TABGD",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/TABGD",
+    "after": "/yatirimci-kosesi/hisse-senedi/TABGD"
+  },
+  {
+    "stockCode": "VRGYO",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/VRGYO",
+    "after": "/yatirimci-kosesi/hisse-senedi/VRGYO"
+  },
+  {
+    "stockCode": "MHRGY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MHRGY",
+    "after": "/yatirimci-kosesi/hisse-senedi/MHRGY"
+  },
+  {
+    "stockCode": "BORLS",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BORLS",
+    "after": "/yatirimci-kosesi/hisse-senedi/BORLS"
+  },
+  {
+    "stockCode": "DOFER",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DOFER",
+    "after": "/yatirimci-kosesi/hisse-senedi/DOFER"
+  },
+  {
+    "stockCode": "MEKAG",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MEKAG",
+    "after": "/yatirimci-kosesi/hisse-senedi/MEKAG"
+  },
+  {
+    "stockCode": "ADGYO",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ADGYO",
+    "after": "/yatirimci-kosesi/hisse-senedi/ADGYO"
+  },
+  {
+    "stockCode": "REEDR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/REEDR",
+    "after": "/yatirimci-kosesi/hisse-senedi/REEDR"
+  },
+  {
+    "stockCode": "TARKM",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/TARKM",
+    "after": "/yatirimci-kosesi/hisse-senedi/TARKM"
+  },
+  {
+    "stockCode": "EBEBK",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EBEBK",
+    "after": "/yatirimci-kosesi/hisse-senedi/EBEBK"
+  },
+  {
+    "stockCode": "BYDNR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BYDNR",
+    "after": "/yatirimci-kosesi/hisse-senedi/BYDNR"
+  },
+  {
+    "stockCode": "ENERY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ENERY",
+    "after": "/yatirimci-kosesi/hisse-senedi/ENERY"
+  },
+  {
+    "stockCode": "OFSYM",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/OFSYM",
+    "after": "/yatirimci-kosesi/hisse-senedi/OFSYM"
+  },
+  {
+    "stockCode": "IZENR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/IZENR",
+    "after": "/yatirimci-kosesi/hisse-senedi/IZENR"
+  },
+  {
+    "stockCode": "ASGYO",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ASGYO",
+    "after": "/yatirimci-kosesi/hisse-senedi/ASGYO"
+  },
+  {
+    "stockCode": "KLSER",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KLSER",
+    "after": "/yatirimci-kosesi/hisse-senedi/KLSER"
+  },
+  {
+    "stockCode": "FZLGY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/FZLGY",
+    "after": "/yatirimci-kosesi/hisse-senedi/FZLGY"
+  },
+  {
+    "stockCode": "ATAKP",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ATAKP",
+    "after": "/yatirimci-kosesi/hisse-senedi/ATAKP"
+  },
+  {
+    "stockCode": "FORTE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/FORTE",
+    "after": "/yatirimci-kosesi/hisse-senedi/FORTE"
+  },
+  {
+    "stockCode": "KTLEV",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KTLEV",
+    "after": "/yatirimci-kosesi/hisse-senedi/KTLEV"
+  },
+  {
+    "stockCode": "BIENY",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BIENY",
+    "after": "/yatirimci-kosesi/hisse-senedi/BIENY"
+  },
+  {
+    "stockCode": "KAYSE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KAYSE",
+    "after": "/yatirimci-kosesi/hisse-senedi/KAYSE"
+  },
+  {
+    "stockCode": "BIGCH",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BIGCH",
+    "after": "/yatirimci-kosesi/hisse-senedi/BIGCH"
+  },
+  {
+    "stockCode": "CWENE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/CWENE",
+    "after": "/yatirimci-kosesi/hisse-senedi/CWENE"
+  },
+  {
+    "stockCode": "GRTRK",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/GRTRK",
+    "after": "/yatirimci-kosesi/hisse-senedi/GRTRK"
+  },
+  {
+    "stockCode": "EUPWR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EUPWR",
+    "after": "/yatirimci-kosesi/hisse-senedi/EUPWR"
+  },
+  {
+    "stockCode": "KOPOL",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KOPOL",
+    "after": "/yatirimci-kosesi/hisse-senedi/KOPOL"
+  },
+  {
+    "stockCode": "EKSUN",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EKSUN",
+    "after": "/yatirimci-kosesi/hisse-senedi/EKSUN"
+  },
+  {
+    "stockCode": "GOKNR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/GOKNR",
+    "after": "/yatirimci-kosesi/hisse-senedi/GOKNR"
+  },
+  {
+    "stockCode": "ASTOR",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ASTOR",
+    "after": "/yatirimci-kosesi/hisse-senedi/ASTOR"
+  },
+  {
+    "stockCode": "TNZTP",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/TNZTP",
+    "after": "/yatirimci-kosesi/hisse-senedi/TNZTP"
+  },
+  {
+    "stockCode": "SOKE",
+    "before": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SOKE",
+    "after": "/yatirimci-kosesi/hisse-senedi/SOKE"
+  }
+]

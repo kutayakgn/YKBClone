@@ -1,5 +1,5 @@
 {
-  "browserScenariosPassed": 12,
+  "browserScenariosPassed": 14,
   "liveRecords": 107,
   "downloadedImages": 107,
   "kenticoDatabaseImportExecuted": false,
@@ -13,5 +13,7 @@
   "csharpDateTestsExecuted": false,
   "imageFormat": "webp",
   "webpImagesVerified": 107,
-  "losslessPixelComparisonPassed": 107
+  "losslessPixelComparisonPassed": 107,
+  "siteRelativeUrlsVerified": 107,
+  "databaseUrlMigrationExecuted": false
 }

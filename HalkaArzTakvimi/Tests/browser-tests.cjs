@@ -149,6 +149,22 @@ const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascri
             }
             assert.equal(formatDate({ days: '30,31,1', month: 12, year: 2026 }), '30-31 Aralık 2026 - 1 Ocak 2027');
         });
+        await check('all 107 stored Url values are site-relative and rendered without a domain', async () => {
+            for (const row of rows) {
+                assert(row.url.startsWith('/') && !row.url.startsWith('//'));
+                assert.equal(await page.locator(`[data-stock-code="${row.stockCode}"] h3 a`).getAttribute('href'), row.url);
+            }
+        });
+        await check('export strips the internal domain while preserving query/fragment and external hosts', async () => {
+            const urls = await page.evaluate(() => {
+                function collect(href) {
+                    const doc = new DOMParser().parseFromString('<base href="https://www.yapikredi.com.tr/"><article class="index-list"><p class="subTxt">TEST</p><h3><a href="'+href+'">Test</a></h3><time>9-10-11 Eylül 2026</time><img class="slogo" src="/logo.png"></article>', 'text/html');
+                    return window.YkbIpoExport.collect(doc)[0].url;
+                }
+                return [collect('https://www.yapikredi.com.tr/asd?q=1#detay'), collect('https://example.com/asd')];
+            });
+            assert.deepEqual(urls, ['/asd?q=1#detay', 'https://example.com/asd']);
+        });
         await page.goto(`${base}/Preview/index.html`, { waitUntil: 'networkidle' });
         await page.evaluate(() => document.fonts.ready);
         assert.equal(await page.locator('[data-ct-feed]').count(), 1);

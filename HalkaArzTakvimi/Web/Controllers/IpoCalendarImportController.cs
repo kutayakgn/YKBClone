@@ -154,6 +154,9 @@ public sealed class IpoCalendarImportController : Controller
             row.Title = Clean(row.Title);
             row.ImageFileName = Clean(row.ImageFileName);
             row.Url = Clean(row.Url);
+            // Eski export JSON'larında kalan site domainini yeniden tabloya yazma.
+            if (IpoCalendarUrls.TryNormalize(row.Url, out var relativeUrl, out _, Request.Host.Host))
+                row.Url = relativeUrl;
             var before = report.Errors.Count;
             if (!Regex.IsMatch(row.StockCode, @"^[A-Za-z0-9._-]{1,50}$")) report.Errors.Add(prefix + "StockCode geçersiz.");
             if (row.Title.Length == 0 || row.Title.Length > 1000) report.Errors.Add(prefix + "Title 1–1000 karakter olmalı.");

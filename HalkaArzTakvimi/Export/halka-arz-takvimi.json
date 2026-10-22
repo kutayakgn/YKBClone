@@ -7,7 +7,7 @@
     "year": 2026,
     "imageFileName": "netgl-2026-09-09.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/netglbl_72894/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/net-global-halka-arz"
+    "url": "/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/net-global-halka-arz"
   },
   {
     "stockCode": "BKRGY",
@@ -17,7 +17,7 @@
     "year": 2026,
     "imageFileName": "bkrgy-2026-08-24.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/bkrgy_72855/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BKRGY"
+    "url": "/yatirimci-kosesi/hisse-senedi/BKRGY"
   },
   {
     "stockCode": "TKNKA",
@@ -27,7 +27,7 @@
     "year": 2026,
     "imageFileName": "tknka-2026-08-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/teknika-plast_72823/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/TNKA"
+    "url": "/yatirimci-kosesi/hisse-senedi/TNKA"
   },
   {
     "stockCode": "KPEKS",
@@ -37,7 +37,7 @@
     "year": 2026,
     "imageFileName": "kpeks-2026-08-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/kapeks_72817/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KPEKS"
+    "url": "/yatirimci-kosesi/hisse-senedi/KPEKS"
   },
   {
     "stockCode": "VEYAS",
@@ -47,7 +47,7 @@
     "year": 2026,
     "imageFileName": "veyas-2026-08-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/turkervangolu_72815/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/VEYAS"
+    "url": "/yatirimci-kosesi/hisse-senedi/VEYAS"
   },
   {
     "stockCode": "CITAS",
@@ -57,7 +57,7 @@
     "year": 2026,
     "imageFileName": "citas-2026-08-10.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/citlekci_72809/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/CITAS"
+    "url": "/yatirimci-kosesi/hisse-senedi/CITAS"
   },
   {
     "stockCode": "QUICK",
@@ -67,7 +67,7 @@
     "year": 2026,
     "imageFileName": "quick-2026-07-29.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/quick-sigorta_72777/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/QUICK"
+    "url": "/yatirimci-kosesi/hisse-senedi/QUICK"
   },
   {
     "stockCode": "BEWEN",
@@ -77,7 +77,7 @@
     "year": 2026,
     "imageFileName": "bewen-2026-07-29.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/bewene_72773/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BEWEN"
+    "url": "/yatirimci-kosesi/hisse-senedi/BEWEN"
   },
   {
     "stockCode": "KARCL",
@@ -87,7 +87,7 @@
     "year": 2026,
     "imageFileName": "karcl-2026-07-22.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/karcl_72758/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KARCL"
+    "url": "/yatirimci-kosesi/hisse-senedi/KARCL"
   },
   {
     "stockCode": "MASFN",
@@ -97,7 +97,7 @@
     "year": 2026,
     "imageFileName": "masfn-2026-07-22.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/masfn_72757/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MASFN"
+    "url": "/yatirimci-kosesi/hisse-senedi/MASFN"
   },
   {
     "stockCode": "METEN",
@@ -107,7 +107,7 @@
     "year": 2026,
     "imageFileName": "meten-2026-07-20.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/metgun_72751/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/METEN"
+    "url": "/yatirimci-kosesi/hisse-senedi/METEN"
   },
   {
     "stockCode": "SARAE",
@@ -117,7 +117,7 @@
     "year": 2026,
     "imageFileName": "sarae-2026-07-08.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/sarae_72718/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SARAE"
+    "url": "/yatirimci-kosesi/hisse-senedi/SARAE"
   },
   {
     "stockCode": "SSAAT",
@@ -127,7 +127,7 @@
     "year": 2026,
     "imageFileName": "ssaat-2026-07-06.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/saat-ve-saat-halka-arz_72689/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SSAAT"
+    "url": "/yatirimci-kosesi/hisse-senedi/SSAAT"
   },
   {
     "stockCode": "EKIM",
@@ -137,7 +137,7 @@
     "year": 2026,
     "imageFileName": "ekim-2026-07-01.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/intercity_72643/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EKIM"
+    "url": "/yatirimci-kosesi/hisse-senedi/EKIM"
   },
   {
     "stockCode": "ISVEA",
@@ -147,7 +147,7 @@
     "year": 2026,
     "imageFileName": "isvea-2026-07-01.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/isvea_72638/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ISVEA"
+    "url": "/yatirimci-kosesi/hisse-senedi/ISVEA"
   },
   {
     "stockCode": "ORZAX",
@@ -157,7 +157,7 @@
     "year": 2026,
     "imageFileName": "orzax-2026-06-29.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/orzax_72617/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ORZAX"
+    "url": "/yatirimci-kosesi/hisse-senedi/ORZAX"
   },
   {
     "stockCode": "BETAE",
@@ -167,7 +167,7 @@
     "year": 2026,
     "imageFileName": "betae-2026-06-23.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/beta-enerjii_72562/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BETAE"
+    "url": "/yatirimci-kosesi/hisse-senedi/BETAE"
   },
   {
     "stockCode": "EKDMR",
@@ -177,7 +177,7 @@
     "year": 2026,
     "imageFileName": "ekdmr-2026-05-13.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ekinciler_72501/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EKDMR"
+    "url": "/yatirimci-kosesi/hisse-senedi/EKDMR"
   },
   {
     "stockCode": "AAGYO",
@@ -187,7 +187,7 @@
     "year": 2026,
     "imageFileName": "aagyo-2026-04-01.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/agaoglu_72391/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AAGYO"
+    "url": "/yatirimci-kosesi/hisse-senedi/AAGYO"
   },
   {
     "stockCode": "EMPAE",
@@ -197,7 +197,7 @@
     "year": 2026,
     "imageFileName": "empae-2026-02-19.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/empa_72128/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EMPAE"
+    "url": "/yatirimci-kosesi/hisse-senedi/EMPAE"
   },
   {
     "stockCode": "AKHAN",
@@ -207,7 +207,7 @@
     "year": 2026,
     "imageFileName": "akhan-2026-01-28.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/akhan-un_72057/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AKHAN"
+    "url": "/yatirimci-kosesi/hisse-senedi/AKHAN"
   },
   {
     "stockCode": "NETCD",
@@ -217,7 +217,7 @@
     "year": 2026,
     "imageFileName": "netcd-2026-01-28.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/netcad_72058/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/NETCD"
+    "url": "/yatirimci-kosesi/hisse-senedi/NETCD"
   },
   {
     "stockCode": "UCAYM",
@@ -227,7 +227,7 @@
     "year": 2026,
     "imageFileName": "ucaym-2026-01-14.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ucaym_72028/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/UCAYM"
+    "url": "/yatirimci-kosesi/hisse-senedi/UCAYM"
   },
   {
     "stockCode": "FRMPL",
@@ -237,7 +237,7 @@
     "year": 2026,
     "imageFileName": "frmpl-2026-01-07.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/formul-plastik_72002/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/FRMPL"
+    "url": "/yatirimci-kosesi/hisse-senedi/FRMPL"
   },
   {
     "stockCode": "ZGYO",
@@ -247,7 +247,7 @@
     "year": 2026,
     "imageFileName": "zgyo-2026-01-07.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/z-gyo_72003/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ZGYO"
+    "url": "/yatirimci-kosesi/hisse-senedi/ZGYO"
   },
   {
     "stockCode": "ZERGY",
@@ -257,7 +257,7 @@
     "year": 2025,
     "imageFileName": "zergy-2025-12-10.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/zergy_71911/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ZERGY"
+    "url": "/yatirimci-kosesi/hisse-senedi/ZERGY"
   },
   {
     "stockCode": "VAKFA",
@@ -267,7 +267,7 @@
     "year": 2025,
     "imageFileName": "vakfa-2025-11-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/vakfa_71768/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/VAKFA"
+    "url": "/yatirimci-kosesi/hisse-senedi/VAKFA"
   },
   {
     "stockCode": "PAHOL",
@@ -277,7 +277,7 @@
     "year": 2025,
     "imageFileName": "pahol-2025-11-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/pasifikholding_71765/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/PAHOL"
+    "url": "/yatirimci-kosesi/hisse-senedi/PAHOL"
   },
   {
     "stockCode": "ECOGR",
@@ -287,7 +287,7 @@
     "year": 2025,
     "imageFileName": "ecogr-2025-10-22.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ecogreen_71707/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ECOGR"
+    "url": "/yatirimci-kosesi/hisse-senedi/ECOGR"
   },
   {
     "stockCode": "DOFRB",
@@ -297,7 +297,7 @@
     "year": 2025,
     "imageFileName": "dofrb-2025-09-03.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/dofrobotics_71482/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DOFRB"
+    "url": "/yatirimci-kosesi/hisse-senedi/DOFRB"
   },
   {
     "stockCode": "DMLKT",
@@ -307,7 +307,7 @@
     "year": 2025,
     "imageFileName": "dmlkt-2025-08-04.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ekgyo_71360/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DMLKT"
+    "url": "/yatirimci-kosesi/hisse-senedi/DMLKT"
   },
   {
     "stockCode": "BALSU",
@@ -317,7 +317,7 @@
     "year": 2025,
     "imageFileName": "balsu-2025-02-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/balsu_70667/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BALSU"
+    "url": "/yatirimci-kosesi/hisse-senedi/BALSU"
   },
   {
     "stockCode": "KLYPV",
@@ -327,7 +327,7 @@
     "year": 2025,
     "imageFileName": "klypv-2025-02-05.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/kalyonpv_70638/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KLYPV"
+    "url": "/yatirimci-kosesi/hisse-senedi/KLYPV"
   },
   {
     "stockCode": "ENDAE",
@@ -337,7 +337,7 @@
     "year": 2025,
     "imageFileName": "endae-2025-02-05.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/enda-enerji_70637/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ENDAE"
+    "url": "/yatirimci-kosesi/hisse-senedi/ENDAE"
   },
   {
     "stockCode": "SERNT",
@@ -347,7 +347,7 @@
     "year": 2025,
     "imageFileName": "sernt-2025-01-27.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/seranit_70611/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SERNT"
+    "url": "/yatirimci-kosesi/hisse-senedi/SERNT"
   },
   {
     "stockCode": "DNYVA",
@@ -357,7 +357,7 @@
     "year": 2025,
     "imageFileName": "dnyva-2025-01-22.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/dnyva_70598/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DNYVA"
+    "url": "/yatirimci-kosesi/hisse-senedi/DNYVA"
   },
   {
     "stockCode": "AKFIS",
@@ -367,7 +367,7 @@
     "year": 2025,
     "imageFileName": "akfis-2025-01-15.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/akfeninsaat_70568/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AKFIS"
+    "url": "/yatirimci-kosesi/hisse-senedi/AKFIS"
   },
   {
     "stockCode": "GLRMK",
@@ -377,7 +377,7 @@
     "year": 2025,
     "imageFileName": "glrmk-2025-01-08.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/gulermak-halka-arz_70459/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/GLRMK"
+    "url": "/yatirimci-kosesi/hisse-senedi/GLRMK"
   },
   {
     "stockCode": "EGEGY",
@@ -387,7 +387,7 @@
     "year": 2025,
     "imageFileName": "egegy-2025-01-06.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/egeyapi_70452/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EGEGY"
+    "url": "/yatirimci-kosesi/hisse-senedi/EGEGY"
   },
   {
     "stockCode": "ARMGD",
@@ -397,7 +397,7 @@
     "year": 2024,
     "imageFileName": "armgd-2024-12-25.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/armada-halka-arz_70421/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ARMGD"
+    "url": "/yatirimci-kosesi/hisse-senedi/ARMGD"
   },
   {
     "stockCode": "SMRVA",
@@ -407,7 +407,7 @@
     "year": 2024,
     "imageFileName": "smrva-2024-12-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/sumer-varlik-yonetim-as_70360/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SMRVA"
+    "url": "/yatirimci-kosesi/hisse-senedi/SMRVA"
   },
   {
     "stockCode": "CGCAM",
@@ -417,7 +417,7 @@
     "year": 2024,
     "imageFileName": "cgcam-2024-12-11.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/cagdas-cam-halka-arz_70355/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/CGCAM"
+    "url": "/yatirimci-kosesi/hisse-senedi/CGCAM"
   },
   {
     "stockCode": "BINBN",
@@ -427,7 +427,7 @@
     "year": 2024,
     "imageFileName": "binbn-2024-10-03.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/binbin-halka-arz_69945/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BINBN"
+    "url": "/yatirimci-kosesi/hisse-senedi/BINBN"
   },
   {
     "stockCode": "DURKN",
@@ -437,7 +437,7 @@
     "year": 2024,
     "imageFileName": "durkn-2024-09-11.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/durukan-halka-arz_69828/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DURKN"
+    "url": "/yatirimci-kosesi/hisse-senedi/DURKN"
   },
   {
     "stockCode": "AHSGY",
@@ -447,7 +447,7 @@
     "year": 2024,
     "imageFileName": "ahsgy-2024-08-21.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ahes-gayrimenkul_69740/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AHSGY"
+    "url": "/yatirimci-kosesi/hisse-senedi/AHSGY"
   },
   {
     "stockCode": "DCTTR",
@@ -457,7 +457,7 @@
     "year": 2024,
     "imageFileName": "dcttr-2024-07-25.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/dct-trading-dis-ticaret-as_69621/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DCTTR"
+    "url": "/yatirimci-kosesi/hisse-senedi/DCTTR"
   },
   {
     "stockCode": "SEGMN",
@@ -467,7 +467,7 @@
     "year": 2024,
     "imageFileName": "segmn-2024-06-26.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/segmen-halka-arz_69496/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SEGMN"
+    "url": "/yatirimci-kosesi/hisse-senedi/SEGMN"
   },
   {
     "stockCode": "EFORC",
@@ -477,7 +477,7 @@
     "year": 2024,
     "imageFileName": "eforc-2024-06-26.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/efor-cay-halka-arz_69497/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EFORC"
+    "url": "/yatirimci-kosesi/hisse-senedi/EFORC"
   },
   {
     "stockCode": "YIGIT",
@@ -487,7 +487,7 @@
     "year": 2024,
     "imageFileName": "yigit-2024-05-29.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/yigitakuhalkaarz_69314/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/YIGIT"
+    "url": "/yatirimci-kosesi/hisse-senedi/YIGIT"
   },
   {
     "stockCode": "HOROZ",
@@ -497,7 +497,7 @@
     "year": 2024,
     "imageFileName": "horoz-2024-05-29.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/horoz-halka-arz_69315/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/HOROZ"
+    "url": "/yatirimci-kosesi/hisse-senedi/HOROZ"
   },
   {
     "stockCode": "ALKLC",
@@ -507,7 +507,7 @@
     "year": 2024,
     "imageFileName": "alklc-2024-05-29.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/altinkilic-halka-arz_69318/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ALKLC"
+    "url": "/yatirimci-kosesi/hisse-senedi/ALKLC"
   },
   {
     "stockCode": "OZYSR",
@@ -517,7 +517,7 @@
     "year": 2024,
     "imageFileName": "ozysr-2024-05-23.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ozyasar-tel-halka-arz_69289/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/OZYSR"
+    "url": "/yatirimci-kosesi/hisse-senedi/OZYSR"
   },
   {
     "stockCode": "ONRYT",
@@ -527,7 +527,7 @@
     "year": 2024,
     "imageFileName": "onryt-2024-05-22.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/onur-teknoloji-halka-arz_69288/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ONRYT"
+    "url": "/yatirimci-kosesi/hisse-senedi/ONRYT"
   },
   {
     "stockCode": "HRKET",
@@ -537,7 +537,7 @@
     "year": 2024,
     "imageFileName": "hrket-2024-05-15.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/hareket-halka-arz_69257/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/HRKET"
+    "url": "/yatirimci-kosesi/hisse-senedi/HRKET"
   },
   {
     "stockCode": "ALTNY",
@@ -547,7 +547,7 @@
     "year": 2024,
     "imageFileName": "altny-2024-05-08.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/altinay-halka-arz_69189/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ALTNY"
+    "url": "/yatirimci-kosesi/hisse-senedi/ALTNY"
   },
   {
     "stockCode": "KOTON",
@@ -557,7 +557,7 @@
     "year": 2024,
     "imageFileName": "koton-2024-04-30.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/koton-halka-arz_69170/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KOTON"
+    "url": "/yatirimci-kosesi/hisse-senedi/KOTON"
   },
   {
     "stockCode": "LILAK",
@@ -567,7 +567,7 @@
     "year": 2024,
     "imageFileName": "lilak-2024-04-30.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/lila-halka-arz_69119/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/LILAK"
+    "url": "/yatirimci-kosesi/hisse-senedi/LILAK"
   },
   {
     "stockCode": "RGYAS",
@@ -577,7 +577,7 @@
     "year": 2024,
     "imageFileName": "rgyas-2024-04-17.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ronesans-gayrimenkul-yatirim-as_69078/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/RGYAS"
+    "url": "/yatirimci-kosesi/hisse-senedi/RGYAS"
   },
   {
     "stockCode": "ENTRA",
@@ -587,7 +587,7 @@
     "year": 2024,
     "imageFileName": "entra-2024-03-27.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ic-enterra-yenilenebilir-enerji-as_69061/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ENTRA"
+    "url": "/yatirimci-kosesi/hisse-senedi/ENTRA"
   },
   {
     "stockCode": "ODINE",
@@ -597,7 +597,7 @@
     "year": 2024,
     "imageFileName": "odine-2024-03-13.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/odine-solutions-teknoloji-tic-ve-san-as_69074/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ODINE"
+    "url": "/yatirimci-kosesi/hisse-senedi/ODINE"
   },
   {
     "stockCode": "MOGAN",
@@ -607,7 +607,7 @@
     "year": 2024,
     "imageFileName": "mogan-2024-02-28.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/mogan-enerji-yatirim-holding-as_69072/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MOGAN"
+    "url": "/yatirimci-kosesi/hisse-senedi/MOGAN"
   },
   {
     "stockCode": "OBAMS",
@@ -617,7 +617,7 @@
     "year": 2024,
     "imageFileName": "obams-2024-02-22.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/oba-makarnacilik-san-ve-tic-as_69073/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/OBAMS"
+    "url": "/yatirimci-kosesi/hisse-senedi/OBAMS"
   },
   {
     "stockCode": "LMKDC",
@@ -627,7 +627,7 @@
     "year": 2024,
     "imageFileName": "lmkdc-2024-02-14.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/limak-dogu-anadolu-cimento-san-ve-tic-as_69068/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/LMKDC"
+    "url": "/yatirimci-kosesi/hisse-senedi/LMKDC"
   },
   {
     "stockCode": "BORSK",
@@ -637,7 +637,7 @@
     "year": 2024,
     "imageFileName": "borsk-2024-02-07.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/bor-seker-as_69047/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BORSK"
+    "url": "/yatirimci-kosesi/hisse-senedi/BORSK"
   },
   {
     "stockCode": "PATEK",
@@ -647,7 +647,7 @@
     "year": 2024,
     "imageFileName": "patek-2024-02-06.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/pasifik-donanim-ve-yazilim-bilgi-teknolojileri-as_69076/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/PATEK"
+    "url": "/yatirimci-kosesi/hisse-senedi/PATEK"
   },
   {
     "stockCode": "AVPGY",
@@ -657,7 +657,7 @@
     "year": 2023,
     "imageFileName": "avpgy-2023-12-13.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/avrupakent-gayrimenkul-yatirim-ortakligi-as_69041/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/AVPGY"
+    "url": "/yatirimci-kosesi/hisse-senedi/AVPGY"
   },
   {
     "stockCode": "MEGMT",
@@ -667,7 +667,7 @@
     "year": 2023,
     "imageFileName": "megmt-2023-12-07.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/mega-metal-san-ve-tic-as_69069/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MEGMT"
+    "url": "/yatirimci-kosesi/hisse-senedi/MEGMT"
   },
   {
     "stockCode": "KBORU",
@@ -677,7 +677,7 @@
     "year": 2023,
     "imageFileName": "kboru-2023-12-07.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/kuzey-boru-as_69064/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KBORU"
+    "url": "/yatirimci-kosesi/hisse-senedi/KBORU"
   },
   {
     "stockCode": "SURGY",
@@ -687,7 +687,7 @@
     "year": 2023,
     "imageFileName": "surgy-2023-12-07.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/sur-tatil-evleri-gayrimenkul-yatirim-ortakligi-as_69081/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SURGY"
+    "url": "/yatirimci-kosesi/hisse-senedi/SURGY"
   },
   {
     "stockCode": "CATES",
@@ -697,7 +697,7 @@
     "year": 2023,
     "imageFileName": "cates-2023-11-30.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/cates-elektrik-uretim-as_69049/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/CATES"
+    "url": "/yatirimci-kosesi/hisse-senedi/CATES"
   },
   {
     "stockCode": "SKYMD",
@@ -707,7 +707,7 @@
     "year": 2023,
     "imageFileName": "skymd-2023-11-30.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/seker-yatirim-menkul-degerler-as_69079/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SKYMD"
+    "url": "/yatirimci-kosesi/hisse-senedi/SKYMD"
   },
   {
     "stockCode": "BEGYO",
@@ -717,7 +717,7 @@
     "year": 2023,
     "imageFileName": "begyo-2023-11-30.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/bati-ege-gayrimenkul-yatirim-ortakligi-as_69042/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BEGYO"
+    "url": "/yatirimci-kosesi/hisse-senedi/BEGYO"
   },
   {
     "stockCode": "EKOS",
@@ -727,7 +727,7 @@
     "year": 2023,
     "imageFileName": "ekos-2023-11-15.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ekos-teknoloji-ve-elektrik-as_69053/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EKOS"
+    "url": "/yatirimci-kosesi/hisse-senedi/EKOS"
   },
   {
     "stockCode": "BINHO",
@@ -737,7 +737,7 @@
     "year": 2023,
     "imageFileName": "binho-2023-11-14.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/1000-yatirimlar-holding-as_69045/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BINHO"
+    "url": "/yatirimci-kosesi/hisse-senedi/BINHO"
   },
   {
     "stockCode": "MARBL",
@@ -747,7 +747,7 @@
     "year": 2023,
     "imageFileName": "marbl-2023-11-02.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/tureks-turunc-madencilik-ic-ve-dis-tic-as_69085/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MARBL"
+    "url": "/yatirimci-kosesi/hisse-senedi/MARBL"
   },
   {
     "stockCode": "TABGD",
@@ -757,7 +757,7 @@
     "year": 2023,
     "imageFileName": "tabgd-2023-10-18.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/tab-gida-san-ve-tic-as_69083/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/TABGD"
+    "url": "/yatirimci-kosesi/hisse-senedi/TABGD"
   },
   {
     "stockCode": "VRGYO",
@@ -767,7 +767,7 @@
     "year": 2023,
     "imageFileName": "vrgyo-2023-10-18.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/vera-konsept-gayrimenkul-yatirim-ortakligi-as_69086/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/VRGYO"
+    "url": "/yatirimci-kosesi/hisse-senedi/VRGYO"
   },
   {
     "stockCode": "MHRGY",
@@ -777,7 +777,7 @@
     "year": 2023,
     "imageFileName": "mhrgy-2023-10-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/mhr-gayrimenkul-yatirim-ortakligi-as_69071/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MHRGY"
+    "url": "/yatirimci-kosesi/hisse-senedi/MHRGY"
   },
   {
     "stockCode": "BORLS",
@@ -787,7 +787,7 @@
     "year": 2023,
     "imageFileName": "borls-2023-10-11.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/borlease-otomotiv-as_69046/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BORLS"
+    "url": "/yatirimci-kosesi/hisse-senedi/BORLS"
   },
   {
     "stockCode": "DOFER",
@@ -797,7 +797,7 @@
     "year": 2023,
     "imageFileName": "dofer-2023-10-10.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/dofer-yapi-malzemeleri-san-ve-tic-as_69051/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/DOFER"
+    "url": "/yatirimci-kosesi/hisse-senedi/DOFER"
   },
   {
     "stockCode": "MEKAG",
@@ -807,7 +807,7 @@
     "year": 2023,
     "imageFileName": "mekag-2023-10-05.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/meka-beton-santralleri-imalat-san-ve-tic-as_69070/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/MEKAG"
+    "url": "/yatirimci-kosesi/hisse-senedi/MEKAG"
   },
   {
     "stockCode": "ADGYO",
@@ -817,7 +817,7 @@
     "year": 2023,
     "imageFileName": "adgyo-2023-09-14.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/adra-gayrimenkul-yatirim-ortakligi-as_69025/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ADGYO"
+    "url": "/yatirimci-kosesi/hisse-senedi/ADGYO"
   },
   {
     "stockCode": "REEDR",
@@ -827,7 +827,7 @@
     "year": 2023,
     "imageFileName": "reedr-2023-09-13.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/reeder-teknoloji-san-ve-tic-as_69077/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/REEDR"
+    "url": "/yatirimci-kosesi/hisse-senedi/REEDR"
   },
   {
     "stockCode": "TARKM",
@@ -837,7 +837,7 @@
     "year": 2023,
     "imageFileName": "tarkm-2023-09-05.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/tarkim-bitki-koruma-san-ve-tic-as_69084/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/TARKM"
+    "url": "/yatirimci-kosesi/hisse-senedi/TARKM"
   },
   {
     "stockCode": "EBEBK",
@@ -847,7 +847,7 @@
     "year": 2023,
     "imageFileName": "ebebk-2023-08-29.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ebebek-magazacilik-as_69052/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EBEBK"
+    "url": "/yatirimci-kosesi/hisse-senedi/EBEBK"
   },
   {
     "stockCode": "BYDNR",
@@ -857,7 +857,7 @@
     "year": 2023,
     "imageFileName": "bydnr-2023-08-15.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/baydoner-restoranlari-as_69048/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BYDNR"
+    "url": "/yatirimci-kosesi/hisse-senedi/BYDNR"
   },
   {
     "stockCode": "ENERY",
@@ -867,7 +867,7 @@
     "year": 2023,
     "imageFileName": "enery-2023-08-14.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/enerya-enerji-as_69055/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ENERY"
+    "url": "/yatirimci-kosesi/hisse-senedi/ENERY"
   },
   {
     "stockCode": "OFSYM",
@@ -877,7 +877,7 @@
     "year": 2023,
     "imageFileName": "ofsym-2023-08-10.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/ofis-yem-gida-san-tic-as_69075/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/OFSYM"
+    "url": "/yatirimci-kosesi/hisse-senedi/OFSYM"
   },
   {
     "stockCode": "IZENR",
@@ -887,7 +887,7 @@
     "year": 2023,
     "imageFileName": "izenr-2023-08-08.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/izdemir-enerji-elektrik-uretim-as_69062/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/IZENR"
+    "url": "/yatirimci-kosesi/hisse-senedi/IZENR"
   },
   {
     "stockCode": "ASGYO",
@@ -897,7 +897,7 @@
     "year": 2023,
     "imageFileName": "asgyo-2023-07-27.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/asce-gayrimenkul-yatirim-ortakligi-as_69026/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ASGYO"
+    "url": "/yatirimci-kosesi/hisse-senedi/ASGYO"
   },
   {
     "stockCode": "KLSER",
@@ -907,7 +907,7 @@
     "year": 2023,
     "imageFileName": "klser-2023-07-20.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/kaleseramik-canakkale-kalebodur-seramik-sanayi-as_69065/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KLSER"
+    "url": "/yatirimci-kosesi/hisse-senedi/KLSER"
   },
   {
     "stockCode": "FZLGY",
@@ -917,7 +917,7 @@
     "year": 2023,
     "imageFileName": "fzlgy-2023-07-20.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/fuzul-gayrimenkul-yatirim-ortakligi-as_69058/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/FZLGY"
+    "url": "/yatirimci-kosesi/hisse-senedi/FZLGY"
   },
   {
     "stockCode": "ATAKP",
@@ -927,7 +927,7 @@
     "year": 2023,
     "imageFileName": "atakp-2023-07-19.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/atakey-patates-gida-san-ve-tic-as_69040/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ATAKP"
+    "url": "/yatirimci-kosesi/hisse-senedi/ATAKP"
   },
   {
     "stockCode": "FORTE",
@@ -937,7 +937,7 @@
     "year": 2023,
     "imageFileName": "forte-2023-06-08.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/forte-bilgi-iletisim-teknolojileri-ve-savunma-sanayi-as_69057/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/FORTE"
+    "url": "/yatirimci-kosesi/hisse-senedi/FORTE"
   },
   {
     "stockCode": "KTLEV",
@@ -947,7 +947,7 @@
     "year": 2023,
     "imageFileName": "ktlev-2023-06-06.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/katilimevim-tasarruf-finansman-as_69067/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KTLEV"
+    "url": "/yatirimci-kosesi/hisse-senedi/KTLEV"
   },
   {
     "stockCode": "BIENY",
@@ -957,7 +957,7 @@
     "year": 2023,
     "imageFileName": "bieny-2023-05-11.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/bien-yapi-urunleri-san-turizm-ve-tic-as_69043/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BIENY"
+    "url": "/yatirimci-kosesi/hisse-senedi/BIENY"
   },
   {
     "stockCode": "KAYSE",
@@ -967,7 +967,7 @@
     "year": 2023,
     "imageFileName": "kayse-2023-05-10.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/kayseri-seker-fabrikasi-as_69063/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KAYSE"
+    "url": "/yatirimci-kosesi/hisse-senedi/KAYSE"
   },
   {
     "stockCode": "BIGCH",
@@ -977,7 +977,7 @@
     "year": 2023,
     "imageFileName": "bigch-2023-05-03.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/bigchefs-buyuk-sefler-gida-turizm-tekstil-danismanlik-organizasyon-egitim-san-ve-tic-as_69044/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/BIGCH"
+    "url": "/yatirimci-kosesi/hisse-senedi/BIGCH"
   },
   {
     "stockCode": "CWENE",
@@ -987,7 +987,7 @@
     "year": 2023,
     "imageFileName": "cwene-2023-04-26.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/cw-enerji-muhendislik-tic-ve-san-as_69050/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/CWENE"
+    "url": "/yatirimci-kosesi/hisse-senedi/CWENE"
   },
   {
     "stockCode": "GRTRK",
@@ -997,7 +997,7 @@
     "year": 2023,
     "imageFileName": "grtrk-2023-04-18.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/grainturk-tarim-as_69060/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/GRTRK"
+    "url": "/yatirimci-kosesi/hisse-senedi/GRTRK"
   },
   {
     "stockCode": "EUPWR",
@@ -1007,7 +1007,7 @@
     "year": 2023,
     "imageFileName": "eupwr-2023-04-12.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/europower-enerji-ve-otomasyon-teknolojileri-san-tic-as_69056/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EUPWR"
+    "url": "/yatirimci-kosesi/hisse-senedi/EUPWR"
   },
   {
     "stockCode": "KOPOL",
@@ -1017,7 +1017,7 @@
     "year": 2023,
     "imageFileName": "kopol-2023-04-05.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/koza-polyester-san-ve-tic-as_69066/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/KOPOL"
+    "url": "/yatirimci-kosesi/hisse-senedi/KOPOL"
   },
   {
     "stockCode": "EKSUN",
@@ -1027,7 +1027,7 @@
     "year": 2023,
     "imageFileName": "eksun-2023-03-15.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/eksun-gida-tarim-san-ve-tic-as_69054/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/EKSUN"
+    "url": "/yatirimci-kosesi/hisse-senedi/EKSUN"
   },
   {
     "stockCode": "GOKNR",
@@ -1037,7 +1037,7 @@
     "year": 2023,
     "imageFileName": "goknr-2023-03-01.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/goknur-gida-maddeleri-enerji-imalat-ithalat-ihracat-tic-ve-san-as_69059/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/GOKNR"
+    "url": "/yatirimci-kosesi/hisse-senedi/GOKNR"
   },
   {
     "stockCode": "ASTOR",
@@ -1047,7 +1047,7 @@
     "year": 2023,
     "imageFileName": "astor-2023-01-11.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/astor-enerji-as_69039/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/ASTOR"
+    "url": "/yatirimci-kosesi/hisse-senedi/ASTOR"
   },
   {
     "stockCode": "TNZTP",
@@ -1057,7 +1057,7 @@
     "year": 2023,
     "imageFileName": "tnztp-2023-01-05.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/tapdi-oksijen-ozel-saglik-ve-egitim-hizmetleri-san-tic-as_69082/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/TNZTP"
+    "url": "/yatirimci-kosesi/hisse-senedi/TNZTP"
   },
   {
     "stockCode": "SOKE",
@@ -1067,6 +1067,6 @@
     "year": 2023,
     "imageFileName": "soke-2023-01-04.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/soke-degirmencilik-san-ve-tic-as_69080/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/yatirimci-kosesi/hisse-senedi/SOKE"
+    "url": "/yatirimci-kosesi/hisse-senedi/SOKE"
   }
 ]

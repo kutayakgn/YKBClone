@@ -7,6 +7,8 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="../../Application/CustomTableFeeds/IpoCalendarDates.cs" Link="IpoCalendarDates.cs" />
+    <Compile Include="../../Application/CustomTableFeeds/IpoCalendarUrls.cs" Link="IpoCalendarUrls.cs" />
     <None Include="../source-date-cases.json" Link="source-date-cases.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="../url-normalization-cases.json" Link="url-normalization-cases.json" CopyToOutputDirectory="PreserveNewest" />
   </ItemGroup>
 </Project>

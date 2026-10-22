@@ -74,7 +74,9 @@
                 stockCode: code, title: title,
                 days: date.days, month: date.month, year: date.year,
                 imageFileName: code.toLowerCase() + "-" + date.year + "-" + pad(date.month) + "-" + pad(date.startDay),
-                imageSourceUrl: imageUrl.href, url: url.href
+                imageSourceUrl: imageUrl.href,
+                url: /^(www\.)?yapikredi\.com\.tr$/i.test(url.hostname)
+                    ? url.pathname + url.search + url.hash : url.href
             };
         });
         // Stable sort: aynı tarihli kayıtların canlı sayfadaki sırası korunur.

@@ -8,12 +8,12 @@
 
   <!-- Transfer package targets the external Kentico/Clean Architecture solution. -->
   <ItemGroup>
-    <Compile Remove="CustomTableFeedTransfer/**/*.cs;cardgroupcomponent/**/*.cs;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cs;VideoCardListOptionsTransfer/**/*.cs;HalkaArzTakvimi/**/*.cs" />
-    <Content Remove="CustomTableFeedTransfer/**;cardgroupcomponent/**;HorecaImportTransfer/**;RichTextModalTransfer/**;ButtonMobileUrlTransfer/**;VideoCardListOptionsTransfer/**;HalkaArzTakvimi/**" />
+    <Compile Remove="CustomTableFeedTransfer/**/*.cs;cardgroupcomponent/**/*.cs;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cs;VideoCardListOptionsTransfer/**/*.cs;HalkaArzTakvimi/**/*.cs;FundGuide/**/*.cs" />
+    <Content Remove="CustomTableFeedTransfer/**;cardgroupcomponent/**;HorecaImportTransfer/**;RichTextModalTransfer/**;ButtonMobileUrlTransfer/**;VideoCardListOptionsTransfer/**;HalkaArzTakvimi/**;FundGuide/**" />
     <None Include="CustomTableFeedTransfer/**/*.cs;CustomTableFeedTransfer/**/*.cshtml;cardgroupcomponent/**/*.cs;cardgroupcomponent/**/*.cshtml;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;RichTextModalTransfer/**/*.cshtml" />
     <None Include="ButtonMobileUrlTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cshtml" />
     <None Include="VideoCardListOptionsTransfer/**/*.cs;VideoCardListOptionsTransfer/**/*.cshtml" />
-    <None Include="HalkaArzTakvimi/**/*.cs;HalkaArzTakvimi/**/*.cshtml" />
+    <None Include="HalkaArzTakvimi/**/*.cs;HalkaArzTakvimi/**/*.cshtml;FundGuide/**/*.cs;FundGuide/**/*.cshtml" />
   </ItemGroup>
 
 </Project>

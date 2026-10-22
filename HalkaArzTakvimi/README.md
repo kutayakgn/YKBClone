@@ -2,7 +2,7 @@
 
 Kaynak: https://www.yapikredi.com.tr/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/halka-arz-takvimi
 
-Canlı sayfa 22.10.2026 tarihinde incelendi: 2026–2023 yıllarında 107 adet `article.index-list` kaydı var. Script her çalıştırıldığında o anki bütün article kayıtlarını okur; kayıt sayısı sabitlenmez. Kaynaktaki kod, şirket adı, URL ve görsel adresleri değiştirilmez. Kaynakta hatalı olabilecek kod/URL eşleşmeleri otomatik tahminle düzeltilmez.
+Canlı sayfa 22.10.2026 tarihinde incelendi: 2026–2023 yıllarında 107 adet `article.index-list` kaydı var. Script her çalıştırıldığında o anki bütün article kayıtlarını okur; kayıt sayısı sabitlenmez. Kaynaktaki kod, şirket adı ve görsel adresleri değiştirilmez. Site içi URL'lerin yalnız domaini kaldırılır; path, query ve fragment korunur. Kaynakta hatalı olabilecek kod/URL eşleşmeleri otomatik tahminle düzeltilmez.
 
 ## 1. Dosyaları kopyalama
 
@@ -84,12 +84,29 @@ JSON örneği:
     "year": 2026,
     "imageFileName": "netgl-2026-09-09.webp",
     "imageSourceUrl": "https://www.yapikredi.com.tr/medium/file/netglbl_72894/view?webPScale=2x",
-    "url": "https://www.yapikredi.com.tr/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/net-global-halka-arz"
+    "url": "/bireysel-bankacilik/yatirim-urunleri/hisse-senetleri/net-global-halka-arz"
   }
 ]
 ```
 
 Çıktı dosya adı her zaman `.webp` ile biter; sunucu kaynak görseli farklı formatta döndürse de sonuç WebP'dir. `imageSourceUrl` export bilgisi olarak JSON'da kalır; ayrı CMS alanı gerekmez. JSON kayıtlarında da DateText/dateParts yoktur. Eski JSON'daki ek dateText/dateParts özellikleri varsa importer onları kullanmaz; gösterim her durumda Days/Month/Year'dan hesaplanır.
+
+`url`, site-köküne göre `/...` biçiminde saklanır. Böylece test/canlı domaini tarayıcının bulunduğu ortamdan gelir. `imageSourceUrl` ise görsel indirme kaynağı olduğundan mutlak adres olarak kalır. Eski JSON tekrar import edilse bile güncel importer bilinen site domainlerini kaldırır.
+
+## Mevcut tablo kayıtlarının domainlerini düzeltme
+
+Bu işlem için JSON veya görselleri yeniden yüklemeniz gerekmez. İki dosyayı gerçek projenize ekleyin:
+
+- `Application/CustomTableFeeds/IpoCalendarUrls.cs`
+- `Web/Controllers/IpoCalendarUrlNormalizeController.cs`
+
+Local uygulamayı Development ortamında başlatın ve `/local-tools/ipo-calendar-urls` açın. GET mevcut `YkbYapikredi.IpoCalendar` tablosunu okur, toplam/değişecek/zaten uygun/atlanan sayıları ve önce/sonra örneklerini gösterir. **Url alanlarını güncelle** düğmesi POST ile yalnız Url alanını günceller. Image, Days, Month, Year, Title ve StockCode yeniden yazılmaz; Kentico'nun normal sistem metadata işlemleri kendi API'si tarafından yürütülür.
+
+`https://www.yapikredi.com.tr/asd?q=1#detay` → `/asd?q=1#detay`.
+
+Yapı Kredi ana domaini, www biçimi ve istek yapılan uygulamanın kendi host'u dönüştürülür. Diğer domainler ve geçersiz adresler değiştirilmez; raporda nedenleri gösterilir. Zaten `/...` biçimindeki kayıtlar güncellenmez. `~/...` biçimi `/...` olarak normalize edilir. Tekrar çalıştırmak yeni kayıt oluşturmaz veya uygun URL'leri yeniden yazmaz. Bütün değişiklikler tek transaction içindedir; sonuç raporunda ItemID/önce/sonra değerleri yer alır. Endpoint yalnız Development + loopback erişimine açıktır ve POST antiforgery doğrulamalıdır. DI veya yeni route kaydı gerekmez; mevcut MVC attribute routing kullanılır.
+
+İşlem tamamlanınca geçici `IpoCalendarUrlNormalizeController` dosyasını kaldırabilirsiniz; Application helper'ını bırakın, güncel import controller'ı da onu kullanır. Güncellenmiş export scripti/JSON ve importer sonraki aktarımlarda domainin geri yazılmasını önler.
 
 ## 4. Medya yükleme ve tek seferlik import
 
@@ -151,13 +168,13 @@ Ubuntu fontunun hedef sitenizde yüklü olması gerekir; projenizdeki mevcut fon
 
 JavaScript syntax kontrolü ve browser testleri Tests altında bulunur. Canlı HTML ile export parser'ı, ay geçişleri, dosya/JSON eşleşmesi, PageSize=0/pozitif, yıl sınırı, oklar ve çoklu component senaryoları kontrol edilir. Gerçek Kentico DB'sine burada erişim olmadığı için controller importu ve C#/Razor derlemesi hedef projede Ön kontrol ile doğrulanmalıdır.
 
-Saf C# tarih helper'ı için Kentico bağımlılığı olmayan .NET 8 test projesi eklendi:
+Saf C# tarih ve URL helper'ları için Kentico bağımlılığı olmayan .NET 8 test projesi eklendi:
 
 ```sh
 dotnet run --project HalkaArzTakvimi/Tests/DateFormatting/DateFormatting.csproj
 ```
 
-Bu ortamda .NET SDK bulunmadığından bu C# testi burada çalıştırılamadı. Test, gerçek Application helper dosyasını derler; 107 kaynak kaydı ile geçersiz gün, artık yıl ve yıl geçişini kontrol eder. `Tests/source-date-cases.json` eski kaynak tarih metinlerini yalnız test beklentisi olarak tutar; production model/import bu dosyayı veya metinleri kullanmaz.
+Bu ortamda .NET SDK bulunmadığından bu C# testi burada çalıştırılamadı. Test, gerçek Application helper dosyalarını derler; 107 kaynak kaydı ile geçersiz gün, artık yıl, yıl geçişi, URL domain kaldırma, query/fragment koruması ve tekrar çalıştırmayı kontrol eder. `Tests/source-date-cases.json` eski kaynak tarih metinlerini yalnız test beklentisi olarak tutar; production model/import bu dosyayı veya metinleri kullanmaz.
 
 `Preview/index.html` ve masaüstü/mobil ekran görüntüleri hazırdır. Önizleme CSS/JS'inin vendor altındaki ortak feed kopyaları yalnız önizleme içindir; bunlarla hedef projedeki ortak dosyaları değiştirmeyin. Önizlemeyi yerel HTTP sunucusuyla açın; Ubuntu için canlı sitedeki Google Fonts bağlantısını kullanır. Testler Playwright ve Chrome/Chromium bulunan ortamda `node HalkaArzTakvimi/Tests/browser-tests.cjs` ile çalışır.
 

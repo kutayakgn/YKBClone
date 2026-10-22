@@ -38,3 +38,29 @@ Invalid("", 9, 2026);
 Invalid("1", 13, 2026);
 Invalid("31 1", 12, 9999);
 Console.WriteLine($"{count} C# tarih senaryosu geçti.");
+
+var urlCount = 0;
+void UrlCase(string source, string expected, string? currentHost = null)
+{
+    if (!IpoCalendarUrls.TryNormalize(source, out var result, out var error, currentHost) || result != expected)
+        throw new Exception($"URL: {source}; beklenen {expected}; üretilen {result}; {error}");
+    // Tekrar çalıştırma aynı sonucu vermeli.
+    if (!IpoCalendarUrls.TryNormalize(result, out var again, out _, currentHost) || again != result)
+        throw new Exception("URL dönüşümü idempotent değil.");
+    urlCount++;
+}
+using var urlData = JsonDocument.Parse(File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "url-normalization-cases.json")));
+foreach (var row in urlData.RootElement.EnumerateArray())
+    UrlCase(row.GetProperty("before").GetString()!, row.GetProperty("after").GetString()!);
+UrlCase("https://www.yapikredi.com.tr/asd?q=1#detay", "/asd?q=1#detay");
+UrlCase("https://yapikredi.com.tr/", "/");
+UrlCase("//www.yapikredi.com.tr/asd", "/asd");
+UrlCase("~/asd", "/asd");
+UrlCase("/asd", "/asd");
+UrlCase("https://localhost:44302/asd", "/asd", "localhost");
+foreach (var source in new[] { "https://example.com/asd", "javascript:alert(1)", "https://user:pass@www.yapikredi.com.tr/asd", "https://www.yapikredi.com.tr//example.com", "" })
+{
+    if (IpoCalendarUrls.TryNormalize(source, out _, out _)) throw new Exception("URL atlanmalıydı: " + source);
+    urlCount++;
+}
+Console.WriteLine($"{urlCount} C# URL senaryosu geçti.");
