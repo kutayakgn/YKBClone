@@ -8,11 +8,12 @@
 
   <!-- Transfer package targets the external Kentico/Clean Architecture solution. -->
   <ItemGroup>
+    <Compile Remove="CustomTableFeedTransfer/**/*.cs;cardgroupcomponent/**/*.cs;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cs;VideoCardListOptionsTransfer/**/*.cs;HalkaArzTakvimi/**/*.cs;FundGuide/**/*.cs" />
+    <Content Remove="CustomTableFeedTransfer/**;cardgroupcomponent/**;HorecaImportTransfer/**;RichTextModalTransfer/**;ButtonMobileUrlTransfer/**;VideoCardListOptionsTransfer/**;HalkaArzTakvimi/**;FundGuide/**" />
     <Compile Remove="CustomTableFeedTransfer/**/*.cs;cardgroupcomponent/**/*.cs;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cs;DailyMarketBulletinsTransfer/**/*.cs" />
     <Content Remove="CustomTableFeedTransfer/**;cardgroupcomponent/**;HorecaImportTransfer/**;RichTextModalTransfer/**;ButtonMobileUrlTransfer/**;DailyMarketBulletinsTransfer/**" />
     <None Include="CustomTableFeedTransfer/**/*.cs;CustomTableFeedTransfer/**/*.cshtml;cardgroupcomponent/**/*.cs;cardgroupcomponent/**/*.cshtml;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;RichTextModalTransfer/**/*.cshtml" />
     <None Include="ButtonMobileUrlTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cshtml" />
-    <None Include="DailyMarketBulletinsTransfer/**/*.cs" />
   </ItemGroup>
 
 </Project>

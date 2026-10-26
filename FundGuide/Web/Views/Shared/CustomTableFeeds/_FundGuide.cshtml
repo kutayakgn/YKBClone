@@ -1,0 +1,71 @@
+@using System
+@using System.Linq
+@model YkbYapikredi.Application.CustomTableFeeds.FundGuideContent
+@{
+    var id = "fund-guide-" + Guid.NewGuid().ToString("N");
+    var selectedYear = Model.Years.FirstOrDefault();
+}
+<div class="fund-guide" data-fund-guide>
+    <form class="fund-guide__filters" data-ct-filters>
+        <div class="fund-guide__field">
+            <span class="fund-guide__label" id="@(id)-label">Tarih</span>
+            <div class="fund-guide__select" data-fg-select>
+                <input type="hidden" name="year" value="@selectedYear" data-fg-year />
+                <button type="button" class="fund-guide__trigger" data-fg-trigger
+                        aria-labelledby="@(id)-label @(id)-selected" aria-haspopup="listbox"
+                        aria-controls="@(id)-panel" aria-expanded="false" disabled="@(Model.Years.Count == 0)">
+                    <span id="@(id)-selected" data-fg-selected>@(selectedYear > 0 ? selectedYear.ToString() : "Seçiniz")</span>
+                    <span class="fund-guide__arrow" aria-hidden="true"></span>
+                </button>
+                <div class="fund-guide__panel" id="@(id)-panel" data-fg-panel hidden>
+                    <input type="search" class="fund-guide__search" data-fg-search
+                           aria-label="Yıl ara" aria-controls="@(id)-options" autocomplete="off" />
+                    <div class="fund-guide__options" id="@(id)-options" role="listbox" aria-labelledby="@(id)-label">
+                        @foreach (var year in Model.Years)
+                        {
+                            <button type="button" class="fund-guide__option" role="option" tabindex="-1"
+                                    data-fg-option data-value="@year" aria-selected="@(year == selectedYear ? "true" : "false")">@year</button>
+                        }
+                    </div>
+                    <p class="fund-guide__no-year" data-fg-no-year hidden>Yıl bulunamadı.</p>
+                </div>
+            </div>
+        </div>
+        <button type="submit" class="fund-guide__submit" disabled="@(Model.Years.Count == 0)">Göster</button>
+    </form>
+    @foreach (var group in Model.Items.GroupBy(item => item.Year).OrderByDescending(group => group.Key))
+    {
+        <div class="fund-guide__table-wrap" data-fg-group data-year="@group.Key" hidden="@(group.Key != selectedYear)">
+            <table class="fund-guide__table @(group.Key >= 2026 ? "fund-guide__table--monthly" : "fund-guide__table--legacy")">
+                <thead><tr>
+                    @if (group.Key >= 2026)
+                    {
+                        <th scope="col">Fon Rehberi</th>
+                    }
+                    else
+                    {
+                        <th scope="col">Fon Kod</th>
+                        <th scope="col">Fon Adı</th>
+                    }
+                </tr></thead>
+                <tbody>
+                    @foreach (var item in group)
+                    {
+                        var fileUrl = item.FileUrl.StartsWith("~/", StringComparison.Ordinal) ? Url.Content(item.FileUrl) : item.FileUrl;
+                        <tr data-ct-row data-year="@item.Year">
+                            @if (item.IsMonthly)
+                            {
+                                <td>@if (!string.IsNullOrWhiteSpace(fileUrl)) { <a href="@fileUrl" target="_blank" rel="noopener noreferrer">@item.Title</a> } else { @item.Title }</td>
+                            }
+                            else
+                            {
+                                <td>@if (!string.IsNullOrWhiteSpace(fileUrl)) { <a href="@fileUrl" target="_blank" rel="noopener noreferrer">@item.FundCode</a> } else { @item.FundCode }</td>
+                                <td>@if (!string.IsNullOrWhiteSpace(fileUrl)) { <a href="@fileUrl" target="_blank" rel="noopener noreferrer">@item.FundName</a> } else { @item.FundName }</td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

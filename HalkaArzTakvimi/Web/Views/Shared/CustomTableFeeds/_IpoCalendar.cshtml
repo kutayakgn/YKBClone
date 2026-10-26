@@ -1,0 +1,58 @@
+@using System
+@using System.Globalization
+@using System.Linq
+@model YkbYapikredi.Application.CustomTableFeeds.IpoCalendarContent
+
+@* Ortak feed JS'i form bekler. Bu listede kullanıcı filtresi yoktur. *@
+<form data-ct-filters hidden aria-hidden="true"></form>
+
+<div class="ipo-calendar" data-ipo-calendar>
+    @foreach (var year in Model.Items.GroupBy(item => item.Year).OrderByDescending(group => group.Key))
+    {
+        <section class="ipo-calendar__year" data-ipo-year-group data-year="@year.Key">
+            <h2 class="ipo-calendar__year-title">@year.Key Halka Arzları</h2>
+            @foreach (var item in year.OrderByDescending(row => row.StartDate).ThenBy(row => row.ItemId))
+            {
+                var image = item.Image.StartsWith("~/", StringComparison.Ordinal)
+                    ? Url.Content(item.Image) : item.Image;
+                var url = item.Url.StartsWith("~/", StringComparison.Ordinal)
+                    ? Url.Content(item.Url) : item.Url;
+                <article class="index-list" data-ct-row data-stock-code="@item.StockCode"
+                         data-date="@item.StartDate.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)">
+                    <div class="il-badge" aria-hidden="true">&nbsp;</div>
+                    @if (!string.IsNullOrWhiteSpace(image))
+                    {
+                        @if (!string.IsNullOrWhiteSpace(url))
+                        {
+                            <a href="@url" class="ipo-calendar__logo-link">
+                                <img class="slogo" src="@image" alt="@item.Title" loading="eager" decoding="async" data-ipo-image />
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="ipo-calendar__logo-link">
+                                <img class="slogo" src="@image" alt="@item.Title" loading="eager" decoding="async" data-ipo-image />
+                            </span>
+                        }
+                    }
+                    <div class="il-content">
+                        <p class="subTxt">@item.StockCode</p>
+                        <div class="title-with-red-badge">
+                            <h3 class="il-halka-arz-sirket">
+                                @if (!string.IsNullOrWhiteSpace(url))
+                                {
+                                    <a href="@url">@item.Title</a>
+                                }
+                                else
+                                {
+                                    @item.Title
+                                }
+                            </h3>
+                        </div>
+                        <p class="ipo-calendar__date"><time>@item.DisplayDate</time></p>
+                    </div>
+                </article>
+            }
+        </section>
+    }
+</div>

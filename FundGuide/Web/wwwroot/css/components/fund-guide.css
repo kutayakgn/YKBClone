@@ -1,0 +1,42 @@
+/* Ortak custom-table-feed.css sonrasında yükleyin. Canlı ölçüler CSS px'tir. */
+.ct-feed[data-kind="fund-guide"] { color:#24282b; font-family:Ubuntu,Arial,sans-serif; font-size:13px; }
+.fund-guide { width:100%; min-width:0; }
+.fund-guide *, .fund-guide *::before, .fund-guide *::after { box-sizing:border-box; }
+.fund-guide [hidden] { display:none !important; }
+.fund-guide__filters { display:flex; align-items:flex-end; gap:32px; margin:0 0 48px; }
+.fund-guide__field { flex:0 1 39.1%; min-width:0; }
+.fund-guide__label { display:block; margin:0 0 8px; padding-left:16px; font-size:13px; line-height:18px; }
+.fund-guide__select { position:relative; width:100%; }
+.fund-guide__trigger { display:flex; align-items:center; justify-content:space-between; width:100%; height:34px; padding:0 16px; border:1px solid #8c909c; border-radius:6px; color:#444; background:#fff; font:inherit; text-align:left; cursor:pointer; }
+.fund-guide__trigger:disabled { opacity:.5; cursor:default; }
+.fund-guide__trigger[aria-expanded="true"] { border-color:#003f9f; border-radius:6px 6px 0 0; }
+.fund-guide__arrow { flex-shrink:0; margin-left:12px; border-top:5px solid #888; border-left:4px solid transparent; border-right:4px solid transparent; }
+.fund-guide__trigger[aria-expanded="true"] .fund-guide__arrow { transform:rotate(180deg); }
+.fund-guide__panel { position:absolute; top:calc(100% - 1px); left:0; right:0; z-index:40; padding:4px 0 0; border:1px solid #003f9f; border-radius:0 0 4px 4px; background:#fff; }
+.fund-guide__search { display:block; width:calc(100% - 8px); height:24px; margin:0 4px 4px; padding:2px 5px; border:2px solid #e9e9e9; border-radius:0; color:#24282b; background:#fff; font:inherit; }
+.fund-guide__search:focus { outline:none; box-shadow:none; }
+.fund-guide__options { max-height:180px; overflow-y:auto; overscroll-behavior:contain; }
+.fund-guide__option { display:block; width:100%; padding:4px 16px; border:0; border-radius:0; background:#fff; color:#24282b; text-align:left; font:inherit; line-height:17px; cursor:pointer; }
+.fund-guide__option:hover, .fund-guide__option:focus-visible, .fund-guide__option[aria-selected="true"] { background:#06377e; color:#fff; outline:none; }
+.fund-guide__no-year { margin:8px 12px; }
+.fund-guide__submit { flex:0 0 auto; height:34px; padding:0 16px; border:0; border-radius:7px; color:#fff; background:#004990; font:inherit; font-size:11px; font-weight:400; cursor:pointer; }
+.fund-guide__submit:hover { background:#003b77; }
+.fund-guide__submit:disabled { opacity:.5; cursor:default; }
+.fund-guide__table-wrap { width:100%; border:1px solid #e9e9e9; border-radius:7px 7px 0 0; overflow:hidden; }
+.fund-guide__table { width:100%; margin:0; table-layout:fixed; border-collapse:collapse; color:#24282b; font:inherit; font-size:13px; }
+.fund-guide__table th { padding:12px 10px; border:0; background:#0ca2f2; color:#fff; font-weight:700; font-size:12px; line-height:15px; text-align:left; }
+.fund-guide__table td { padding:12px 10px; border:0; background:#fff; line-height:18.2px; vertical-align:top; overflow-wrap:anywhere; }
+.fund-guide__table tr.is-striped td { background:#eef6fb; }
+.fund-guide__table a { color:#0ca2f2; text-decoration:underline; text-underline-offset:1px; }
+.fund-guide__table a:hover { color:#007dad; }
+.fund-guide__table--legacy th:first-child, .fund-guide__table--legacy td:first-child { width:18.5%; }
+.fund-guide__table--legacy th:last-child, .fund-guide__table--legacy td:last-child { text-align:right; }
+.ct-feed[data-kind="fund-guide"] .ct-feed__pagination { margin-top:14px; }
+@media (max-width:575.98px) {
+    .fund-guide__filters { gap:16px; margin-bottom:32px; }
+    .fund-guide__field { flex:1 1 auto; }
+    .fund-guide__label { padding-left:8px; }
+    .fund-guide__trigger { padding:0 10px; }
+    .fund-guide__table--legacy th:first-child, .fund-guide__table--legacy td:first-child { width:29%; }
+    .fund-guide__table td, .fund-guide__table th { padding:10px 8px; }
+}

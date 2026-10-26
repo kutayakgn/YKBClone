@@ -1,0 +1,425 @@
+/* VideoCardList: mevcut tasarım + CMS sütun/görünürlük ayarları. */
+
+.video-card-list {
+    width: 100%;
+    min-width: 0;
+}
+
+/* Mevcut image-card display kuralları hidden durumunu ezmesin. */
+.video-card-list [hidden],
+.video-card-list .video-card-item[hidden],
+.video-year-dropdown__panel[hidden],
+.video-year-dropdown__option[hidden] {
+    display: none !important;
+}
+
+.video-card-list__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 24px;
+    margin-bottom: 24px;
+}
+
+.video-card-list__year {
+    margin: 0;
+    font-size: 28px;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.video-card-list__filter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.video-card-list[data-filter-active="true"] .video-card-list__filter {
+    margin-left: auto;
+}
+
+.video-card-list__filter-label {
+    white-space: nowrap;
+}
+
+/* Aranabilir dropdown */
+.video-year-dropdown {
+    position: relative;
+    width: 205px;
+    max-width: 100%;
+    color: #444;
+    font-size: 13px;
+}
+
+.video-year-dropdown__trigger {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-sizing: border-box;
+    gap: 12px;
+    width: 100%;
+    padding: 6px 12px;
+    border: 1px solid #444;
+    border-radius: 6px;
+    background: #fff;
+    color: #444;
+    font: inherit;
+    text-align: left;
+    cursor: pointer;
+}
+
+.video-year-dropdown__trigger[aria-expanded="true"] {
+    border-radius: 6px 6px 0 0;
+}
+
+.video-year-dropdown__arrow {
+    flex: 0 0 auto;
+    width: 0;
+    height: 0;
+    border-right: 4px solid transparent;
+    border-left: 4px solid transparent;
+    border-top: 5px solid #888;
+}
+
+.video-year-dropdown__trigger[aria-expanded="true"] .video-year-dropdown__arrow {
+    transform: rotate(180deg);
+}
+
+.video-year-dropdown__panel {
+    position: absolute;
+    top: calc(100% - 1px);
+    right: 0;
+    left: 0;
+    z-index: 100;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #444;
+    border-radius: 0 0 6px 6px;
+    background: #fff;
+    box-shadow: 0 5px 12px rgba(0, 0, 0, 0.12);
+}
+
+.video-year-dropdown__search-wrap {
+    padding: 4px;
+}
+
+.video-year-dropdown__search {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
+    height: 26px;
+    padding: 3px 6px;
+    border: 1px solid #444;
+    border-radius: 0;
+    background: #fff;
+    color: #444;
+    font: inherit;
+}
+
+.video-year-dropdown__search:focus {
+    border-color: #444;
+    outline: 1px solid #444;
+    outline-offset: -1px;
+}
+
+.video-year-dropdown__options {
+    max-height: 210px;
+    overflow-x: hidden;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    scrollbar-width: thin;
+    scrollbar-color: #929292 #fff;
+}
+
+.video-year-dropdown__options::-webkit-scrollbar {
+    width: 8px;
+}
+
+.video-year-dropdown__options::-webkit-scrollbar-track {
+    background: #fff;
+}
+
+.video-year-dropdown__options::-webkit-scrollbar-thumb {
+    border: 2px solid #fff;
+    border-radius: 8px;
+    background: #929292;
+}
+
+.video-year-dropdown__option {
+    display: block;
+    box-sizing: border-box;
+    width: 100%;
+    min-height: 24px;
+    padding: 4px 16px;
+    border: 0;
+    border-radius: 0;
+    background: #fff;
+    color: #444;
+    font: inherit;
+    line-height: 1.3;
+    text-align: left;
+    cursor: pointer;
+}
+
+.video-year-dropdown__option:hover,
+.video-year-dropdown__option:focus-visible {
+    outline: none;
+    background: #e7eff9;
+}
+
+.video-year-dropdown__option[aria-selected="true"] {
+    background: #004990;
+    color: #fff;
+}
+
+.video-year-dropdown__empty {
+    margin: 0;
+    padding: 10px 12px;
+    color: #666;
+    font-size: 12px;
+}
+
+/* Kart grid */
+.video-card-list__grid,
+.video-card-list [data-video-card-grid] {
+    display: grid;
+    grid-template-columns: repeat(var(--video-card-columns, 3), minmax(0, 1fr));
+    gap: 24px;
+}
+
+.video-card-list__grid > .image-card,
+.video-card-list [data-video-card-grid] > [data-video-card-item] {
+    width: 100%;
+    max-width: none;
+    min-width: 0;
+    margin: 0;
+}
+
+.video-card-list .video-card-item__media {
+    position: relative;
+    display: block;
+    width: 100%;
+    height: 170px;
+    overflow: hidden;
+}
+
+.video-card-list .video-card-item__media img {
+    display: block;
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+}
+
+/* IcoMoon play ikonu */
+.video-card-item__play {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 72px;
+    height: 72px;
+    color: #fff;
+    pointer-events: none;
+    transform: translate(-50%, -50%);
+    transition: background-color 160ms ease, transform 160ms ease;
+}
+
+.video-card-item__play .icon-play {
+    display: block;
+    color: inherit;
+    font-size: 70px;
+    line-height: 1;
+}
+
+.video-card-item__media:focus-visible {
+    outline: 3px solid #00529b;
+    outline-offset: 4px;
+}
+
+.video-card-list__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 5px;
+    margin-top: 32px;
+}
+
+.video-card-list__page {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    box-sizing: border-box;
+    min-width: 24px;
+    height: 28px;
+    padding: 0 7px;
+    border: 0;
+    border-radius: 2px;
+    background: transparent;
+    color: #111;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background-color 150ms ease, color 150ms ease;
+}
+
+.video-card-list__page:hover:not(:disabled):not(.is-active) {
+    background: #edf4fb;
+    color: #1266b5;
+}
+
+.video-card-list__page.is-active {
+    background: #1266b5;
+    color: #fff;
+    font-weight: 600;
+}
+
+.video-card-list__page:focus-visible {
+    outline: 2px solid #1266b5;
+    outline-offset: 3px;
+}
+
+.video-card-list__page:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.video-card-list__page--arrow {
+    min-width: 24px;
+    font-size: 13px;
+}
+
+/* Video modal */
+.video-card-modal .modal-dialog {
+    width: calc(100% - 64px);
+    max-width: 800px;
+    margin: 16px auto;
+}
+
+.video-card-modal .modal-content {
+    width: 100%;
+    min-width: 0;
+    max-height: calc(100vh - 32px);
+    max-height: calc(100dvh - 32px);
+    overflow: hidden;
+    background: #fff;
+}
+
+.video-card-modal .modal-header {
+    flex: 0 0 auto;
+    min-width: 0;
+    gap: 16px;
+    padding: 20px 24px;
+}
+
+.video-card-modal .modal-title {
+    min-width: 0;
+    margin: 0;
+    font-size: 18px;
+    line-height: 1.4;
+    overflow-wrap: anywhere;
+}
+
+.video-card-modal .btn-close {
+    flex-shrink: 0;
+}
+
+.video-card-modal .modal-body {
+    box-sizing: border-box;
+    flex: 0 1 auto;
+    min-width: 0;
+    min-height: 0;
+    padding: 24px;
+    overflow-x: hidden;
+    overflow-y: auto;
+}
+
+.video-card-modal__frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    overflow: hidden;
+    background: #000;
+}
+
+.video-card-modal__frame iframe {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    border: 0;
+}
+
+@media (max-width: 991.98px) {
+    .video-card-list__grid,
+    .video-card-list [data-video-card-grid] {
+        grid-template-columns: repeat(var(--video-card-tablet-columns, 2), minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 575.98px) {
+    .video-card-list__grid,
+    .video-card-list [data-video-card-grid] {
+        grid-template-columns: minmax(0, 1fr);
+        gap: 20px;
+    }
+
+    .video-card-list__header {
+        align-items: flex-start;
+        gap: 16px;
+    }
+
+    .video-card-list__year {
+        font-size: 24px;
+    }
+
+    .video-card-list__filter {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 6px;
+    }
+
+    .video-year-dropdown {
+        width: 160px;
+    }
+
+    .video-card-list .video-card-item__media {
+        height: auto;
+        aspect-ratio: 16 / 9;
+    }
+
+    .video-card-modal .modal-title {
+        font-size: 16px;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .video-card-item__play,
+    .video-card-list__page {
+        transition: none;
+    }
+}
+
+/* Açılan dropdown paneli */
+.video-card-list .video-year-dropdown__panel:not([hidden]) {
+    display: block !important;
+}
+
+/* Arama sonucunda kalan yıl seçenekleri */
+.video-card-list .video-year-dropdown__option:not([hidden]) {
+    display: block !important;
+}
+
+/* Birden fazla sayfa varsa pagination */
+.video-card-list .video-card-list__pagination:not([hidden]) {
+    display: flex !important;
+}

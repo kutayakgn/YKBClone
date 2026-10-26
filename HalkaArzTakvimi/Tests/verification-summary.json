@@ -1,0 +1,22 @@
+{
+  "browserScenariosPassed": 17,
+  "liveRecords": 107,
+  "downloadedImages": 107,
+  "kenticoDatabaseImportExecuted": false,
+  "kenticoRazorCompilationExecuted": false,
+  "dateTextCmsFieldRequired": false,
+  "datesGeneratedFrom": [
+    "Days",
+    "Month",
+    "Year"
+  ],
+  "csharpDateTestsExecuted": false,
+  "imageFormat": "webp",
+  "webpImagesVerified": 107,
+  "losslessPixelComparisonPassed": 107,
+  "siteRelativeUrlsVerified": 107,
+  "databaseUrlMigrationExecuted": false,
+  "eagerImagesVerified": 107,
+  "transientImageRetryVerified": true,
+  "permanentImageRetryLimitVerified": true
+}

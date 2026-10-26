@@ -1,0 +1,36 @@
+{
+  "rows": 1838,
+  "documents": 1838,
+  "maxFileNameLength": 45,
+  "years": [
+    {
+      "year": 2026,
+      "rows": 9
+    },
+    {
+      "year": 2025,
+      "rows": 424
+    },
+    {
+      "year": 2024,
+      "rows": 252
+    },
+    {
+      "year": 2023,
+      "rows": 342
+    },
+    {
+      "year": 2022,
+      "rows": 317
+    },
+    {
+      "year": 2021,
+      "rows": 255
+    },
+    {
+      "year": 2020,
+      "rows": 239
+    }
+  ],
+  "bytes": 1114047345
+}

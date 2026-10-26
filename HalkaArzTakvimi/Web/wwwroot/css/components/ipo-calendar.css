@@ -1,0 +1,86 @@
+/* Canlı sayfa 22.10.2026: Ubuntu; 60px logo; 16px kod; 20px başlık. */
+.ct-feed[data-kind="ipo-calendar"] {
+    font-family: "Ubuntu", sans-serif;
+    color: #212529;
+}
+.ct-feed[data-kind="ipo-calendar"] > .ct-feed__title {
+    margin: 0 0 15px;
+    color: #004990;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+.ct-feed[data-kind="ipo-calendar"] [hidden] { display: none !important; }
+.ipo-calendar { width: 100%; min-width: 0; }
+.ipo-calendar .ipo-calendar__year-title {
+    margin: 0 0 15px;
+    padding: 0;
+    color: #003584;
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.27;
+}
+.ipo-calendar .index-list {
+    position: relative;
+    display: flex;
+    align-items: stretch;
+    width: 100%;
+    min-width: 0;
+    margin: 0;
+    padding: 12px 0 0;
+    border: 0;
+    background: transparent;
+}
+.ipo-calendar .il-badge { position: absolute; top: -5px; right: 0; }
+.ipo-calendar .ipo-calendar__logo-link {
+    display: block;
+    flex: 0 0 60px;
+    width: 60px;
+    margin: 0;
+    padding: 0;
+    text-decoration: none;
+}
+.ipo-calendar .slogo {
+    display: block;
+    width: 60px;
+    max-width: none;
+    height: auto;
+    border: 0;
+    border-radius: 45px;
+}
+.ipo-calendar .il-content { flex: 1 1 auto; min-width: 0; padding-left: 15px; }
+.ipo-calendar .subTxt {
+    margin: 0;
+    padding: 0;
+    color: #004990;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.4;
+}
+.ipo-calendar .title-with-red-badge { display: flex; min-width: 0; }
+.ipo-calendar .il-halka-arz-sirket {
+    margin: 0;
+    padding: 0;
+    color: #282828;
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1;
+    overflow-wrap: anywhere;
+}
+.ipo-calendar .il-halka-arz-sirket a {
+    color: #282828;
+    font: inherit;
+    text-decoration: none;
+}
+.ipo-calendar .il-halka-arz-sirket a:hover { color: #282828; text-decoration: none; }
+.ipo-calendar .ipo-calendar__date {
+    margin: 0 0 15px;
+    padding: 0;
+    color: #212529;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.6;
+}
+.ipo-calendar .ipo-calendar__date time { font: inherit; color: inherit; }
+.ipo-calendar a:focus-visible { outline: 2px solid #1266b5; outline-offset: 3px; }
+/* Pagination mevcut custom-table-feed.css içindeki ortak kuralları kullanır. */
