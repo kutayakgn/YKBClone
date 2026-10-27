@@ -3,17 +3,19 @@
    Ardından açılan paneldeki gerçek düğmeye basıp bir üst klasör seçin. */
 (() => {
   'use strict';
-  if (window.ykbBulletinExport) {
-    console.info('Bülten paneli zaten açık. window.ykbBulletinExport üzerinden durumu inceleyebilirsiniz.');
+  if (window.ykbBulletinExport?.busy) {
+    console.warn('Önce eski işlemi Durdur düğmesiyle durdurun; işlem tamamen bittikten sonra yeni kodu yapıştırın.');
     return;
   }
+  document.getElementById('ykb-bulletin-panel')?.remove();
   const SOURCE = 'https://www.yapikredi.com.tr/yapi-kredi-blue-class/baska-turlu-bir-yatirim-mumkun-mu';
   const ENDPOINT = SOURCE + '.aspx/LoadPlatinumMarketReleases';
   const START = '1964-01-01', END = '2028-12-31';
-  const DELAY = 250, TIMEOUT = 60000, RETRIES = 3, MAX_FILE = 100 * 1024 * 1024;
+  const DOWNLOAD_CONCURRENCY = 4; // Aynı anda doğrulanacak/indirilecek en fazla dosya sayısı.
+  const DELAY = 100, TIMEOUT = 60000, RETRIES = 3, MAX_FILE = 100 * 1024 * 1024;
   const encoder = new TextEncoder(), decoder = new TextDecoder();
   const api = window.ykbBulletinExport = {
-    busy: false, manifest: null, errors: null,
+    version: 3, busy: false, manifest: null, errors: null,
     progress: { stage: 'ready', message: '', page: 0, totalPages: 0, index: 0, total: 0 },
     start, stop,
   };
@@ -59,6 +61,8 @@
     const error = environmentError();
     if (error) { update('error', error); return null; }
     api.busy = true;
+    api.manifest = null;
+    api.errors = null;
     interrupted = false;
     aborter = new AbortController();
     startButton.disabled = true;
@@ -71,9 +75,9 @@
       const parent = await picker;
       pickerCompleted = true;
       if (interrupted) { update('stopped', 'İşlem durduruldu.'); return null; }
-      const directory = await parent.getDirectoryHandle('ykb-piyasa-bultenleri', { create: true });
+      const directory = parent.name === 'ykb-piyasa-bultenleri' ? parent : await parent.getDirectoryHandle('ykb-piyasa-bultenleri', { create: true });
       manifest = await exportArchive(directory, aborter.signal);
-      const counts = `${manifest.downloadedCount} başarılı, ${manifest.failedCount} hatalı, ${manifest.pendingCount} bekleyen.`;
+      const counts = `${manifest.downloadedCount} başarılı (${manifest.reusedCount} mevcut dosya), ${manifest.failedCount} hatalı, ${manifest.pendingCount} bekleyen.`;
       update(interrupted ? 'stopped' : manifest.listingComplete && !manifest.failedCount && !manifest.pendingCount ? 'complete' : 'incomplete',
         `${interrupted ? 'Durduruldu.' : 'İşlem tamamlandı.'} ${counts}\nListe tam: ${manifest.listingComplete ? 'evet' : 'hayır'}.\nAyrıntılar: reports.json ve errors.json. Hatalar için aynı klasörü seçerek tekrar çalıştırın.`);
       console.info('Yapı Kredi bülten sonucu:', manifest, api.errors);
@@ -204,9 +208,27 @@
       signal.addEventListener('abort', cancel, { once: true });
     });
   }
+  async function waitForConnection(signal) {
+    if (window.navigator?.onLine !== false) return;
+    if (signal.aborted) throw interruptedError();
+    update('waiting', 'Bağlantı bekleniyor… Bağlantı gelince veya 5 saniye içinde yeniden denenir.');
+    // onLine is only a hint (VPN/LAN can misreport it). Periodically probe the real request too.
+    await new Promise((resolve, reject) => {
+      const cleanup = () => { clearTimeout(timer); window.removeEventListener('online', connected); signal.removeEventListener('abort', cancel); };
+      const connected = () => { cleanup(); resolve(); };
+      const cancel = () => { cleanup(); reject(interruptedError()); };
+      const timer = setTimeout(connected, 5000);
+      window.addEventListener('online', connected, { once: true });
+      signal.addEventListener('abort', cancel, { once: true });
+    });
+  }
   async function fetchBytes(url, init, limit, signal) {
-    for (let attempt = 1; ; attempt++) {
+    let attempt = 0;
+    for (;;) {
       if (signal.aborted) throw interruptedError();
+      await waitForConnection(signal);
+      if (signal.aborted) throw interruptedError();
+      attempt++;
       const request = new AbortController();
       const cancel = () => request.abort();
       signal.addEventListener('abort', cancel, { once: true });
@@ -245,7 +267,10 @@
         failure = error;
         if (request.signal.aborted) failure = new Error(`İstek ${TIMEOUT} ms içinde tamamlanmadı: ${url}`);
         failure.attempts = attempt;
-        if (failure.retryable === false || attempt > RETRIES) throw failure;
+        if (failure.retryable === false) throw failure;
+        // Keep waiting during an explicitly detected outage. Online network/CORS failures remain bounded.
+        if (window.navigator?.onLine === false && failure.retryable === undefined) attempt--;
+        else if (attempt > RETRIES) throw failure;
       } finally { clearTimeout(timer); signal.removeEventListener('abort', cancel); }
       console.warn(`Yeniden deneme ${attempt}/${RETRIES}: ${failure.message}`);
       await sleep(Math.max(Math.min(60000, failure.retryAfter || 0), Math.min(10000, 1000 * 2 ** (attempt - 1))), signal);
@@ -257,71 +282,57 @@
     try { await writable.write(contents); await writable.close(); }
     catch (error) { await writable.abort().catch(() => {}); throw error; }
   }
-  const writeJson = (directory, name, value) => writeFile(directory, name, JSON.stringify(value, null, 2) + '\n');
-  async function readJson(directory, name) {
-    let handle;
-    try { handle = await directory.getFileHandle(name); }
-    catch (error) { if (error.name === 'NotFoundError') return null; throw error; }
-    try {
-      const value = JSON.parse(await (await handle.getFile()).text());
-      if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error('JSON kökü bir nesne olmalı.');
-      return value;
-    }
-    catch (error) { throw new Error(`${name} okunamadı/geçersiz. Dosya üzerine yazılmadı: ${error.message}`); }
-  }
-  function priorRecords(manifests) {
-    const cache = new Map();
-    for (const manifest of manifests) {
-      if (!manifest) continue;
-      if (manifest.schemaVersion !== 1 || !Array.isArray(manifest.records)) throw new Error('Mevcut JSON şeması geçersiz; üzerine yazılmadı.');
-      for (const record of manifest.records) {
-        if (!record || typeof record.date !== 'string' || typeof record.bulletinType !== 'string' || typeof record.sourceUrl !== 'string' ||
-          !record.bulletinType.trim() || !['pending', 'downloaded', 'failed'].includes(record.status) || typeof record.fileName !== 'string' ||
-          (record.fileName && !safeName(record.fileName)) || !Number.isSafeInteger(record.sourcePage) || record.sourcePage < 1 ||
-          !(record.sha256 === null || /^[a-f0-9]{64}$/.test(record.sha256)) ||
-          !(record.byteLength === null || (Number.isSafeInteger(record.byteLength) && record.byteLength > 0 && record.byteLength <= MAX_FILE)) ||
-          !(record.error === null || typeof record.error === 'string')) throw new Error('Mevcut JSON içinde geçersiz kayıt var; üzerine yazılmadı.');
-        validDate(record.date);
-        const source = new URL(record.sourceUrl);
-        if (!['http:', 'https:'].includes(source.protocol) || source.username || source.password ||
-          (record.status === 'downloaded' && (!record.fileName || !record.sha256 || !record.byteLength))) throw new Error('Mevcut JSON içinde geçersiz dosya bilgisi var; üzerine yazılmadı.');
-        const key = identity(record), previous = cache.get(key);
-        if (!previous || record.status === 'downloaded' || previous.status !== 'downloaded') cache.set(key, record);
-      }
-    }
-    return cache;
-  }
-  async function existingValid(record, reports) {
-    if (record.status !== 'downloaded' || !safeName(record.fileName) || !/^[a-f0-9]{64}$/.test(record.sha256 || '') ||
-      !Number.isSafeInteger(record.byteLength) || record.byteLength < 1 || record.byteLength > MAX_FILE) return false;
-    let handle;
-    try { handle = await reports.getFileHandle(record.fileName); }
-    catch (error) { if (error.name === 'NotFoundError') return false; throw error; }
-    const file = await handle.getFile();
-    if (file.size !== record.byteLength) return false;
-    const bytes = new Uint8Array(await file.arrayBuffer());
-    try { return record.fileName.endsWith(fileType(bytes)) && await sha256(bytes) === record.sha256; }
-    catch { return false; }
-  }
   async function exportArchive(directory, signal) {
     const reports = await directory.getDirectoryHandle('reports', { create: true });
-    const oldManifest = await readJson(directory, 'reports.json');
-    const oldResume = await readJson(directory, 'reports.resume.json');
-    if (oldManifest && (oldManifest.schemaVersion !== 1 || oldManifest.sourceUrl !== SOURCE || oldManifest.startDate !== START || oldManifest.endDate !== END ||
-      typeof oldManifest.listingComplete !== 'boolean' || !Array.isArray(oldManifest.records) || oldManifest.totalRecords !== oldManifest.records.length ||
-      !Array.isArray(oldManifest.listingErrors))) throw new Error('reports.json şeması/kaynağı/tarih aralığı geçersiz; üzerine yazılmadı.');
-    if (!oldManifest && !oldResume) {
-      for await (const entry of reports.values()) {
-        if (entry.kind === 'file') throw new Error('reports klasöründe dosyalar var fakat eşleştirme JSON dosyaları yok. JSON dosyalarını geri getirin veya boş bir üst klasör seçin.');
-      }
-    }
-    const cache = priorRecords([oldResume, oldManifest]);
-    if (cache.size) await writeJson(directory, 'reports.resume.json', { schemaVersion: 1, records: Array.from(cache.values()) });
     const manifest = api.manifest = {
       schemaVersion: 1, sourceUrl: SOURCE, startDate: START, endDate: END, listingComplete: false,
       totalRecords: 0, records: [], listingErrors: [], totalPages: null, enumeratedPages: 0,
+      warnings: [], reusedCount: 0, downloadedNewCount: 0,
     };
-    async function save() {
+    function warn(message) {
+      if (!manifest.warnings.includes(message)) { manifest.warnings.push(message); console.warn(message); }
+    }
+    const files = new Map(), cache = new Map(), cachedOwners = new Map(), claimed = new Map();
+    for await (const handle of reports.values()) {
+      if (signal.aborted) throw interruptedError();
+      if (handle.kind === 'file' && safeName(handle.name)) files.set(handle.name, handle);
+    }
+    async function readCache(name) {
+      try {
+        const handle = await directory.getFileHandle(name);
+        const value = JSON.parse(await (await handle.getFile()).text());
+        if (!value || value.schemaVersion !== 1 || !Array.isArray(value.records)) throw new Error('şema geçersiz');
+        for (const record of value.records) {
+          try {
+            if (!record || typeof record.bulletinType !== 'string' || !record.bulletinType.trim() || typeof record.sourceUrl !== 'string') throw new Error('kimlik eksik');
+            validDate(record.date);
+            const url = new URL(record.sourceUrl);
+            if (!['http:', 'https:'].includes(url.protocol) || url.username || url.password || !safeName(record.fileName)) throw new Error('dosya adı/URL geçersiz');
+            const key = identity(record), suffix = '-' + (await sha256(key)).slice(0, 12);
+            if (!record.fileName.endsWith(suffix + '.pdf') && !record.fileName.endsWith(suffix + '.docx')) throw new Error('dosya adı kayıt kimliğiyle eşleşmiyor');
+            const trusted = record.status === 'downloaded' && /^[a-f0-9]{64}$/.test(record.sha256 || '') &&
+              Number.isSafeInteger(record.byteLength) && record.byteLength > 0 && record.byteLength <= MAX_FILE;
+            const entry = { date: record.date, bulletinType: record.bulletinType, sourceUrl: record.sourceUrl,
+              sourcePage: Number.isSafeInteger(record.sourcePage) && record.sourcePage > 0 ? record.sourcePage : 1,
+              fileName: record.fileName, status: trusted ? 'downloaded' : 'pending',
+              sha256: trusted ? record.sha256 : null, byteLength: trusted ? record.byteLength : null, error: null };
+            const previous = cache.get(key) || [];
+            if (!previous.some(item => item.fileName === entry.fileName && item.sha256 === entry.sha256 && item.byteLength === entry.byteLength)) previous.push(entry);
+            cache.set(key, previous);
+            if (!cachedOwners.has(entry.fileName)) cachedOwners.set(entry.fileName, key);
+            else if (cachedOwners.get(entry.fileName) !== key) { cachedOwners.set(entry.fileName, null); warn('Önbellekte dosya adı çakışması yok sayıldı: ' + entry.fileName); }
+          } catch (error) { warn(`${name}: geçersiz kayıt yok sayıldı (${error.message}). Mevcut dosyalar yine denetlenecek.`); }
+        }
+      } catch (error) {
+        if (error.name !== 'NotFoundError') warn(`${name} okunamadı/geçersiz; kaynak liste ve mevcut dosyalardan yeniden oluşturuluyor: ${error.message}`);
+      }
+    }
+    await readCache('reports.resume.json');
+    await readCache('reports.json');
+
+    // A single writer queue owns ALL JSON files. Capture strings now, not when a queued write runs.
+    let writeQueue = Promise.resolve(), persistenceError = null, checkpointTimer = null, dirty = 0;
+    function snapshot() {
       manifest.totalRecords = manifest.records.length;
       manifest.downloadedCount = manifest.records.filter(record => record.status === 'downloaded').length;
       manifest.failedCount = manifest.records.filter(record => record.status === 'failed').length;
@@ -329,25 +340,83 @@
       manifest.generatedAt = new Date().toISOString();
       api.errors = {
         generatedAt: manifest.generatedAt, listingComplete: manifest.listingComplete, listingErrors: manifest.listingErrors,
+        warnings: manifest.warnings,
         downloadErrors: manifest.records.filter(record => record.status === 'failed').map(({ date, bulletinType, sourceUrl, sourcePage, fileName, error }) => ({ date, bulletinType, sourceUrl, sourcePage, fileName, error })),
       };
-      await writeJson(directory, 'reports.json', manifest);
-      await writeJson(directory, 'errors.json', api.errors);
+      const stringify = value => JSON.stringify(value, null, 2) + '\n';
+      return [
+        ['reports.resume.json', stringify({ schemaVersion: 1, records: Array.from(cache.values()).flat() })],
+        ['reports.json', stringify(manifest)], ['errors.json', stringify(api.errors)],
+      ];
+    }
+    function enqueueSnapshot() {
+      const contents = snapshot();
+      writeQueue = writeQueue.then(async () => {
+        if (persistenceError) return;
+        for (const [name, text] of contents) await writeFile(directory, name, text);
+      }).catch(error => {
+        persistenceError ||= error;
+        aborter?.abort(); // Stop in-flight requests immediately; workers are still awaited below.
+      });
+      return writeQueue.then(() => { if (persistenceError) throw persistenceError; });
+    }
+    function checkpoint(force = false) {
+      if (persistenceError) return Promise.reject(persistenceError);
+      if (force || ++dirty >= 10) {
+        clearTimeout(checkpointTimer); checkpointTimer = null; dirty = 0;
+        return enqueueSnapshot();
+      }
+      if (checkpointTimer === null) checkpointTimer = setTimeout(() => {
+        checkpointTimer = null; dirty = 0;
+        enqueueSnapshot().catch(() => {});
+      }, 1000);
+      return Promise.resolve();
     }
     async function getPage(pageIndex) {
       const bytes = await fetchBytes(ENDPOINT, { method: 'POST', headers: { 'Content-Type': 'application/json; charset=utf-8', Accept: 'application/json' },
         body: JSON.stringify({ pageIndex, dateFrom: START + 'T00:00:00+03:00', dateTo: '2029-01-01T00:00:00+03:00', type: 'Any' }) }, 8 * 1024 * 1024, signal);
       return parsePage(JSON.parse(decoder.decode(bytes).replace(/^\uFEFF/, '')), pageIndex);
     }
-    const claimed = new Map();
     function claim(name, key) {
       if (!safeName(name)) throw new Error('Güvensiz dosya adı: ' + name);
       if (claimed.has(name) && claimed.get(name) !== key) throw new Error('Dosya adı çakışması; üzerine yazılmadı: ' + name);
       claimed.set(name, key);
     }
-    let currentPage = 1;
+    async function reuse(record) {
+      const key = identity(record), previous = cache.get(key) || [];
+      const names = new Set();
+      // Prefer previously verified metadata, then reconstruct BOTH possible deterministic filenames.
+      for (const item of previous) if (cachedOwners.get(item.fileName) === key) names.add(item.fileName);
+      names.add(await fileName(record, '.pdf'));
+      names.add(await fileName(record, '.docx'));
+      for (const name of names) {
+        claim(name, key);
+        const handle = files.get(name);
+        if (!handle) continue;
+        let file;
+        try { file = await handle.getFile(); }
+        catch (error) { if (error.name === 'NotFoundError') continue; throw error; }
+        if (file.size < 1 || file.size > MAX_FILE) { warn('Mevcut dosya boyutu geçersiz; yeniden indirilecek: ' + name); continue; }
+        const bytes = new Uint8Array(await file.arrayBuffer());
+        let extension;
+        try { extension = fileType(bytes); }
+        catch (error) { warn(`Mevcut dosya doğrulanamadı: ${name} (${error.message})`); continue; }
+        if (!name.endsWith(extension)) { warn('Mevcut dosya türü/uzantısı uyuşmuyor: ' + name); continue; }
+        const hash = await sha256(bytes);
+        const known = previous.filter(item => item.fileName === name && item.sha256);
+        const hashes = new Set(known.map(item => item.sha256)), sizes = new Set(known.map(item => item.byteLength));
+        if (hashes.size > 1 || sizes.size > 1) warn('Çelişkili önbellek bilgisi yok sayıldı; dosya içeriği denetlendi: ' + name);
+        else if (known.length && (!hashes.has(hash) || !sizes.has(file.size))) { warn('Mevcut dosyanın SHA-256/boyutu değişmiş; yeniden indirilecek: ' + name); continue; }
+        Object.assign(record, { fileName: name, sha256: hash, byteLength: bytes.length, status: 'downloaded', error: null });
+        cache.set(key, [{ ...record }]);
+        manifest.reusedCount++;
+        return true;
+      }
+      return false;
+    }
+    let currentPage = 1, fatal = null, workers = [];
     try {
-      await save();
+      await checkpoint(true);
       const pages = new Set(), keys = new Set();
       let first;
       try {
@@ -359,18 +428,15 @@
           for (const record of page.records) {
             const key = identity(record);
             if (keys.has(key)) throw new Error(`Yinelenen kayıt: ${record.sourceUrl}. Liste değişmiş olabilir; tekrar çalıştırın.`);
-            const previous = cache.get(key);
-            if (previous?.fileName) claim(previous.fileName, key);
           }
           pages.add(page.fingerprint);
           for (const record of page.records) {
-            const key = identity(record), previous = cache.get(key);
+            const key = identity(record);
             keys.add(key);
-            manifest.records.push({ ...record, fileName: previous?.fileName || '', status: previous?.status === 'downloaded' ? 'downloaded' : 'pending',
-              sha256: previous?.sha256 ?? null, byteLength: previous?.byteLength ?? null, error: null });
+            manifest.records.push({ ...record, fileName: '', status: 'pending', sha256: null, byteLength: null, error: null });
           }
           manifest.enumeratedPages = currentPage;
-          await save();
+          await checkpoint(true);
           update('listing', `Liste ${currentPage}/${manifest.totalPages}: ${manifest.records.length} rapor.`, { page: currentPage, totalPages: manifest.totalPages, total: manifest.records.length });
           if (currentPage === manifest.totalPages) break;
           await sleep(DELAY, signal);
@@ -383,37 +449,59 @@
         manifest.listingErrors.push({ pageIndex: currentPage, error: error.message, attempts: error.attempts ?? null });
         console.error('Listeleme hatası:', error);
       }
-      await save();
+      await checkpoint(true);
       if (!signal.aborted) {
-        for (let index = 0; index < manifest.records.length; index++) {
-          if (signal.aborted) break;
-          const record = manifest.records[index];
-          update('downloading', `Dosya ${index + 1}/${manifest.records.length}\n${record.date} · ${record.bulletinType}`, { index: index + 1, total: manifest.records.length });
-          try {
-            if (await existingValid(record, reports)) continue;
-            record.status = 'pending'; record.sha256 = null; record.byteLength = null;
-            await sleep(DELAY, signal);
-            const bytes = await fetchBytes(record.sourceUrl, { method: 'GET' }, MAX_FILE, signal);
-            const extension = fileType(bytes);
-            const name = safeName(record.fileName) && record.fileName.endsWith(extension) ? record.fileName : await fileName(record, extension);
-            claim(name, identity(record));
-            const hash = await sha256(bytes);
-            await writeFile(reports, name, bytes);
-            record.fileName = name; record.sha256 = hash; record.byteLength = bytes.length;
-            record.status = 'downloaded'; record.error = null;
-          } catch (error) {
-            record.status = 'failed'; record.sha256 = null; record.byteLength = null;
-            record.error = error.message + (error.attempts ? ` (deneme: ${error.attempts})` : '');
-            console.error('İndirilemedi:', record.sourceUrl, error);
+        let next = 0, completed = 0;
+        async function worker() {
+          while (!signal.aborted) {
+            const index = next++;
+            if (index >= manifest.records.length) return;
+            const record = manifest.records[index];
+            try {
+              if (!await reuse(record)) {
+                if (signal.aborted) throw interruptedError();
+                const bytes = await fetchBytes(record.sourceUrl, { method: 'GET' }, MAX_FILE, signal);
+                const extension = fileType(bytes);
+                const name = await fileName(record, extension);
+                claim(name, identity(record));
+                const hash = await sha256(bytes);
+                await writeFile(reports, name, bytes);
+                record.fileName = name; record.sha256 = hash; record.byteLength = bytes.length;
+                record.status = 'downloaded'; record.error = null;
+                cache.set(identity(record), [{ ...record }]);
+                manifest.downloadedNewCount++;
+              }
+            } catch (error) {
+              record.status = 'failed'; record.sha256 = null; record.byteLength = null;
+              record.error = error.message + (error.attempts ? ` (deneme: ${error.attempts})` : '');
+              console.error('İndirilemedi:', record.sourceUrl, error);
+            }
+            completed++;
+            update(signal.aborted ? 'stopping' : 'downloading', `${completed}/${manifest.records.length} dosya tamamlandı; ${manifest.reusedCount} mevcut dosya kullanıldı.\n${record.date} · ${record.bulletinType}`,
+              { index: completed, completed, total: manifest.records.length, reusedCount: manifest.reusedCount, downloadedNewCount: manifest.downloadedNewCount });
+            await checkpoint();
           }
-          await save();
-          if (signal.aborted) break;
         }
+        workers = Array.from({ length: Math.min(DOWNLOAD_CONCURRENCY, manifest.records.length) }, () => worker());
+        const settled = await Promise.allSettled(workers);
+        const rejected = settled.find(result => result.status === 'rejected');
+        if (rejected) throw rejected.reason;
       }
+    } catch (error) {
+      fatal = error;
+      aborter?.abort();
     } finally {
+      // No request/writer is left running after start() returns, including a disk/checkpoint failure.
+      await Promise.allSettled(workers);
+      clearTimeout(checkpointTimer); checkpointTimer = null;
       if (interrupted) manifest.interrupted = true;
-      await save();
+      if (!persistenceError) {
+        try { await checkpoint(true); } catch (error) { fatal ||= error; }
+      }
+      await writeQueue;
     }
+    if (persistenceError) throw new Error('JSON kaydedilemedi; çalışan istekler durduruldu. Mevcut raporlar sonraki çalıştırmada tekrar bulunabilir: ' + persistenceError.message);
+    if (fatal) throw fatal;
     return manifest;
   }
 })();

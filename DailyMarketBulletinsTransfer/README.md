@@ -20,9 +20,19 @@ Filtre **01.01.1964–31.12.2028**, iki gün dahil. Getir düğmesinin `baska-tu
 
 Sayfa/kayıt sayısı sabitlenmez. HTML pagination'ın son sayfasına kadar taranır. Tekrar dönen sayfa, eksik satır, pagination değişimi ve servis hataları raporlanır. Tarama sonunda ilk sayfa tekrar kontrol edilir; kaynakta eşzamanlı bütün değişikliklerin tespit edilmesi garanti edilmez.
 
-Dosyalar içerikten PDF/DOCX olarak tanınır. Dosya adı ASCII karakterli, **uzantı dahil en fazla 50 karakterli** olur. Tarih ve deterministik hash eki farklı kayıtların çakışmasını önler. Bülten tipinin özgün Türkçe metni JSON'da korunur. Ağ hataları/429/geçici sunucu hataları yeniden denenir. Tek dosyanın hatası diğer indirmeleri durdurmaz. JSON her sayfa/dosyadan sonra güncellenir.
+Dosyalar içerikten PDF/DOCX olarak tanınır. Dosya adı ASCII karakterli, **uzantı dahil en fazla 50 karakterli** olur. Tarih ve deterministik hash eki farklı kayıtların çakışmasını önler. Bülten tipinin özgün Türkçe metni JSON'da korunur. Ağ hataları/429/geçici sunucu hataları yeniden denenir. Tek dosyanın hatası diğer indirmeleri durdurmaz. İlerleme düzenli aralıklarla JSON'a kaydedilir.
 
-Devam etmek için düğmeye tekrar basıp **aynı üst klasörü** seçin. Sayfa yenilendiyse scripti tekrar yapıştırın. Sağlam dosyalar boyut, SHA-256 ve içerik türüyle doğrulanıp atlanır; eksik/bozuk/başarısız olanlar yeniden denenir. JSON dosyalarını da saklayın. Sayfayı kapatmak yerine Durdur'u kullanın. Aynı klasöre birden fazla sekmeden aynı anda yazmayın. Konsoldan durum `window.ykbBulletinExport`, durdurma `window.ykbBulletinExport.stop()` ile erişilebilir.
+Her çalıştırmada kaynak liste **1. sayfadan başlayarak yeniden taranır** ve `reports.json` güncel kayıtlardan baştan oluşturulur. Eski JSON'un indirme durumu dosyanın var olduğuna dair kanıt sayılmaz. Diskteki PDF/DOCX dosyaları mevcut, deterministik adlarıyla bulunur; geçerli dosyaların boyutu, içerik türü ve SHA-256 değeri yeni JSON'a yazılır. Yalnızca eksik veya bozuk belgeler indirilir. Dosya adı algoritması önceki sürümle aynıdır.
+
+**Eski JSON eksik, yarım veya bozuk olsa da mevcut sağlam belgeler tekrar indirilmez.** Geçerli eski hash bilgisi varsa içerik değişikliği de kontrol edilir. Eski hash bilgisi yoksa PDF/DOCX yapısı kontrol edilir ve yerel dosyadan yeni hash hesaplanır; bu, kaynak dosyanın sunucuda değişmediğini kanıtlamaz. Bozuk JSON için uyarı verilir ve veri kaynaktan yeniden kurulur. `reports.resume.json` yardımcı önbellektir; devam etmek için zorunlu değildir.
+
+Devam etmek için **aynı üst klasörü** seçin. Doğrudan mevcut `ykb-piyasa-bultenleri` klasörünü seçmek de desteklenir; içine ikinci kez aynı klasör açılmaz. Önceki sürüm çalışıyorsa Durdur'u kullanın veya sayfayı yenileyip yeni scripti yapıştırın. Aynı klasöre birden fazla sekmeden aynı anda yazmayın.
+
+Belgeler varsayılan olarak **4 paralel işçiyle** kontrol edilir/indirilir. İndirmeler sürerken JSON yazıları sırayla ve aralıklı yapılır; bitişte ve durdurmada son durum mutlaka beklenir. Bu, her dosyada büyük JSON'u tekrar yazma yükünü de azaltır. Sayfa/sekme kapanmasından önce dosya kaydedilmiş ama JSON'a henüz işlenmemişse, sonraki çalıştırma bu dosyayı da klasörden bulur. Gerekirse scriptin başındaki `DOWNLOAD_CONCURRENCY` değeri değiştirilebilir; varsayılan 4 ile başlayın. Paneldeki “mevcut dosya” sayısı yeniden indirilmeden kullanılan belgeleri gösterir.
+
+Çevrimdışı bağlantı algılandığında beklenir ve bağlantı yeniden denenir; diğer geçici ağ hataları için yeniden deneme yapılır. Tarayıcının çevrimiçi bilgisi sunucu erişimini garanti etmediğinden gerçek istekler de kontrol edilir. [Navigator.onLine davranışı](https://developer.mozilla.org/en-US/docs/Web/API/Navigator/onLine)
+
+Sayfayı açık tutun; gerekirse Durdur'u kullanın. Konsoldan durum `window.ykbBulletinExport`, durdurma `window.ykbBulletinExport.stop()` ile erişilebilir. Kalıcı HTTP/CORS veya dosya yazma hataları ayrıca raporlanır. Kentico controller'ına yalnızca listelemesi tamamlanmış ve dosya kontrolleri başarılı son `reports.json` dosyasını verin.
 
 # Kentico hedefi: YapikrediMedia/DailyAllMarketBullettins
 
@@ -55,6 +65,8 @@ JSON eşleştirmesi: `records[].date → Date`, `bulletinType → BulletinType`,
 
 Tam listeleme zorunludur. Başarısız indirmeler varsayılan olarak aktarımı durdurur; formda açıkça seçilirse yalnızca bunlar atlanabilir. Başarılı görünen dosya eksik/hash/boyut hatalıysa hiçbir satır yazılmaz. Dosya adları birebir eşleşir. Mevcut **Date + BulletinType + Pdf** tekrar eklenmez; aynı gün/tipte farklı dosyalar korunur. Mevcut satırlar güncellenmez/silinmez. Ekleme tek CMSTransactionScope içindedir; DB hatasında geri alınır. Event handler'larının harici yan etkileri SQL transaction kapsamı dışındadır. Aynı anda tek uygulama sürecinden aktarın.
 
-Controller ASP.NET Core 8 ve küçük CMS API stub'larıyla derlendi; 16 kontrol geçti. Gerçek Kentico DLL/veritabanı bulunmadığından hedef CMS entegrasyonu kendi çözümünüzde doğrulanmalıdır. Tüm arşiv bu bilgisayara indirilmedi.
+Tarayıcı scripti için JSON'suz kurtarma, bozuk JSON, eksik/bozuk dosya, paralel indirme sınırı, JSON yazma sırası, çevrimdışı bekleme ve durdurma dahil 23 otomatik kontrol geçti. Bu testlerde DOM ve dosya seçici benzetimleri kullanıldı; gerçek klasör seçici açılmadı ve tüm arşiv bu bilgisayara indirilmedi.
+
+Controller ASP.NET Core 8 ve küçük CMS API stub'larıyla derlendi; 16 kontrol geçti. Gerçek Kentico DLL/veritabanı bulunmadığından hedef CMS entegrasyonu kendi çözümünüzde doğrulanmalıdır.
 
 Kaynaklar: [Kentico custom table API](https://docs.kentico.com/13api/content-management/custom-table-data), [CMSTransactionScope](https://devnet.kentico.com/docs/13_0/api/html/T_CMS_DataEngine_CMSTransactionScope.htm).
