@@ -1,0 +1,46 @@
+@using System
+@using System.Linq
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@model YkbYapikredi.Application.Components.ChooseCreditComponentModel
+
+@{
+    // A CMS node can be rendered twice on the same page. Each render owns its radio groups.
+    var instanceId = $"choose-credit-{Model.Id:N}-{Guid.NewGuid():N}";
+    var isValid = Model.IsValid;
+    var name = string.IsNullOrWhiteSpace(Model.Name) ? "Kredini Seç" : Model.Name;
+}
+
+<section id="@instanceId" class="choose-credit randevu_al_form"
+         aria-label="@name" data-choose-credit
+         data-start-question="@Model.EffectiveStartQuestionKey"
+         data-required-message="@Model.SelectionRequiredMessage"
+         data-configuration-message="@Model.ConfigurationErrorMessage">
+    @if (isValid)
+    {
+        @foreach (var question in Model.Questions.OrderBy(item => item.Order).ThenBy(item => item.NodeId))
+        {
+            var questionData = new ViewDataDictionary(ViewData)
+            {
+                ["ChooseCreditInstanceId"] = instanceId,
+                ["ChooseCreditIsStart"] = question.QuestionKey == Model.EffectiveStartQuestionKey
+            };
+            @await Html.PartialAsync(question.ViewName, question, questionData)
+        }
+
+        <p id="@(instanceId)-error" class="choose-credit__error"
+           role="alert" data-credit-error hidden></p>
+        <div class="choose-credit__actions">
+            <button type="button" class="choose-credit__continue" data-credit-continue disabled>
+                @Model.ContinueButtonText
+            </button>
+        </div>
+        <noscript>
+            <p class="choose-credit__error">Kredi seçimini kullanmak için tarayıcınızda JavaScript'i etkinleştirin.</p>
+        </noscript>
+    }
+    else
+    {
+        @* Detailed ConfigurationErrors are available to server-side diagnostics, not public HTML. *@
+        <p class="choose-credit__error" role="status">@Model.ConfigurationErrorMessage</p>
+    }
+</section>

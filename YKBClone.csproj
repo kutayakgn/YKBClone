@@ -8,6 +8,9 @@
 
   <!-- Transfer package targets the external Kentico/Clean Architecture solution. -->
   <ItemGroup>
+    <Compile Remove="ChooseCreditComponentTransfer/**/*.cs" />
+    <Content Remove="ChooseCreditComponentTransfer/**" />
+    <None Include="ChooseCreditComponentTransfer/**/*.cs;ChooseCreditComponentTransfer/**/*.cshtml" />
     <Compile Remove="CustomTableFeedTransfer/**/*.cs;cardgroupcomponent/**/*.cs;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cs;VideoCardListOptionsTransfer/**/*.cs;HalkaArzTakvimi/**/*.cs;FundGuide/**/*.cs" />
     <Content Remove="CustomTableFeedTransfer/**;cardgroupcomponent/**;HorecaImportTransfer/**;RichTextModalTransfer/**;ButtonMobileUrlTransfer/**;VideoCardListOptionsTransfer/**;HalkaArzTakvimi/**;FundGuide/**" />
     <Compile Remove="CustomTableFeedTransfer/**/*.cs;cardgroupcomponent/**/*.cs;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cs;DailyMarketBulletinsTransfer/**/*.cs;ContractedProjectsTransfer/**/*.cs;AssetAllocationRecommendationsTransfer/**/*.cs" />

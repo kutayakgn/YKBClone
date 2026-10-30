@@ -1,0 +1,46 @@
+@using System
+@using System.Linq
+@using Microsoft.AspNetCore.Mvc.ViewFeatures
+@model YkbYapikredi.Application.Components.ChooseCreditQuestionModel
+
+@{
+    var instanceId = ViewData["ChooseCreditInstanceId"] as string;
+    var isStart = ViewData["ChooseCreditIsStart"] is bool start && start;
+    var questionId = $"{instanceId}-{Model.QuestionKey}";
+}
+
+@if (!string.IsNullOrEmpty(instanceId))
+{
+    <div class="choose-credit__question" data-credit-question="@Model.QuestionKey" hidden="@(!isStart)">
+        @if (!string.IsNullOrWhiteSpace(Model.Heading) || !string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <div class="choose-credit__intro">
+                @if (!string.IsNullOrWhiteSpace(Model.Heading))
+                {
+                    <h2 class="choose-credit__heading">@Model.Heading</h2>
+                }
+                @if (!string.IsNullOrWhiteSpace(Model.Description))
+                {
+                    <p class="choose-credit__description">@Model.Description</p>
+                }
+            </div>
+        }
+        <fieldset class="choose-credit__fieldset" tabindex="-1" disabled="@(!isStart)"
+                  aria-label="@(string.IsNullOrWhiteSpace(Model.QuestionText) ? Model.Name : null)">
+            @if (!string.IsNullOrWhiteSpace(Model.QuestionText))
+            {
+                <legend class="choose-credit__legend">@Model.QuestionText</legend>
+            }
+            <div class="choose-credit__answers">
+                @foreach (var answer in Model.Answers.OrderBy(item => item.Order).ThenBy(item => item.NodeId))
+                {
+                    var answerData = new ViewDataDictionary(ViewData)
+                    {
+                        ["ChooseCreditQuestionId"] = questionId
+                    };
+                    @await Html.PartialAsync(answer.ViewName, answer, answerData)
+                }
+            </div>
+        </fieldset>
+    </div>
+}

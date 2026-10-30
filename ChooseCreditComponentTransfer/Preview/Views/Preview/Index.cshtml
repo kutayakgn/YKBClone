@@ -1,0 +1,28 @@
+@model ChooseCreditPreview.PreviewPage
+<!doctype html>
+<html lang="tr">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Kredini Seç — taşıma paketi önizlemesi</title>
+    <link rel="stylesheet" href="/css/components/choose-credit.css" />
+    <style>
+        body { margin: 0; background: #fff; font-family: Arial, sans-serif; }
+        main { width: min(100% - 40px, 720px); margin: 24px auto; }
+        h1 { color: #004990; font-size: 26px; font-weight: 400; margin: 0 0 8px; }
+        .preview-second { margin-top: 32px; padding-top: 24px; border-top: 1px solid #ddd; }
+    </style>
+    <script src="/js/components/choose-credit.js" defer></script>
+</head>
+<body>
+    <main data-preview-scenario="@Model.Scenario">
+        <h1>Kredini Seç</h1>
+        @for (var index = 0; index < Model.Components.Count; index++)
+        {
+            <div class="@(index > 0 ? "preview-second" : null)">
+                @await Html.PartialAsync(Model.Components[index].ViewName, Model.Components[index])
+            </div>
+        }
+    </main>
+</body>
+</html>

@@ -1,0 +1,20 @@
+@using System
+@model YkbYapikredi.Application.Components.ChooseCreditAnswerModel
+
+@{
+    var questionId = ViewData["ChooseCreditQuestionId"] as string;
+    var answerId = $"{questionId}-answer-{Model.NodeId}-{Model.Id:N}";
+    // Url.Content resolves ~/ correctly when the application runs under a virtual path.
+    var redirectUrl = string.IsNullOrWhiteSpace(Model.RedirectUrl) ? string.Empty : Url.Content(Model.RedirectUrl);
+}
+
+@if (!string.IsNullOrEmpty(questionId))
+{
+    <div class="choose-credit__answer">
+        <input type="radio" class="choose-credit__radio" id="@answerId" name="@questionId"
+               value="@Model.NodeId" data-credit-answer
+               data-action="@Model.ActionType" data-next-question="@Model.NextQuestionKey"
+               data-redirect-url="@redirectUrl" />
+        <label class="choose-credit__label" for="@answerId">@Model.Text</label>
+    </div>
+}

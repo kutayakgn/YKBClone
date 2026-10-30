@@ -1,0 +1,93 @@
+{
+  "name": "Kredini Seç",
+  "startQuestionKey": "amac",
+  "continueButtonText": "Devam",
+  "selectionRequiredMessage": "Lütfen bir seçenek seçin.",
+  "configurationErrorMessage": "Kredi seçim adımları şu anda görüntülenemiyor.",
+  "questions": [
+    {
+      "name": "Kredi alma amacı",
+      "questionKey": "amac",
+      "heading": "Gelin size en uygun krediyi birlikte belirleyelim!",
+      "description": "Koşullarınıza özel krediyi belirlememiz için birkaç kısa sorumuz olacak.",
+      "questionText": "Krediyi hangi amaçla almayı düşünüyorsunuz?",
+      "answers": [
+        {
+          "text": "Oturma / Yatırım amaçlı ev almak için",
+          "actionType": "question",
+          "nextQuestionKey": "ihtiyac",
+          "redirectUrl": ""
+        },
+        {
+          "text": "Başka bankadaki kredimi getirmek için",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/ailem-sagolsun-mortgage"
+        },
+        {
+          "text": "Mevcut evimin de teminatı ile kredi almak için",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/yuzde-yuz-mortgage"
+        }
+      ]
+    },
+    {
+      "name": "Kredini Seç",
+      "questionKey": "ihtiyac",
+      "heading": "",
+      "description": "",
+      "questionText": "",
+      "answers": [
+        {
+          "text": "Satın almak istediğim konut A ve B sınıfı Enerji Kimlik Belgesine sahip.",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/doga-dostu-mortgage"
+        },
+        {
+          "text": "Ailemin desteği ve mevcut birikimlerini kullanarak ilk defa konut sahibi olacağım.",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/ailem-sagolsun-mortgage"
+        },
+        {
+          "text": "Mevcut evimin satışını beklemeden yeni evimi satın almak istiyorum.",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/ev-degistiren-mortgage"
+        },
+        {
+          "text": "Ev alırken yapacağım harcamaları (tahsis ücreti, DASK, Konut/ Hayat sigortası primleri, ekspertiz ücreti, ipotek tesis ücreti, emlakçı komisyonu vb.) kredilendirmek istiyorum.",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/anahtar-teslim-mortgage"
+        },
+        {
+          "text": "Evi müşterek tapulu olarak satın alıp ve kredi ödemelerimi arkadaş, kardeş, akraba ya da eşimle beraber yapmak istiyorum.",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/ev-beraber-mortgage"
+        },
+        {
+          "text": "Yurtdışında yaşıyorum ve Türkiye’de ev sahibi olmak istiyorum.",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/yurtdisinda-yerlesikler-icin-mortgage"
+        },
+        {
+          "text": "Taksit tutarlarımın zamanla azalmasını istiyorum.",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/esit-anapara-odemeli-mortgage"
+        },
+        {
+          "text": "Taksitlerim tüm vadelerde eşit kalsın istiyorum.",
+          "actionType": "redirect",
+          "nextQuestionKey": "",
+          "redirectUrl": "/kredi/konut-kredisi/sabit-taksitli-mortgage"
+        }
+      ]
+    }
+  ]
+}
