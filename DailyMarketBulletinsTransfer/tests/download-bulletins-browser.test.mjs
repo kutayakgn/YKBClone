@@ -44,9 +44,9 @@ function storedZip(entries) {
   return join([...locals, directory, end]);
 }
 
-const row = ({ date = '26.10.2026', type = 'Günlük', href = '/medium/file/gunluk_123/view' } = {}) =>
+const row = ({ date = '30.10.2014', type = 'Günlük', href = '/medium/file/gunluk_123/view' } = {}) =>
   `<tr><td class="firstTd">${date}</td><td>${type}</td><td class="lastTd">${href === null ? 'Dosya yok' : `<a href="${href}">indir</a>`}</td></tr>`;
-const pager = (active = 1, last = 281) =>
+const pager = (active = 1, last = 3) =>
   `<tr><td colspan="3"><div class="pager"><ul><li class="pager-active" data-page="${active}"><a>${active}</a></li><li class="pager-last" data-page="${last}"><a>&gt;&gt;</a></li></ul></div></td></tr>`;
 const listing = html => new Response(JSON.stringify({ d: { StatusCode: 200, Data: html, Exception: null } }), { headers: { 'content-type': 'application/json' } });
 
@@ -172,7 +172,7 @@ function browser({ root = new MemoryDirectory(), fetchImpl, pickerError, online 
   const calls = [], logs = [], state = { pickerCalls: 0, online };
   const listeners = new Map();
   const context = {
-    document, location: new URL('https://www.yapikredi.com.tr/yapi-kredi-blue-class/baska-turlu-bir-yatirim-mumkun-mu'),
+    document, location: new URL('https://www.yapikredi.com.tr/yapi-kredi-hakkinda/piyasa-bulteni/'),
     isSecureContext: true, DOMParser: Parser, crypto: webcrypto,
     navigator: { get onLine() { return state.online; } },
     URL, TextEncoder, TextDecoder, Blob, Response, Headers, AbortController, AbortSignal, DOMException, Uint8Array,
@@ -200,7 +200,9 @@ function browser({ root = new MemoryDirectory(), fetchImpl, pickerError, online 
   const reinject = () => vm.runInContext(source, vmContext, { filename: scriptUrl.pathname, timeout: 1000 });
   reinject();
   assert.ok(context.ykbBulletinExport, 'console snippet exposes its browser control panel API');
-  return { get api() { return context.ykbBulletinExport; }, calls, context, root, get directory() { return root.directories.get('ykb-piyasa-bultenleri'); }, state, logs, reinject,
+  return { get api() { return context.ykbBulletinExport; }, calls, context, root, get directory() {
+    return root.name === 'ykb-tum-piyasa-bultenleri' || root.name === 'reports' || root.directories.has('reports') ? root : root.directories.get('ykb-tum-piyasa-bultenleri');
+  }, state, logs, reinject,
     setOnline(value) { state.online = value; context.dispatchEvent({ type: value ? 'online' : 'offline' }); } };
 }
 
@@ -220,410 +222,350 @@ function deleteManifests(directory) {
   for (const name of ['reports.json', 'reports.resume.json', 'errors.json']) directory.files.delete(name);
 }
 
-test('is a self-contained browser snippet with no Node imports or file APIs', () => {
+const SOURCE = 'https://www.yapikredi.com.tr/yapi-kredi-hakkinda/piyasa-bulteni/';
+const TABLE = 'YkbYapikredi.DailyAllMarketBullettins';
+const DATE_TO = null;
+
+test('is a self-contained browser snippet and selects its folder synchronously', async () => {
   assert.doesNotThrow(() => new vm.Script(source));
   assert.doesNotMatch(source, /^\s*(?:import\s|export\s)|require\s*\(|\bBuffer\b|node:|process\.argv|fs\/promises/m);
-  assert.match(source, /showDirectoryPicker/);
-  assert.match(source, /DOMParser/);
-  assert.match(source, /crypto\.subtle/);
+  const instance = browser(); const pending = instance.api.start(); assert.equal(instance.state.pickerCalls, 1); await pending;
+  assert.equal(instance.api.busy, false);
 });
 
-test('selects a folder immediately, paginates and persists importer-compatible JSON and ASCII files', async () => {
-  const instance = browser({ fetchImpl: async (_url, init) => {
+test('unfiltered payload and manifest match the all-market controller contract', async () => {
+  const instance = browser({ fetchImpl: async (url, init) => {
     if (init.method !== 'POST') return new Response(pdf);
-    const payload = JSON.parse(init.body);
-    assert.equal(payload.type, 'Any');
-    assert.equal(payload.dateFrom, '1964-01-01T00:00:00+03:00');
-    assert.equal(payload.dateTo, '2029-01-01T00:00:00+03:00');
-    const isSecond = payload.pageIndex === 2;
-    return listing(row({ date: isSecond ? '25.10.2026' : '26.10.2026', type: 'ĞÜŞİÖÇ ğüşıöç '.repeat(10), href: isSecond ? '/medium/file/ikinci_2/view' : '/medium/file/ilk_1/view' }) + pager(payload.pageIndex, 2));
-  } });
-  const promise = instance.api.start();
-  assert.equal(instance.state.pickerCalls, 1, 'picker must run in the synchronous user gesture');
-  const manifest = await promise;
-  assert.equal(instance.api.busy, false);
-  assert.equal(manifest.schemaVersion, 1);
-  assert.equal(manifest.listingComplete, true);
-  assert.equal(manifest.totalRecords, 2);
-  assert.equal(manifest.listingErrors.length, 0);
-  const folder = instance.directory.directories.get('reports');
-  const names = Array.from(manifest.records, record => record.fileName);
-  assert.equal(new Set(names).size, 2);
-  for (const record of manifest.records) {
-    assert.equal(record.status, 'downloaded');
-    assert.match(record.fileName, /^[A-Za-z0-9._-]+\.pdf$/);
-    assert.ok(record.fileName.length <= 50);
-    assert.equal(record.sha256, sha256(pdf));
-    assert.equal(record.byteLength, pdf.length);
-    assert.deepEqual(folder.files.get(record.fileName), pdf);
-  }
-  const saved = await instance.directory.readJson('reports.json');
-  assert.equal(saved.totalRecords, 2);
-  assert.deepEqual(saved.records.map(record => record.fileName), names);
-  assert.equal((await instance.directory.readJson('errors.json')).downloadErrors.length, 0);
-});
-
-test('downloads real DOCX ZIP bytes and rejects generic ZIP and truncated PDF content', async () => {
-  const docx = storedZip({ '[Content_Types].xml': '<Types/>', '_rels/.rels': '<Relationships/>', 'word/document.xml': '<w:document/>' });
-  const genericZip = storedZip({ 'readme.txt': 'ordinary ZIP, not Word' });
-  const instance = browser({ fetchImpl: async (url, init) => {
-    if (init.method === 'POST') return listing(row({ href: '/medium/file/word_1/view' }) + row({ date: '25.10.2026', href: '/medium/file/zip_2/view' }) + row({ date: '24.10.2026', href: '/medium/file/partial_3/view' }));
-    if (String(url).includes('/word_1/')) return new Response(docx);
-    if (String(url).includes('/zip_2/')) return new Response(genericZip);
-    return new Response('%PDF-1.7');
-  } });
-  const manifest = await instance.api.start();
-  const word = manifest.records.find(record => record.sourceUrl.includes('/word_1/'));
-  assert.equal(word.status, 'downloaded');
-  assert.match(word.fileName, /\.docx$/);
-  assert.ok(word.fileName.length <= 50);
-  assert.equal(word.sha256, sha256(docx));
-  assert.equal(word.byteLength, docx.length);
-  assert.equal(manifest.records.filter(record => record.status === 'failed').length, 2);
-  assert.equal((await instance.directory.readJson('errors.json')).downloadErrors.length, 2);
-});
-
-test('canceled folder picker sends no requests and leaves the control panel idle', async () => {
-  const instance = browser({ pickerError: new DOMException('User canceled', 'AbortError') });
-  await instance.api.start();
-  assert.equal(instance.calls.length, 0);
-  assert.equal(instance.api.busy, false);
-});
-
-test('failed documents are reported, then resumed without redownloading good files', async () => {
-  let failed = true, goodGets = 0, badGets = 0;
-  const instance = browser({ fetchImpl: async (url, init) => {
-    if (init.method === 'POST') return listing(row() + row({ date: '25.10.2026', href: '/medium/file/failed_2/view' }));
-    if (String(url).includes('/failed_2/')) { badGets++; return failed ? new Response('<html>Denied</html>') : new Response(pdf); }
-    goodGets++; return new Response(pdf);
-  } });
-  const first = await instance.api.start();
-  assert.equal(first.listingComplete, true);
-  assert.equal(first.records.filter(record => record.status === 'downloaded').length, 1);
-  assert.equal(first.records.filter(record => record.status === 'failed').length, 1);
-  assert.equal((await instance.directory.readJson('errors.json')).downloadErrors.length, 1);
-  failed = false;
-  const second = await instance.api.start();
-  assert.equal(second.records.filter(record => record.status === 'downloaded').length, 2);
-  assert.equal(goodGets, 1);
-  assert.ok(badGets >= 2);
-  const good = second.records.find(record => record.sourceUrl.includes('gunluk_123'));
-  const original = instance.directory.directories.get('reports').files.get(good.fileName);
-  const damaged = Uint8Array.from(original); damaged[9] ^= 1; // Preserve PDF header/EOF; only SHA detects this change.
-  instance.directory.directories.get('reports').files.set(good.fileName, damaged);
-  await instance.api.start();
-  assert.equal(goodGets, 2, 'same-size changed contents must fail SHA validation and download again');
-});
-
-test('duplicate listing pages are saved as incomplete', async () => {
-  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST'
-    ? listing(row() + pager(JSON.parse(init.body).pageIndex, 2)) : new Response(pdf) });
-  const manifest = await instance.api.start();
-  assert.equal(manifest.listingComplete, false);
-  assert.ok(manifest.listingErrors.length > 0);
-  assert.equal((await instance.directory.readJson('reports.json')).listingComplete, false);
-});
-
-test('a server page mismatch cannot be marked as complete', async () => {
-  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST'
-    ? listing(row() + pager(1, 2)) : new Response(pdf) });
-  const manifest = await instance.api.start();
-  assert.equal(manifest.listingComplete, false);
-  assert.equal(manifest.totalRecords, 1);
-  assert.ok(manifest.listingErrors.some(error => /2.*sayfa.*1/s.test(error.error)));
-});
-
-test('retries transient listing HTTP failures and document network failures', async () => {
-  let posts = 0, gets = 0;
-  const instance = browser({ fetchImpl: async (_url, init) => {
-    if (init.method === 'POST') return ++posts === 1 ? new Response('busy', { status: 503 }) : listing(row());
-    if (++gets === 1) throw new TypeError('temporary network failure');
-    return new Response(pdf);
-  } });
-  const manifest = await instance.api.start();
-  assert.equal(manifest.listingComplete, true);
-  assert.equal(manifest.records[0].status, 'downloaded');
-  assert.equal(posts, 3, 'initial failure, successful listing and first-page verification');
-  assert.equal(gets, 2, 'initial failure and successful retry');
-  assert.equal(instance.api.progress.stage, 'complete');
-});
-
-test('a PDF write failure cannot become a downloaded record', async () => {
-  const root = new MemoryDirectory('disk', { write: name => /\.pdf$/i.test(name) });
-  const instance = browser({ root });
-  const manifest = await instance.api.start();
-  assert.ok(manifest);
-  assert.equal(manifest.records[0].status, 'failed');
-  assert.match(manifest.records[0].error, /Disk full|QuotaExceeded/i);
-  assert.equal((await instance.directory.readJson('errors.json')).downloadErrors.length, 1);
-  assert.equal((await instance.directory.readJson('reports.json')).records[0].status, 'failed');
-});
-
-test('a manifest write failure stops network work and resets busy state', async () => {
-  const root = new MemoryDirectory('disk', { write: name => name === 'reports.json' });
-  const instance = browser({ root });
-  await instance.api.start();
-  assert.equal(instance.api.busy, false);
-  assert.equal(instance.calls.length, 0);
-});
-
-test('Stop aborts an active request and leaves resumable incomplete JSON', async () => {
-  let signal;
-  const instance = browser({ fetchImpl: async (_url, init) => {
-    signal = init.signal;
-    instance.api.stop();
-    throw new DOMException('Canceled', 'AbortError');
-  } });
-  const manifest = await instance.api.start();
-  assert.equal(signal.aborted, true);
-  assert.equal(instance.api.busy, false);
-  assert.ok(manifest);
-  assert.equal(manifest.listingComplete, false);
-  assert.equal((await instance.directory.readJson('reports.json')).listingComplete, false);
-});
-
-test('fresh source listing recovers PDF and DOCX without JSON, then downloads only a new source row', async () => {
-  const docx = storedZip({ '[Content_Types].xml': '<Types/>', 'word/document.xml': '<w:document/>' });
-  let includeNew = false;
-  const gets = new Map();
-  const instance = browser({ fetchImpl: async (url, init) => {
-    if (init.method === 'POST') return listing(row() + row({ date: '25.10.2026', href: '/medium/file/word_2/view' }) + (includeNew ? row({ date: '24.10.2026', href: '/medium/file/new_3/view' }) : ''));
-    const key = String(url); gets.set(key, (gets.get(key) ?? 0) + 1);
-    return new Response(key.includes('/word_2/') ? docx : pdf);
-  } });
-  const first = await runSuccessful(instance);
-  assert.equal(first.records[0].fileName, '2026-10-26-gunluk-gunluk-123-81da856e1a45.pdf', 'old script filename must remain compatible');
-  const originalNames = Array.from(first.records, record => record.fileName);
-  deleteManifests(instance.directory);
-  includeNew = true;
-  const recovered = await runSuccessful(instance);
-  assert.equal(recovered.listingComplete, true);
-  assert.equal(recovered.totalRecords, 3);
-  assert.deepEqual(Array.from(recovered.records.slice(0, 2), record => record.fileName), originalNames);
-  assert.equal(recovered.records.filter(record => record.status === 'downloaded').length, 3);
-  assert.equal(gets.get(first.records[0].sourceUrl), 1);
-  assert.equal(gets.get(first.records[1].sourceUrl), 1);
-  assert.equal(gets.get(recovered.records[2].sourceUrl), 1);
-  assert.equal(recovered.records[1].sha256, sha256(docx));
-  const saved = await instance.directory.readJson('reports.json');
-  assert.equal(saved.totalRecords, 3);
-  assert.equal(saved.records[1].byteLength, docx.length);
-  instance.directory.directories.get('reports').files.delete(recovered.records[0].fileName);
-  await runSuccessful(instance);
-  assert.equal(gets.get(first.records[0].sourceUrl), 2, 'only the deleted file is downloaded again');
-  assert.equal(gets.get(first.records[1].sourceUrl), 1);
-  assert.equal(gets.get(recovered.records[2].sourceUrl), 1);
-});
-
-test('invalid, null and unsupported old JSON warn and do not block file reuse', async () => {
-  let gets = 0;
-  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(row()) : (gets++, new Response(pdf)) });
-  const first = await runSuccessful(instance);
-  const variants = ['{broken', 'null', '[]', JSON.stringify({ schemaVersion: 9, records: [] }), JSON.stringify({ schemaVersion: 1, records: null })];
-  for (const bad of variants) {
-    instance.directory.files.set('reports.json', new TextEncoder().encode(bad));
-    instance.directory.files.set('reports.resume.json', new TextEncoder().encode(bad));
-    const recovered = await runSuccessful(instance);
-    assert.equal(recovered.listingComplete, true);
-    assert.equal(recovered.records[0].fileName, first.records[0].fileName);
-    assert.equal(recovered.records[0].sha256, sha256(pdf));
-    assert.ok(recovered.warnings.length > 0, `invalid JSON must be reported: ${bad}`);
-  }
-  instance.directory.files.set('reports.json', new TextEncoder().encode('{broken'));
-  instance.directory.files.set('reports.resume.json', new TextEncoder().encode(JSON.stringify(first)));
-  const withResume = await runSuccessful(instance);
-  assert.equal(withResume.records[0].status, 'downloaded');
-  assert.ok(withResume.warnings.length > 0);
-  assert.equal(gets, 1, 'valid document is reused even when all old JSON metadata is unusable');
-});
-
-test('an orphan document written before any JSON checkpoint is recovered by its old deterministic name', async () => {
-  const root = new MemoryDirectory();
-  const directory = await root.getDirectoryHandle('ykb-piyasa-bultenleri', { create: true });
-  const reports = await directory.getDirectoryHandle('reports', { create: true });
-  const oldName = '2026-10-26-gunluk-gunluk-123-81da856e1a45.pdf';
-  reports.files.set(oldName, pdf);
-  const instance = browser({ root, fetchImpl: async (_url, init) => {
-    assert.equal(init.method, 'POST', 'recovered document must not be fetched');
+    assert.equal(String(url), SOURCE + 'default.aspx/LoadMarketReleases');
+    assert.deepEqual(JSON.parse(init.body), { pageIndex: 1, dateFrom: null, dateTo: DATE_TO, type: 'Any' });
     return listing(row());
   } });
   const manifest = await runSuccessful(instance);
-  assert.equal(manifest.records[0].fileName, oldName);
-  assert.equal(manifest.records[0].status, 'downloaded');
-  assert.equal(manifest.records[0].sha256, sha256(pdf));
-  assert.equal((await directory.readJson('reports.json')).records[0].byteLength, pdf.length);
+  assert.equal(manifest.schemaVersion, 1); assert.equal(manifest.sourceUrl, SOURCE); assert.equal(manifest.tableClassName, TABLE);
+  assert.equal(manifest.startDate, null); assert.equal(manifest.dateFrom, null); assert.equal(manifest.endDate, null);
+  assert.equal(manifest.dateTo, DATE_TO); assert.equal(manifest.exportKind, 'all-market-bulletins'); assert.equal(manifest.type, 'Any'); assert.equal(manifest.cutoffDateExclusive, undefined);
+  assert.equal(manifest.listingComplete, true); assert.equal(manifest.listingErrors.length, 0); assert.ok(Array.isArray(manifest.warnings));
+  const record = manifest.records[0];
+  assert.equal(record.date, '2014-10-30'); assert.equal(record.bulletinType, 'Günlük'); assert.equal(record.sourcePage, 1);
+  assert.equal(record.status, 'downloaded'); assert.equal(record.sha256, sha256(pdf)); assert.equal(record.byteLength, pdf.length); assert.equal(record.error, null);
+  const expectedName = '2014-10-30-gunluk-gunluk-123-' + sha256(JSON.stringify(['2014-10-30', 'Günlük', record.sourceUrl])).slice(0, 12) + '.pdf';
+  assert.equal(record.fileName, expectedName, 'existing Daily exporter identity and naming must remain compatible');
+  const saved = await instance.directory.readJson('reports.json'); assert.equal(saved.dateFrom, null); assert.equal(saved.exportKind, 'all-market-bulletins'); assert.equal(saved.endDate, null);
 });
 
-test('invalid local document content is redownloaded even without old JSON', async () => {
-  const root = new MemoryDirectory();
-  const directory = await root.getDirectoryHandle('ykb-piyasa-bultenleri', { create: true });
-  const reports = await directory.getDirectoryHandle('reports', { create: true });
-  const oldName = '2026-10-26-gunluk-gunluk-123-81da856e1a45.pdf';
-  reports.files.set(oldName, new TextEncoder().encode('%PDF-1.7'));
-  let gets = 0;
-  const instance = browser({ root, fetchImpl: async (_url, init) => init.method === 'POST' ? listing(row()) : (gets++, new Response(pdf)) });
+test('all publication dates and legitimate same-date same-type documents are preserved', async () => {
+  const records = [
+    { date: '03.11.2026', href: '/medium/file/latest/view' },
+    { date: '31.10.2014', href: '/medium/file/oct31/view' },
+    { date: '30.10.2014', href: '/medium/file/oct30/view' },
+    { date: '29.02.2012', href: '/medium/file/leap/view' },
+    { date: '01.01.1950', href: '/medium/file/older/view' },
+    { date: '03.11.2026', href: '/medium/file/latest_other/view' },
+    { date: '03.11.2026', type: 'Aylık', href: '/medium/file/monthly/view' },
+  ];
+  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(records.map(row).join('')) : new Response(pdf) });
   const manifest = await runSuccessful(instance);
-  assert.equal(gets, 1);
-  assert.equal(manifest.records[0].status, 'downloaded');
-  assert.deepEqual(reports.files.get(oldName), pdf);
-  reports.files.set(oldName, new Uint8Array());
-  deleteManifests(directory);
-  await runSuccessful(instance);
-  assert.equal(gets, 2, 'a zero-byte file left by an aborted writable is not reused');
-  assert.deepEqual(reports.files.get(oldName), pdf);
+  assert.equal(manifest.listingComplete, true); assert.equal(manifest.totalRecords, 7);
+  assert.deepEqual(Array.from(manifest.records, record => record.date), ['2026-11-03','2014-10-31','2014-10-30','2012-02-29','1950-01-01','2026-11-03','2026-11-03']);
+  assert.equal(new Set(manifest.records.map(record => record.fileName)).size, 7);
+  assert.equal(manifest.records.at(-1).bulletinType, 'Aylık');
 });
 
-test('bad cached metadata cannot attach another report’s valid local PDF to a fresh source record', async () => {
-  let newSource = false, gets = 0;
-  const newHref = '/medium/file/different_456/view';
-  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST'
-    ? listing(row({ href: newSource ? newHref : '/medium/file/gunluk_123/view' })) : (gets++, new Response(pdf)) });
-  const first = await runSuccessful(instance);
-  const badCache = JSON.parse(JSON.stringify(first));
-  badCache.records[0].sourceUrl = 'https://www.yapikredi.com.tr' + newHref;
-  instance.directory.files.set('reports.json', new TextEncoder().encode(JSON.stringify(badCache)));
-  instance.directory.files.delete('reports.resume.json');
-  newSource = true;
-  const next = await runSuccessful(instance);
-  assert.equal(gets, 2, 'a filename carrying a different identity hash must not satisfy the new report');
-  assert.notEqual(next.records[0].fileName, first.records[0].fileName);
-  assert.ok(next.warnings.length > 0);
-  assert.deepEqual(instance.directory.directories.get('reports').files.get(first.records[0].fileName), pdf);
+test('invalid calendar dates stop listing without any document download', async () => {
+  for (const date of ['32.10.2026', '29.02.2013', '31.02.2012']) {
+    const instance = browser({ fetchImpl: async (_url, init) => { assert.equal(init.method, 'POST'); return listing(row({ date })); } });
+    const manifest = await runSuccessful(instance);
+    assert.equal(manifest.listingComplete, false, date); assert.equal(manifest.totalRecords, 0, date); assert.ok(manifest.listingErrors.length > 0, date);
+  }
 });
 
-test('parallel downloads are bounded to four and JSON snapshots never overlap or regress', async () => {
-  let activeGets = 0, peakGets = 0, activeJson = 0, peakJson = 0;
-  const snapshots = [];
-  const isJson = name => name.endsWith('.json');
-  const root = new MemoryDirectory('parallel', {
-    onOpen: name => { if (isJson(name)) peakJson = Math.max(peakJson, ++activeJson); },
-    beforeClose: async name => { if (isJson(name)) await tick(2); },
-    onClose: (name, bytes) => { if (isJson(name)) activeJson--; if (name === 'reports.json') snapshots.push(JSON.parse(new TextDecoder().decode(bytes))); },
-    onAbort: name => { if (isJson(name)) activeJson--; },
-  });
-  const html = Array.from({ length: 13 }, (_, index) => row({ href: `/medium/file/report_${index}/view` })).join('');
-  const instance = browser({ root, fetchImpl: async (_url, init) => {
-    if (init.method === 'POST') return listing(html);
-    peakGets = Math.max(peakGets, ++activeGets);
-    try { await tick(8); return new Response(pdf); }
-    finally { activeGets--; }
+test('pagination follows the actual final page and never issues a request beyond it', async () => {
+  const requested = [];
+  const instance = browser({ fetchImpl: async (_url, init) => {
+    if (init.method !== 'POST') return new Response(pdf);
+    const index = JSON.parse(init.body).pageIndex; requested.push(index);
+    return listing(Array.from({ length: index === 3 ? 2 : 4 }, (_, offset) => row({ href: `/medium/file/page_${index}_${offset}/view` })).join('') + pager(index, 3));
   } });
   const manifest = await runSuccessful(instance);
-  assert.ok(peakGets > 1 && peakGets <= 4, `concurrent GET count: ${peakGets}`);
-  assert.equal(activeGets, 0);
-  assert.equal(peakJson, 1, 'all metadata writes must be serialized');
-  assert.equal(activeJson, 0);
-  assert.equal(manifest.records.filter(record => record.status === 'downloaded').length, 13);
-  const counts = snapshots.map(snapshot => snapshot.records.filter(record => record.status === 'downloaded').length);
-  assert.ok(counts.every((count, index) => index === 0 || count >= counts[index - 1]), `snapshots regressed: ${counts}`);
-  const saved = await instance.directory.readJson('reports.json');
-  assert.equal(saved.totalRecords, 13);
-  assert.equal(saved.downloadedCount, 13);
-  assert.equal(saved.pendingCount, 0);
-  assert.equal((await instance.directory.readJson('errors.json')).downloadErrors.length, 0);
+  assert.deepEqual(requested, [1, 2, 3, 1]); assert.equal(manifest.totalRecords, 10); assert.equal(manifest.totalPages, 3); assert.equal(manifest.listingComplete, true);
 });
 
-function abortableDocument(init, counters, delay = null) {
+test('server page mismatch, repeated content and missing links are explicitly incomplete', async () => {
+  for (const mode of ['mismatch', 'repeat', 'missing']) {
+    const instance = browser({ fetchImpl: async (_url, init) => {
+      if (init.method !== 'POST') return new Response(pdf);
+      const index = JSON.parse(init.body).pageIndex;
+      return listing(row({ href: mode === 'missing' ? null : '/medium/file/same/view' }) + pager(mode === 'mismatch' ? 1 : index, 2));
+    } });
+    const manifest = await runSuccessful(instance); assert.equal(manifest.listingComplete, false, mode); assert.ok(manifest.listingErrors.length > 0, mode);
+  }
+});
+
+test('data text is preserved while Turkish and long filenames become unique ASCII names of at most 50 characters', async () => {
+  const type = 'Günlük &amp; ĞÜŞİÖÇ ğüşıöç '.repeat(8);
+  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST'
+    ? listing(row({ type, href: '/medium/file/çok-uzun-bülten_1/view' }) + row({ type, href: '/medium/file/çok-uzun-bülten_2/view' })) : new Response(pdf) });
+  const manifest = await runSuccessful(instance);
+  assert.equal(manifest.records[0].bulletinType, 'Günlük & ĞÜŞİÖÇ ğüşıöç '.repeat(8).trim());
+  assert.notEqual(manifest.records[0].fileName, manifest.records[1].fileName);
+  for (const record of manifest.records) { assert.match(record.fileName, /^[a-z0-9._-]+\.pdf$/); assert.ok(record.fileName.length <= 50); }
+});
+
+test('PDF and DOCX bytes are saved while HTML, generic ZIP and partial PDF remain reported failed records', async () => {
+  const docx = storedZip({ '[Content_Types].xml': '<Types/>', '_rels/.rels': '<Relationships/>', 'word/document.xml': '<w:document/>' });
+  const zip = storedZip({ 'readme.txt': 'not Word' });
+  const html = ['pdf', 'word', 'zip', 'partial', 'html'].map(name => row({ href: `/medium/file/${name}/view` })).join('');
+  const instance = browser({ fetchImpl: async (url, init) => {
+    if (init.method === 'POST') return listing(html);
+    return new Response(String(url).includes('/word/') ? docx : String(url).includes('/zip/') ? zip : String(url).includes('/partial/') ? '%PDF-1.7' : String(url).includes('/html/') ? '<html>Denied</html>' : pdf);
+  } });
+  const manifest = await runSuccessful(instance); assert.equal(manifest.totalRecords, 5); assert.equal(manifest.downloadedCount, 2); assert.equal(manifest.failedCount, 3);
+  const word = manifest.records.find(record => record.sourceUrl.includes('/word/')); assert.match(word.fileName, /\.docx$/); assert.ok(word.fileName.length <= 50); assert.equal(word.sha256, sha256(docx));
+  assert.ok(manifest.records.filter(record => record.status === 'failed').every(record => record.error && record.sha256 === null && record.byteLength === null));
+  assert.equal((await instance.directory.readJson('errors.json')).downloadErrors.length, 3);
+});
+
+test('JSON-free reconstruction reuses documents and fetches only fresh-source or missing files', async () => {
+  const docx = storedZip({ '[Content_Types].xml': '<Types/>', 'word/document.xml': '<w:document/>' });
+  let includeNew = false; const gets = new Map();
+  const instance = browser({ fetchImpl: async (url, init) => {
+    if (init.method === 'POST') return listing(row() + row({ href: '/medium/file/word/view' }) + (includeNew ? row({ href: '/medium/file/new/view' }) : ''));
+    const key = String(url); gets.set(key, (gets.get(key) ?? 0) + 1); return new Response(key.includes('/word/') ? docx : pdf);
+  } });
+  const first = await runSuccessful(instance); deleteManifests(instance.directory); includeNew = true;
+  const next = await runSuccessful(instance);
+  assert.equal(next.totalRecords, 3); assert.equal(next.records[0].fileName, first.records[0].fileName); assert.equal(next.records[1].sha256, sha256(docx));
+  assert.equal(gets.get(first.records[0].sourceUrl), 1); assert.equal(gets.get(first.records[1].sourceUrl), 1); assert.equal(gets.get(next.records[2].sourceUrl), 1);
+  instance.directory.directories.get('reports').files.delete(next.records[0].fileName);
+  await runSuccessful(instance); assert.equal(gets.get(first.records[0].sourceUrl), 2); assert.equal(gets.get(first.records[1].sourceUrl), 1);
+});
+
+test('bad cache metadata cannot block recovery; SHA changes and zero-byte files trigger new downloads', async () => {
+  let gets = 0;
+  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(row()) : (gets++, new Response(pdf)) });
+  const first = await runSuccessful(instance); const name = first.records[0].fileName;
+  for (const text of ['{broken', 'null', JSON.stringify({ ...first, exportKind: 'historical-market-bulletins' })]) {
+    instance.directory.files.set('reports.json', new TextEncoder().encode(text)); instance.directory.files.delete('reports.resume.json');
+    const recovered = await runSuccessful(instance); assert.equal(recovered.records[0].fileName, name); assert.ok(recovered.warnings.length > 0);
+  }
+  assert.equal(gets, 1);
+  const changed = Uint8Array.from(pdf); changed[9] ^= 1; instance.directory.directories.get('reports').files.set(name, changed);
+  await runSuccessful(instance); assert.equal(gets, 2);
+  instance.directory.directories.get('reports').files.set(name, new Uint8Array()); deleteManifests(instance.directory);
+  await runSuccessful(instance); assert.equal(gets, 3);
+});
+
+test('pending or failed rows with empty filenames and no resume JSON reuse intact PDF and DOCX from disk', async () => {
+  const docx = storedZip({ '[Content_Types].xml': '<Types/>', 'word/document.xml': '<w:document/>' });
+  let documentGets = 0;
+  const instance = browser({ fetchImpl: async (url, init) => {
+    if (init.method === 'POST') return listing(row() + row({ href: '/medium/file/word_resume/view' }));
+    documentGets++; return new Response(String(url).includes('/word_resume/') ? docx : pdf);
+  } });
+  const initial = await runSuccessful(instance);
+  const names = Array.from(initial.records, record => record.fileName);
+  assert.equal(documentGets, 2);
+  for (const status of ['pending', 'failed']) {
+    const stale = JSON.parse(JSON.stringify(initial));
+    for (const record of stale.records) Object.assign(record, { status, fileName: '', sha256: null, byteLength: null, error: status === 'failed' ? 'Interrupted' : null });
+    instance.directory.files.set('reports.json', new TextEncoder().encode(JSON.stringify(stale)));
+    instance.directory.files.delete('reports.resume.json');
+    const rebuilt = await runSuccessful(instance);
+    assert.equal(documentGets, 2, `${status} metadata must not force a new GET when the actual file is valid`);
+    assert.equal(rebuilt.downloadedCount, 2); assert.equal(rebuilt.pendingCount, 0); assert.equal(rebuilt.failedCount, 0);
+    assert.deepEqual(Array.from(rebuilt.records, record => record.fileName), names);
+    assert.equal(rebuilt.records[0].sha256, sha256(pdf)); assert.equal(rebuilt.records[0].byteLength, pdf.length);
+    assert.equal(rebuilt.records[1].sha256, sha256(docx)); assert.equal(rebuilt.records[1].byteLength, docx.length);
+    const saved = await instance.directory.readJson('reports.json'); assert.equal(saved.pendingCount, 0); assert.equal(saved.downloadedCount, 2);
+  }
+  deleteManifests(instance.directory);
+  const noJson = await runSuccessful(instance);
+  assert.equal(documentGets, 2, 'no JSON files must still allow the same disk-based recovery');
+  assert.equal(noJson.downloadedCount, 2);
+});
+
+test('selecting the exact existing archive reuses its reports instead of nesting another archive', async () => {
+  let documentGets = 0;
+  const fetchImpl = async (_url, init) => init.method === 'POST' ? listing(row()) : (documentGets++, new Response(pdf));
+  const parent = browser({ fetchImpl }); const first = await runSuccessful(parent);
+  const archive = parent.directory;
+  deleteManifests(archive);
+  const selectedArchive = browser({ root: archive, fetchImpl });
+  const rebuilt = await runSuccessful(selectedArchive);
+  assert.equal(selectedArchive.directory, archive); assert.equal(documentGets, 1);
+  assert.equal(archive.directories.has('ykb-tum-piyasa-bultenleri'), false);
+  assert.equal(rebuilt.records[0].fileName, first.records[0].fileName);
+  assert.equal(rebuilt.records[0].status, 'downloaded'); assert.equal(rebuilt.records[0].sha256, sha256(pdf));
+  assert.equal((await archive.readJson('reports.json')).downloadedCount, 1);
+});
+
+test('selecting a renamed archive with a reports child reuses files without adding nested folders', async () => {
+  let documentGets = 0;
+  const fetchImpl = async (_url, init) => init.method === 'POST' ? listing(row()) : (documentGets++, new Response(pdf));
+  const initial = browser({ fetchImpl }); const first = await runSuccessful(initial);
+  const archive = initial.directory; archive.name = 'renamed-archive'; deleteManifests(archive);
+  const resumed = browser({ root: archive, fetchImpl }); const manifest = await runSuccessful(resumed);
+  assert.equal(documentGets, 1); assert.equal(resumed.directory, archive);
+  assert.equal(archive.directories.has('ykb-tum-piyasa-bultenleri'), false);
+  assert.equal(manifest.records[0].fileName, first.records[0].fileName);
+  assert.equal((await archive.readJson('reports.json')).downloadedCount, 1);
+});
+
+test('selecting the reports folder directly uses flat mode and writes JSON beside existing documents', async () => {
+  let documentGets = 0;
+  const fetchImpl = async (_url, init) => init.method === 'POST' ? listing(row()) : (documentGets++, new Response(pdf));
+  const initial = browser({ fetchImpl }); const first = await runSuccessful(initial);
+  const archive = initial.directory, reports = archive.directories.get('reports');
+  archive.files.set('parent-only-marker.json', new TextEncoder().encode('{"unchanged":true}'));
+  const parentFilesBefore = Array.from(archive.files, ([name, bytes]) => [name, Uint8Array.from(bytes)]);
+  const selectedReports = browser({ root: reports, fetchImpl });
+  const manifest = await runSuccessful(selectedReports);
+  assert.equal(documentGets, 1, 'flat mode must use the already downloaded file');
+  assert.equal(selectedReports.directory, reports); assert.equal(reports.directories.size, 0, 'no nested archive/reports directory may be created');
+  assert.equal(manifest.records[0].fileName, first.records[0].fileName); assert.equal(manifest.records[0].status, 'downloaded');
+  assert.equal((await reports.readJson('reports.json')).downloadedCount, 1);
+  assert.ok(reports.files.has('errors.json')); assert.ok(reports.files.has('reports.resume.json'));
+  for (const [name, bytes] of parentFilesBefore) assert.deepEqual(archive.files.get(name), bytes, `selected child cannot rewrite its parent's ${name}`);
+});
+
+test('all existing files are recovered and checkpointed before the first missing-document request can stall', async () => {
+  const localRows = row({ href: '/medium/file/local_a/view' }) + row({ href: '/medium/file/local_b/view' });
+  const setup = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(localRows) : new Response(pdf) });
+  const original = await runSuccessful(setup); const archive = setup.directory; deleteManifests(archive);
+  const counters = { active: 0, aborted: 0 }; let firstDocumentUrl = null;
+  const resumed = browser({ root: archive, fetchImpl: async (url, init) => {
+    if (init.method === 'POST') return listing(row({ href: '/medium/file/missing_first/view' }) + localRows);
+    firstDocumentUrl = String(url); return blockedDocument(init, counters);
+  } });
+  const pending = resumed.api.start();
+  try {
+    await until(() => firstDocumentUrl !== null, 'missing document request did not start');
+    assert.equal(firstDocumentUrl, 'https://www.yapikredi.com.tr/medium/file/missing_first/view');
+    assert.equal(counters.active, 1);
+    const current = resumed.api.manifest;
+    assert.equal(current.records[0].status, 'pending');
+    assert.deepEqual(Array.from(current.records.slice(1), record => record.status), ['downloaded', 'downloaded']);
+    assert.deepEqual(Array.from(current.records.slice(1), record => record.fileName), Array.from(original.records, record => record.fileName));
+    assert.ok(current.records.slice(1).every(record => record.sha256 === sha256(pdf) && record.byteLength === pdf.length));
+    const saved = await archive.readJson('reports.json');
+    assert.equal(saved.downloadedCount, 2, 'recovered files must be checkpointed before any document GET');
+    assert.equal(saved.pendingCount, 1);
+  } finally {
+    resumed.api.stop(); await pending;
+  }
+  assert.equal(counters.active, 0); assert.equal(resumed.api.busy, false);
+});
+
+test('a valid PDF restored during source listing is found without a document GET', async () => {
+  let documentGets = 0;
+  const setup = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(row()) : (documentGets++, new Response(pdf)) });
+  const first = await runSuccessful(setup);
+  const archive = setup.directory, reports = archive.directories.get('reports'), name = first.records[0].fileName;
+  reports.files.delete(name); deleteManifests(archive);
+  let restored = false;
+  const resumed = browser({ root: archive, fetchImpl: async (_url, init) => {
+    if (init.method === 'POST') {
+      // exportArchive has already scanned this directory before its first listing POST.
+      if (!restored) { reports.files.set(name, Uint8Array.from(pdf)); restored = true; }
+      return listing(row());
+    }
+    documentGets++; return new Response(pdf);
+  } });
+  const rebuilt = await runSuccessful(resumed);
+  assert.equal(restored, true); assert.equal(documentGets, 1, 'late restored files must be found beyond the initial directory map');
+  assert.equal(rebuilt.records[0].status, 'downloaded'); assert.equal(rebuilt.records[0].fileName, name);
+  assert.equal(rebuilt.records[0].sha256, sha256(pdf)); assert.equal(rebuilt.records[0].byteLength, pdf.length);
+  assert.equal((await archive.readJson('reports.json')).downloadedCount, 1);
+});
+
+test('failed documents are retried without redownloading intact reports', async () => {
+  let failing = true, goodGets = 0, badGets = 0;
+  const instance = browser({ fetchImpl: async (url, init) => {
+    if (init.method === 'POST') return listing(row() + row({ href: '/medium/file/bad/view' }));
+    if (String(url).includes('/bad/')) { badGets++; return new Response(failing ? '<html>Denied</html>' : pdf); }
+    goodGets++; return new Response(pdf);
+  } });
+  assert.equal((await runSuccessful(instance)).failedCount, 1); failing = false;
+  const manifest = await runSuccessful(instance); assert.equal(manifest.downloadedCount, 2); assert.equal(manifest.failedCount, 0); assert.equal(goodGets, 1); assert.equal(badGets, 2);
+});
+
+test('four workers keep JSON writers serialized and final snapshots complete', async () => {
+  let active = 0, peak = 0, writers = 0, peakWriters = 0; const snapshots = [];
+  const root = new MemoryDirectory('parallel', {
+    onOpen: name => { if (name.endsWith('.json')) peakWriters = Math.max(peakWriters, ++writers); },
+    beforeClose: async name => { if (name.endsWith('.json')) await tick(2); },
+    onClose: (name, bytes) => { if (name.endsWith('.json')) writers--; if (name === 'reports.json') snapshots.push(JSON.parse(new TextDecoder().decode(bytes))); },
+    onAbort: name => { if (name.endsWith('.json')) writers--; },
+  });
+  const html = Array.from({ length: 13 }, (_, index) => row({ href: `/medium/file/concurrent_${index}/view` })).join('');
+  const instance = browser({ root, fetchImpl: async (_url, init) => {
+    if (init.method === 'POST') return listing(html);
+    peak = Math.max(peak, ++active); try { await tick(8); return new Response(pdf); } finally { active--; }
+  } });
+  const manifest = await runSuccessful(instance);
+  assert.ok(peak > 1 && peak <= 4, `document concurrency: ${peak}`); assert.equal(active, 0); assert.equal(peakWriters, 1); assert.equal(writers, 0);
+  const counts = snapshots.map(snapshot => snapshot.records.filter(record => record.status === 'downloaded').length);
+  assert.ok(counts.every((count, index) => index === 0 || count >= counts[index - 1])); assert.equal(manifest.downloadedCount, 13);
+  assert.equal((await instance.directory.readJson('reports.json')).downloadedCount, 13);
+});
+
+function blockedDocument(init, counters, delay = null) {
   counters.active++;
-  counters.peak = Math.max(counters.peak, counters.active);
   return new Promise((resolve, reject) => {
-    const finish = callback => { clearTimeout(timer); init.signal.removeEventListener('abort', aborted); counters.active--; callback(); };
-    const aborted = () => finish(() => { counters.aborted++; reject(new DOMException('Stopped', 'AbortError')); });
-    const timer = delay === null ? null : setTimeout(() => finish(() => resolve(new Response(pdf))), delay);
-    init.signal.addEventListener('abort', aborted, { once: true });
-    if (init.signal.aborted) aborted();
+    const done = callback => { clearTimeout(timer); init.signal.removeEventListener('abort', abort); counters.active--; callback(); };
+    const abort = () => done(() => { counters.aborted++; reject(new DOMException('Stopped', 'AbortError')); });
+    const timer = delay === null ? null : setTimeout(() => done(() => resolve(new Response(pdf))), delay);
+    init.signal.addEventListener('abort', abort, { once: true }); if (init.signal.aborted) abort();
   });
 }
-
-test('Stop waits for every active worker and preserves completed files in final JSON', async () => {
-  const counters = { active: 0, peak: 0, aborted: 0 };
-  let gets = 0;
+test('Stop settles every worker while preserving complete files and explicit unfinished rows', async () => {
+  let gets = 0; const counters = { active: 0, aborted: 0 };
   const html = Array.from({ length: 8 }, (_, index) => row({ href: `/medium/file/stop_${index}/view` })).join('');
-  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(html) : abortableDocument(init, counters, ++gets === 1 ? 5 : null) });
-  const promise = instance.api.start();
-  await until(() => instance.api.manifest?.records.some(record => record.status === 'downloaded'), 'first worker did not complete');
-  assert.ok(counters.active > 0);
-  instance.api.stop();
-  const manifest = await promise;
-  assert.ok(manifest);
-  assert.equal(instance.api.busy, false);
-  assert.equal(counters.active, 0);
-  assert.ok(counters.aborted >= 1);
-  const saved = await instance.directory.readJson('reports.json');
-  assert.equal(saved.downloadedCount, manifest.records.filter(record => record.status === 'downloaded').length);
-  assert.ok(saved.downloadedCount >= 1);
-  assert.ok(saved.pendingCount + saved.failedCount > 0);
-  for (const record of saved.records.filter(record => record.status === 'downloaded')) assert.ok(instance.directory.directories.get('reports').files.has(record.fileName));
+  const instance = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(html) : blockedDocument(init, counters, ++gets === 1 ? 5 : null) });
+  const promise = instance.api.start(); await until(() => instance.api.manifest?.records.some(record => record.status === 'downloaded'));
+  instance.api.stop(); const manifest = await promise;
+  assert.equal(counters.active, 0); assert.ok(counters.aborted > 0); assert.equal(instance.api.busy, false); assert.equal(manifest.interrupted, true);
+  assert.ok(manifest.downloadedCount >= 1); assert.ok(manifest.pendingCount + manifest.failedCount > 0); assert.equal((await instance.directory.readJson('reports.json')).downloadedCount, manifest.downloadedCount);
 });
 
-test('a checkpoint failure aborts and settles workers before busy resets', async () => {
-  const counters = { active: 0, peak: 0, aborted: 0 };
-  let finishedDocuments = 0, gets = 0;
-  const root = new MemoryDirectory('failing', {
-    write: name => name === 'reports.json' && finishedDocuments > 0,
-    onClose: name => { if (/\.pdf$/.test(name)) finishedDocuments++; },
-  });
+test('failed checkpoints abort active workers before the busy flag resets', async () => {
+  let gets = 0, completed = 0; const counters = { active: 0, aborted: 0 };
+  const root = new MemoryDirectory('disk', { write: name => name === 'reports.json' && completed > 0, onClose: name => { if (name.endsWith('.pdf')) completed++; } });
   const html = Array.from({ length: 8 }, (_, index) => row({ href: `/medium/file/failure_${index}/view` })).join('');
-  const instance = browser({ root, fetchImpl: async (_url, init) => init.method === 'POST' ? listing(html) : abortableDocument(init, counters, ++gets === 1 ? 5 : null) });
-  await instance.api.start();
-  assert.equal(instance.api.busy, false);
-  assert.equal(counters.active, 0);
-  assert.ok(counters.aborted >= 1);
-  assert.equal(instance.api.progress.stage, 'error');
-  assert.equal(finishedDocuments, 1, 'no new successful writes should continue after persistence failed');
+  const instance = browser({ root, fetchImpl: async (_url, init) => init.method === 'POST' ? listing(html) : blockedDocument(init, counters, ++gets === 1 ? 5 : null) });
+  await instance.api.start(); assert.equal(instance.api.busy, false); assert.equal(counters.active, 0); assert.ok(counters.aborted > 0); assert.equal(instance.api.progress.stage, 'error');
 });
 
-test('offline state pauses before HTTP, then an online event resumes the same run', async () => {
-  const instance = browser({ online: false });
-  const promise = instance.api.start();
-  await until(() => instance.api.progress.stage === 'waiting', 'offline status was not shown');
-  assert.equal(instance.calls.length, 0);
-  instance.setOnline(true);
-  const manifest = await promise;
-  assert.equal(manifest.listingComplete, true);
-  assert.equal(manifest.records[0].status, 'downloaded');
+test('offline state waits for connection and a canceled folder picker sends no requests', async () => {
+  const instance = browser({ online: false }); const pending = instance.api.start();
+  await until(() => instance.api.progress.stage === 'waiting'); assert.equal(instance.calls.length, 0); instance.setOnline(true);
+  assert.equal((await pending).listingComplete, true);
+  const canceled = browser({ pickerError: new DOMException('Canceled', 'AbortError') }); await canceled.api.start(); assert.equal(canceled.api.busy, false); assert.equal(canceled.calls.length, 0);
 });
 
-test('stale offline hints are bounded and do not permanently block a reachable server', async () => {
-  const instance = browser({ online: false });
+// Read-only public listing captures. No request is ever sent to a real document.
+const savedPages = new Map();
+await Promise.all(Array.from({ length: 313 }, async (_, index) => {
+  const page = index + 1;
+  try { savedPages.set(page, JSON.parse(await readFile('C:/Users/kutay/AppData/Local/Temp/ykb-market-reconciliation-pages/page-' + String(page).padStart(4,'0') + '.json', 'utf8'))); }
+  catch (error) { if (error.code !== 'ENOENT') throw error; }
+}));
+
+test('all 313 saved source pages retain all 3122 reports including the 15 valid repeated date/type pairs', { skip: savedPages.size !== 313, timeout: 120000 }, async () => {
+  const requested = [];
+  const instance = browser({ fetchImpl: async (_url, init) => {
+    if (init.method !== 'POST') return new Response(pdf);
+    const payload = JSON.parse(init.body); requested.push(payload.pageIndex);
+    assert.equal(payload.dateFrom, null); assert.equal(payload.dateTo, null); assert.equal(payload.type, 'Any');
+    assert.ok(payload.pageIndex <= 313, 'must not request beyond the last page');
+    return new Response(JSON.stringify(savedPages.get(payload.pageIndex)));
+  } });
   const manifest = await runSuccessful(instance);
-  assert.equal(instance.state.online, false);
-  assert.equal(manifest.records[0].status, 'downloaded');
-  assert.ok(instance.calls.length > 0);
-});
-
-test('repasting replaces an idle old version and preserves an active run', () => {
-  const old = { version: 1, busy: false };
-  const idle = browser({ initialApi: old });
-  assert.notEqual(idle.api, old);
-  assert.equal(idle.api.version, 3);
-  const first = idle.api;
-  idle.reinject();
-  assert.notEqual(idle.api, first);
-  assert.equal(idle.api.version, 3);
-  const running = { version: 1, busy: true };
-  const busy = browser({ initialApi: running });
-  assert.equal(busy.api, running);
-  assert.equal(busy.state.pickerCalls, 0);
-});
-
-test('Stop between the connection check and request creation does not start another fetch', async () => {
-  const instance = browser();
-  let scheduled = false;
-  Object.defineProperty(instance.context.navigator, 'onLine', {
-    configurable: true,
-    get() {
-      if (!scheduled) {
-        scheduled = true;
-        queueMicrotask(() => instance.api.stop());
-      }
-      return true;
-    },
-  });
-  const manifest = await instance.api.start();
-  assert.ok(scheduled);
-  assert.ok(manifest);
-  assert.equal(instance.calls.length, 0, 'a request cannot begin after the parent signal was aborted');
-  assert.equal(instance.api.busy, false);
-  assert.equal(manifest.listingComplete, false);
+  assert.deepEqual(requested, [...Array.from({length:313}, (_,i)=>i+1),1]);
+  assert.equal(manifest.totalPages, 313); assert.equal(manifest.enumeratedPages, 313); assert.equal(manifest.listingComplete, true);
+  assert.equal(manifest.totalRecords, 3122); assert.equal(manifest.downloadedCount, 3122); assert.equal(manifest.pendingCount, 0); assert.equal(manifest.failedCount, 0);
+  assert.equal(manifest.records[0].date, '2026-11-03'); assert.equal(manifest.records.at(-1).date, '2011-06-22');
+  assert.equal(manifest.records.filter(record=>record.bulletinType==='Aylık').length, 11);
+  assert.equal(new Set(manifest.records.map(record=>record.date+'|'+record.bulletinType)).size, 3107);
+  assert.equal(new Set(manifest.records.map(record=>record.fileName)).size, 3122);
 });

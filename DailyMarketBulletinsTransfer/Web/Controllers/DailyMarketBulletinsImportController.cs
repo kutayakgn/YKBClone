@@ -33,6 +33,8 @@ namespace YkbYapikredi.Web.Controllers
     public sealed class DailyMarketBulletinsImportController : Controller
     {
         private const string TableClassName = "YkbYapikredi.DailyAllMarketBullettins";
+        private const string SourceUrl = "https://www.yapikredi.com.tr/yapi-kredi-hakkinda/piyasa-bulteni/";
+        private const string ExportKind = "all-market-bulletins";
         private const int MaxUploadBytes = 20 * 1024 * 1024;
         private const int MaxRecords = 20000;
 
@@ -60,12 +62,10 @@ namespace YkbYapikredi.Web.Controllers
         // The host must already serve PDF/DOCX from this directory (IIS/static files).
         private const string MediaVirtualFolder = "/YkbYapikredi/media/YapikrediMedia/GunlukTumPiyasaBultenleri";
 
-        private static readonly DateTime RangeStart = new DateTime(1964, 1, 1);
-        private static readonly DateTime RangeEnd = new DateTime(2028, 12, 31);
         private static readonly Regex SafeName = new Regex(@"\A[A-Za-z0-9][A-Za-z0-9._-]{0,49}\z", RegexOptions.CultureInvariant);
         private static readonly Regex Sha256Pattern = new Regex(@"\A[0-9a-fA-F]{64}\z", RegexOptions.CultureInvariant);
-        // A single local importing process is intentional. Do not run imports on
-        // several application instances at once: this lock is process-local.
+        // Run only one import tool for this custom table at a time. This lock is
+        // local to this controller process; another importer has a separate lock.
         private static readonly object ImportLock = new object();
         private readonly IWebHostEnvironment environment;
         private readonly IAntiforgery antiforgery;
@@ -88,15 +88,17 @@ namespace YkbYapikredi.Web.Controllers
             var paths = InspectMediaFolder();
             var html = "<!doctype html><html lang=\"tr\"><head><meta charset=\"utf-8\">" +
                 "<title>Piyasa bültenleri aktarımı</title></head><body>" +
-                "<h1>Günlük piyasa bültenleri aktarımı</h1>" +
+                "<h1>Tüm piyasa bültenleri aktarımı</h1>" +
                 "<p>Tablo: <code>" + Encode(TableClassName) + "</code></p>" +
+                "<p>Kaynak sayfanın tüm tarihlerdeki tüm bülten tipleri aktarılır. Aynı gün ve tipte farklı PDF/DOCX belgeleri ayrı kayıt olarak korunur.</p>" +
+                "<p>Kaynak: <code>" + Encode(SourceUrl) + "</code></p>" +
                 "<p>Medya URL klasörü: <code>" + Encode(MediaVirtualFolder) + "</code></p>" +
                 MediaPathHtml(paths) +
                 "<p>İndirilen PDF/DOCX dosyalarını yapılandırdığınız fiziksel medya klasörüne " +
                 "önceden kopyalayın. JSON içindeki dosya adlarını değiştirmeyin.</p>" +
                 "<form method=\"post\" enctype=\"multipart/form-data\" action=\"" + Encode(action) + "\">" +
                 "<input type=\"hidden\" name=\"" + Encode(token.FormFieldName) + "\" value=\"" + Encode(token.RequestToken) + "\">" +
-                "<p><label>Manifest JSON (en fazla 20 MB): <input type=\"file\" name=\"json\" accept=\".json,application/json\" required></label></p>" +
+                "<p><label>İndirme çıktısı reports.json (en fazla 20 MB): <input type=\"file\" name=\"json\" accept=\".json,application/json\" required></label></p>" +
                 "<p><label><input type=\"checkbox\" name=\"skipFailed\" value=\"true\">" +
                 "İndirilemeyen kayıtları açıkça atla (bu kayıtlar raporda gösterilir).</label></p>" +
                 "<p><button type=\"submit\" name=\"apply\" value=\"false\">Ön kontrol (veritabanına yazmaz)</button> " +
@@ -123,13 +125,15 @@ namespace YkbYapikredi.Web.Controllers
             try
             {
                 using (var stream = json.OpenReadStream())
+                using (var reader = new StreamReader(stream, new UTF8Encoding(false, true), true))
                 {
-                    manifest = await JsonSerializer.DeserializeAsync<Manifest>(stream,
-                        new JsonSerializerOptions { PropertyNameCaseInsensitive = false, MaxDepth = 32 },
-                        HttpContext.RequestAborted);
+                    var contents = await reader.ReadToEndAsync();
+                    HttpContext.RequestAborted.ThrowIfCancellationRequested();
+                    manifest = JsonSerializer.Deserialize<Manifest>(contents,
+                        new JsonSerializerOptions { PropertyNameCaseInsensitive = false, MaxDepth = 32 });
                 }
             }
-            catch (JsonException error)
+            catch (Exception error) when (error is JsonException || error is DecoderFallbackException)
             {
                 return BadRequest(new { hata = "JSON okunamadı. schemaVersion=1 manifest nesnesi bekleniyor.", detay = error.Message, yolTeshisi = InspectMediaFolder() });
             }
@@ -202,9 +206,13 @@ namespace YkbYapikredi.Web.Controllers
             if (manifest == null) { report.Hatalar.Add("Manifest boş."); return report; }
             report.Toplam = manifest.Records == null ? 0 : manifest.Records.Count;
             if (manifest.SchemaVersion != 1) report.Hatalar.Add("schemaVersion 1 olmalı.");
-            if (!IsHttpUrl(manifest.SourceUrl)) report.Hatalar.Add("sourceUrl geçerli bir HTTP(S) URL olmalı.");
-            if (manifest.StartDate != "1964-01-01" || manifest.EndDate != "2028-12-31")
-                report.Hatalar.Add("Manifest tarih aralığı 1964-01-01 / 2028-12-31 olmalı.");
+            if (manifest.SourceUrl != SourceUrl) report.Hatalar.Add("sourceUrl beklenen piyasa bülteni sayfası olmalı: " + SourceUrl);
+            if (manifest.TableClassName != TableClassName) report.Hatalar.Add("tableClassName " + TableClassName + " olmalı.");
+            if (manifest.ExportKind != ExportKind || manifest.Type != "Any")
+                report.Hatalar.Add("Bu araç yalnız yeni indirme scriptinin tüm raporlar çıktısını kabul eder: exportKind=all-market-bulletins, type=Any.");
+            if (manifest.StartDate.ValueKind != JsonValueKind.Null || manifest.EndDate.ValueKind != JsonValueKind.Null ||
+                manifest.DateFrom.ValueKind != JsonValueKind.Null || manifest.DateTo.ValueKind != JsonValueKind.Null)
+                report.Hatalar.Add("Tarih filtresi olmamalı: startDate, endDate, dateFrom ve dateTo açıkça JSON null olmalı.");
             if (!manifest.ListingComplete) report.Hatalar.Add("Listeleme tamamlanmamış (listingComplete=false). İndirme scriptini yeniden çalıştırın.");
             if (manifest.ListingErrors == null || manifest.ListingErrors.Count != 0)
                 report.Hatalar.Add("listingErrors boş bir dizi olmalı. Listeleme hataları varken aktarım yapılamaz.");
@@ -212,6 +220,8 @@ namespace YkbYapikredi.Web.Controllers
                 report.Hatalar.Add("records 1–20000 kayıt içermeli.");
             if (manifest.Records == null || manifest.TotalRecords != manifest.Records.Count)
                 report.Hatalar.Add("totalRecords, records dizisinin uzunluğuyla aynı olmalı.");
+            if (manifest.Warnings != null)
+                report.Uyarilar.AddRange(manifest.Warnings.Where(value => !string.IsNullOrWhiteSpace(value)).Select(value => "Kaynak: " + value));
             if (report.Hatalar.Count > 0) return report;
 
             var table = DataClassInfoProvider.GetDataClassInfo(TableClassName);
@@ -237,8 +247,8 @@ namespace YkbYapikredi.Web.Controllers
                 if (row == null) { report.Hatalar.Add(label + "null kayıt."); continue; }
                 var before = report.Hatalar.Count;
                 if (!DateTime.TryParseExact(row.Date, "yyyy-MM-dd", CultureInfo.InvariantCulture,
-                    DateTimeStyles.None, out var date) || date < RangeStart || date > RangeEnd)
-                    report.Hatalar.Add(label + "date geçersiz veya 1964–2028 aralığı dışında.");
+                    DateTimeStyles.None, out var date))
+                    report.Hatalar.Add(label + "date geçerli yyyy-MM-dd olmalı.");
                 var bulletinType = Clean(row.BulletinType);
                 if (bulletinType.Length == 0 || bulletinType.Any(char.IsControl))
                     report.Hatalar.Add(label + "bulletinType boş olamaz ve kontrol karakteri içeremez.");
@@ -520,12 +530,18 @@ namespace YkbYapikredi.Web.Controllers
         {
             [JsonPropertyName("schemaVersion")] public int SchemaVersion { get; set; }
             [JsonPropertyName("sourceUrl")] public string SourceUrl { get; set; }
-            [JsonPropertyName("startDate")] public string StartDate { get; set; }
-            [JsonPropertyName("endDate")] public string EndDate { get; set; }
+            [JsonPropertyName("tableClassName")] public string TableClassName { get; set; }
+            [JsonPropertyName("startDate")] public JsonElement StartDate { get; set; }
+            [JsonPropertyName("endDate")] public JsonElement EndDate { get; set; }
+            [JsonPropertyName("dateFrom")] public JsonElement DateFrom { get; set; }
+            [JsonPropertyName("dateTo")] public JsonElement DateTo { get; set; }
+            [JsonPropertyName("exportKind")] public string ExportKind { get; set; }
+            [JsonPropertyName("type")] public string Type { get; set; }
             [JsonPropertyName("listingComplete")] public bool ListingComplete { get; set; }
             [JsonPropertyName("totalRecords")] public int TotalRecords { get; set; }
             [JsonPropertyName("records")] public List<ManifestRecord> Records { get; set; }
             [JsonPropertyName("listingErrors")] public List<JsonElement> ListingErrors { get; set; }
+            [JsonPropertyName("warnings")] public List<string> Warnings { get; set; }
         }
         public sealed class ManifestRecord
         {
