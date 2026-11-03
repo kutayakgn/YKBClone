@@ -63,4 +63,4 @@ Bu çalışma sırasında gerçek Kentico tablosunda veya mevcut medya klasörü
 
 Controller ASP.NET Core 8 ve CMS API benzetimleriyle derlendi; 40 davranış kontrolü geçti. Gerçek beş girdinin 3.516 satırıyla yapılan salt okunur plan testi 443 aday ve 3.073 korunacak satır verdi. Dosya taşıma, ortak dosya koruması, eski/değişmiş planın reddi ve hata sonrası kurtarma testleri yalnız test klasöründeki sentetik dosyalarla yapıldı. Gerçek Kentico DLL/veritabanı bu çalışma ortamında bulunmadığından hedef uygulamadaki ön kontrol yine gereklidir.
 
-API başvuruları: [Kentico custom table kayıtları](https://docs.kentico.com/13api/content-management/custom-table-data), [CMSTransactionScope](https://devnet.kentico.com/docs/13_0/api/html/T_CMS_DataEngine_CMSTransactionScope.htm), [QueryParameters](https://devnet.kentico.com/docs/13_0/api/html/T_CMS_DataEngine_QueryParameters.htm).
+API başvuruları: [Kentico custom table kayıtları](https://docs.kentico.com/13api/content-management/custom-table-data), [CMSTransactionScope](https://devnet.kentico.com/docs/13_0/api/html/T_CMS_DataEngine_CMSTransactionScope.htm).

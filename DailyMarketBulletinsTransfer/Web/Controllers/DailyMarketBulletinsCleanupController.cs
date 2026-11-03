@@ -323,7 +323,9 @@ namespace YkbYapikredi.Web.Controllers
                     var table = DataClassInfoProvider.GetDataClassInfo(TableClassName);
                     if (table == null || !Regex.IsMatch(table.ClassTableName ?? "", @"\A[A-Za-z_][A-Za-z0-9_]*\z"))
                         throw new InvalidDataException("Güvenilir SQL tablo adı bulunamadı.");
-                    transaction.Connection.ExecuteScalar(new QueryParameters("SELECT COUNT_BIG(*) FROM [" + table.ClassTableName + "] WITH (TABLOCKX, HOLDLOCK)", null, QueryTypeEnum.SQLQuery, false));
+                    transaction.Connection.ExecuteScalar(
+                        "SELECT COUNT_BIG(*) FROM [" + table.ClassTableName + "] WITH (TABLOCKX, HOLDLOCK)",
+                        null, QueryTypeEnum.SQLQuery, false);
                     if (seal.ExpiresAtUtc < DateTimeOffset.UtcNow) throw new InvalidDataException("Tablo kilidi beklenirken planın süresi doldu; ön kontrolü yenileyin.");
                     plan = BuildPlan(source, report);
                     if (report.Hatalar.Count > 0) return Result(report, 422);
