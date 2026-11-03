@@ -1,6 +1,6 @@
 /* Yapı Kredi eski piyasa bülteni arşivi. Chrome/Edge DevTools Console'a tamamını yapıştırın.
    https://www.yapikredi.com.tr/yapi-kredi-hakkinda/piyasa-bulteni/
-   Ardından açılan paneldeki gerçek düğmeye basıp bir üst klasör seçin. */
+   Ardından düğmeye basıp önceki arşivi, üst klasörünü veya PDF'lerin bulunduğu reports klasörünü seçin. */
 (() => {
   'use strict';
   if (window.ykbHistoricalBulletinExport?.busy) {
@@ -16,7 +16,7 @@
   const DELAY = 100, TIMEOUT = 60000, RETRIES = 3, MAX_FILE = 100 * 1024 * 1024;
   const encoder = new TextEncoder(), decoder = new TextDecoder();
   const api = window.ykbHistoricalBulletinExport = {
-    version: 1, busy: false, manifest: null, errors: null,
+    version: 2, busy: false, manifest: null, errors: null,
     progress: { stage: 'ready', message: '', page: 0, totalPages: 0, index: 0, total: 0 },
     start, stop,
   };
@@ -25,7 +25,7 @@
   panel.id = 'ykb-historical-bulletin-panel';
   panel.style.cssText = 'position:fixed!important;right:18px!important;bottom:18px!important;width:350px!important;max-width:90vw!important;z-index:2147483647!important;background:#fff!important;color:#15354c!important;border:2px solid #0079bd!important;border-radius:10px!important;padding:16px!important;box-shadow:0 5px 25px #0004!important;font:14px/1.5 Arial,sans-serif!important;text-align:left!important;';
   panel.innerHTML = '<strong style="font-size:16px">Yapı Kredi eski piyasa bülteni arşivi</strong>' +
-    '<p style="margin:8px 0">31.10.2014 öncesi · 31 Ekim hariç · PDF / DOCX<br>Seçilen üst klasörde <b>ykb-eski-piyasa-bultenleri</b> oluşturulur. Aynı klasörü seçerek devam edebilirsiniz.</p>' +
+    '<p style="margin:8px 0">31.10.2014 öncesi · 31 Ekim hariç · PDF / DOCX<br>Önceki arşivi, üst klasörünü veya <b>reports</b> klasörünü seçebilirsiniz. Sağlam mevcut dosyalar indirilmeden kullanılır.</p>' +
     '<button id="ykb-historical-bulletin-start" type="button" style="padding:8px;cursor:pointer">Klasör seç ve indir</button> ' +
     '<button id="ykb-historical-bulletin-stop" type="button" style="padding:8px;cursor:pointer" disabled>Durdur</button>' +
     '<p id="ykb-historical-bulletin-status" role="status" style="margin:10px 0 0;white-space:pre-wrap;overflow-wrap:anywhere"></p>';
@@ -68,7 +68,7 @@
     aborter = new AbortController();
     startButton.disabled = true;
     stopButton.disabled = false;
-    update('selecting', 'Bir üst klasör seçin.');
+    update('selecting', 'Önceki arşivi, üst klasörünü veya reports klasörünü seçin.');
     let manifest = null, pickerCompleted = false;
     try {
       // Keep the picker in the real button's transient user activation: no await before this call.
@@ -76,11 +76,12 @@
       const parent = await picker;
       pickerCompleted = true;
       if (interrupted) { update('stopped', 'İşlem durduruldu.'); return null; }
-      const directory = parent.name === 'ykb-eski-piyasa-bultenleri' ? parent : await parent.getDirectoryHandle('ykb-eski-piyasa-bultenleri', { create: true });
-      manifest = await exportArchive(directory, aborter.signal);
+      const { directory, reports } = await resolveArchive(parent);
+      if (interrupted) { update('stopped', 'İşlem durduruldu.'); return null; }
+      manifest = await exportArchive(directory, reports, aborter.signal);
       const counts = `${manifest.downloadedCount} başarılı (${manifest.reusedCount} mevcut dosya), ${manifest.failedCount} hatalı, ${manifest.pendingCount} bekleyen.`;
       update(interrupted ? 'stopped' : manifest.listingComplete && !manifest.failedCount && !manifest.pendingCount ? 'complete' : 'incomplete',
-        `${interrupted ? 'Durduruldu.' : 'İşlem tamamlandı.'} ${counts}\nListe tam: ${manifest.listingComplete ? 'evet' : 'hayır'}.\nYalnız 31.10.2014 tarihinden önceki kayıtlar (31 Ekim hariç).\nAyrıntılar: reports.json ve errors.json. Hatalar için aynı klasörü seçerek tekrar çalıştırın.`);
+        `${interrupted ? 'Durduruldu.' : 'İşlem tamamlandı.'} ${counts}\nListe tam: ${manifest.listingComplete ? 'evet' : 'hayır'}.\nJSON konumu: ${directory.name}/reports.json\nYalnız 31.10.2014 tarihinden önceki kayıtlar (31 Ekim hariç).\nAyrıntılar: reports.json ve errors.json. Hatalar için aynı klasörü seçerek tekrar çalıştırın.`);
       console.info('Yapı Kredi eski piyasa bülteni sonucu:', manifest, api.errors);
       return manifest;
     } catch (error) {
@@ -94,6 +95,30 @@
       stopButton.disabled = true;
       aborter = null;
     }
+  }
+  async function resolveArchive(selected) {
+    const archiveName = 'ykb-eski-piyasa-bultenleri';
+    async function child(parent, name) {
+      try { return await parent.getDirectoryHandle(name); }
+      catch (error) { if (error.name === 'NotFoundError') return null; throw error; }
+    }
+    async function hasManifest(directory) {
+      for (const name of ['reports.json', 'reports.resume.json']) {
+        try { await directory.getFileHandle(name); return true; }
+        catch (error) { if (error.name !== 'NotFoundError') throw error; }
+      }
+      return false;
+    }
+    // The picker grants access only to the selected directory. In this mode JSON
+    // is saved beside the documents; do not guess or try to write to its parent.
+    if (selected.name === 'reports') return { directory: selected, reports: selected };
+    const existingReports = await child(selected, 'reports');
+    if (existingReports) return { directory: selected, reports: existingReports };
+    let directory = selected;
+    if (selected.name !== archiveName && !await hasManifest(selected)) {
+      directory = await child(selected, archiveName) || await selected.getDirectoryHandle(archiveName, { create: true });
+    }
+    return { directory, reports: await directory.getDirectoryHandle('reports', { create: true }) };
   }
   const identity = record => JSON.stringify([record.date, record.bulletinType, record.sourceUrl]);
   async function sha256(bytes) {
@@ -283,8 +308,7 @@
     try { await writable.write(contents); await writable.close(); }
     catch (error) { await writable.abort().catch(() => {}); throw error; }
   }
-  async function exportArchive(directory, signal) {
-    const reports = await directory.getDirectoryHandle('reports', { create: true });
+  async function exportArchive(directory, reports, signal) {
     const manifest = api.manifest = {
       schemaVersion: 1, sourceUrl: SOURCE, tableClassName: 'YkbYapikredi.DailyAllMarketBullettins',
       startDate: START, endDate: END, dateFrom: DATE_FROM, dateTo: DATE_TO, cutoffDateExclusive: CUTOFF, listingComplete: false,
@@ -299,6 +323,8 @@
       if (signal.aborted) throw interruptedError();
       if (handle.kind === 'file' && safeName(handle.name)) files.set(handle.name, handle);
     }
+    update('listing', `${files.size} yerel dosya bulundu. Önce kaynak liste yenileniyor; ardından mevcut dosyalar indirilmeden doğrulanacak.`,
+      { archiveFolder: directory.name, reportsFolder: reports.name, existingFileCount: files.size });
     async function readCache(name) {
       try {
         const handle = await directory.getFileHandle(name);
@@ -397,8 +423,12 @@
       names.add(await fileName(record, '.docx'));
       for (const name of names) {
         claim(name, key);
-        const handle = files.get(name);
-        if (!handle) continue;
+        let handle = files.get(name);
+        if (!handle) {
+          // A document may have been copied here while the source pages loaded.
+          try { handle = await reports.getFileHandle(name); files.set(name, handle); }
+          catch (error) { if (error.name === 'NotFoundError') continue; throw error; }
+        }
         let file;
         try { file = await handle.getFile(); }
         catch (error) { if (error.name === 'NotFoundError') continue; throw error; }
@@ -457,13 +487,43 @@
       }
       await checkpoint(true);
       if (!signal.aborted) {
-        let next = 0, completed = 0;
+        // Recover ALL complete local files before any document request. A slow or
+        // failed missing download must not leave already saved documents pending.
+        let checked = 0, nextLocal = 0;
+        async function checkLocal() {
+          while (!signal.aborted) {
+            const index = nextLocal++;
+            if (index >= manifest.records.length) return;
+            const record = manifest.records[index];
+            try { await reuse(record); }
+            catch (error) {
+              if (signal.aborted) return;
+              record.status = 'failed'; record.sha256 = null; record.byteLength = null;
+              record.error = 'Yerel dosya okunamadı: ' + error.message;
+              console.error('Yerel dosya kontrolü başarısız:', record.sourceUrl, error);
+            }
+            checked++;
+            update('checking', `${checked}/${manifest.records.length} yerel dosya kontrol edildi; ${manifest.reusedCount} mevcut dosya bulundu.`,
+              { index: checked, total: manifest.records.length, reusedCount: manifest.reusedCount });
+            await checkpoint();
+          }
+        }
+        workers = Array.from({ length: Math.min(DOWNLOAD_CONCURRENCY, manifest.records.length) }, () => checkLocal());
+        const localResults = await Promise.allSettled(workers);
+        const localFailure = localResults.find(result => result.status === 'rejected');
+        if (localFailure) throw localFailure.reason;
+        await checkpoint(true);
+        const missing = manifest.records.filter(record => record.status === 'pending');
+        let next = 0, completed = manifest.records.length - missing.length;
         async function worker() {
           while (!signal.aborted) {
             const index = next++;
-            if (index >= manifest.records.length) return;
-            const record = manifest.records[index];
+            if (index >= missing.length) return;
+            const record = missing[index];
             try {
+              if (signal.aborted) throw interruptedError();
+              // Also recheck missing files at request time in case they were
+              // restored after the local pass finished.
               if (!await reuse(record)) {
                 if (signal.aborted) throw interruptedError();
                 const bytes = await fetchBytes(record.sourceUrl, { method: 'GET' }, MAX_FILE, signal);
@@ -488,7 +548,7 @@
             await checkpoint();
           }
         }
-        workers = Array.from({ length: Math.min(DOWNLOAD_CONCURRENCY, manifest.records.length) }, () => worker());
+        workers = Array.from({ length: Math.min(DOWNLOAD_CONCURRENCY, missing.length) }, () => worker());
         const settled = await Promise.allSettled(workers);
         const rejected = settled.find(result => result.status === 'rejected');
         if (rejected) throw rejected.reason;

@@ -200,7 +200,9 @@ function browser({ root = new MemoryDirectory(), fetchImpl, pickerError, online 
   const reinject = () => vm.runInContext(source, vmContext, { filename: scriptUrl.pathname, timeout: 1000 });
   reinject();
   assert.ok(context.ykbHistoricalBulletinExport, 'console snippet exposes its browser control panel API');
-  return { get api() { return context.ykbHistoricalBulletinExport; }, calls, context, root, get directory() { return root.directories.get('ykb-eski-piyasa-bultenleri'); }, state, logs, reinject,
+  return { get api() { return context.ykbHistoricalBulletinExport; }, calls, context, root, get directory() {
+    return root.name === 'ykb-eski-piyasa-bultenleri' || root.name === 'reports' || root.directories.has('reports') ? root : root.directories.get('ykb-eski-piyasa-bultenleri');
+  }, state, logs, reinject,
     setOnline(value) { state.online = value; context.dispatchEvent({ type: value ? 'online' : 'offline' }); } };
 }
 
@@ -343,6 +345,129 @@ test('bad cache metadata cannot block recovery; SHA changes and zero-byte files 
   await runSuccessful(instance); assert.equal(gets, 2);
   instance.directory.directories.get('reports').files.set(name, new Uint8Array()); deleteManifests(instance.directory);
   await runSuccessful(instance); assert.equal(gets, 3);
+});
+
+test('pending or failed rows with empty filenames and no resume JSON reuse intact PDF and DOCX from disk', async () => {
+  const docx = storedZip({ '[Content_Types].xml': '<Types/>', 'word/document.xml': '<w:document/>' });
+  let documentGets = 0;
+  const instance = browser({ fetchImpl: async (url, init) => {
+    if (init.method === 'POST') return listing(row() + row({ href: '/medium/file/word_resume/view' }));
+    documentGets++; return new Response(String(url).includes('/word_resume/') ? docx : pdf);
+  } });
+  const initial = await runSuccessful(instance);
+  const names = Array.from(initial.records, record => record.fileName);
+  assert.equal(documentGets, 2);
+  for (const status of ['pending', 'failed']) {
+    const stale = JSON.parse(JSON.stringify(initial));
+    for (const record of stale.records) Object.assign(record, { status, fileName: '', sha256: null, byteLength: null, error: status === 'failed' ? 'Interrupted' : null });
+    instance.directory.files.set('reports.json', new TextEncoder().encode(JSON.stringify(stale)));
+    instance.directory.files.delete('reports.resume.json');
+    const rebuilt = await runSuccessful(instance);
+    assert.equal(documentGets, 2, `${status} metadata must not force a new GET when the actual file is valid`);
+    assert.equal(rebuilt.downloadedCount, 2); assert.equal(rebuilt.pendingCount, 0); assert.equal(rebuilt.failedCount, 0);
+    assert.deepEqual(Array.from(rebuilt.records, record => record.fileName), names);
+    assert.equal(rebuilt.records[0].sha256, sha256(pdf)); assert.equal(rebuilt.records[0].byteLength, pdf.length);
+    assert.equal(rebuilt.records[1].sha256, sha256(docx)); assert.equal(rebuilt.records[1].byteLength, docx.length);
+    const saved = await instance.directory.readJson('reports.json'); assert.equal(saved.pendingCount, 0); assert.equal(saved.downloadedCount, 2);
+  }
+  deleteManifests(instance.directory);
+  const noJson = await runSuccessful(instance);
+  assert.equal(documentGets, 2, 'no JSON files must still allow the same disk-based recovery');
+  assert.equal(noJson.downloadedCount, 2);
+});
+
+test('selecting the exact existing archive reuses its reports instead of nesting another archive', async () => {
+  let documentGets = 0;
+  const fetchImpl = async (_url, init) => init.method === 'POST' ? listing(row()) : (documentGets++, new Response(pdf));
+  const parent = browser({ fetchImpl }); const first = await runSuccessful(parent);
+  const archive = parent.directory;
+  deleteManifests(archive);
+  const selectedArchive = browser({ root: archive, fetchImpl });
+  const rebuilt = await runSuccessful(selectedArchive);
+  assert.equal(selectedArchive.directory, archive); assert.equal(documentGets, 1);
+  assert.equal(archive.directories.has('ykb-eski-piyasa-bultenleri'), false);
+  assert.equal(rebuilt.records[0].fileName, first.records[0].fileName);
+  assert.equal(rebuilt.records[0].status, 'downloaded'); assert.equal(rebuilt.records[0].sha256, sha256(pdf));
+  assert.equal((await archive.readJson('reports.json')).downloadedCount, 1);
+});
+
+test('selecting a renamed archive with a reports child reuses files without adding nested folders', async () => {
+  let documentGets = 0;
+  const fetchImpl = async (_url, init) => init.method === 'POST' ? listing(row()) : (documentGets++, new Response(pdf));
+  const initial = browser({ fetchImpl }); const first = await runSuccessful(initial);
+  const archive = initial.directory; archive.name = 'renamed-archive'; deleteManifests(archive);
+  const resumed = browser({ root: archive, fetchImpl }); const manifest = await runSuccessful(resumed);
+  assert.equal(documentGets, 1); assert.equal(resumed.directory, archive);
+  assert.equal(archive.directories.has('ykb-eski-piyasa-bultenleri'), false);
+  assert.equal(manifest.records[0].fileName, first.records[0].fileName);
+  assert.equal((await archive.readJson('reports.json')).downloadedCount, 1);
+});
+
+test('selecting the reports folder directly uses flat mode and writes JSON beside existing documents', async () => {
+  let documentGets = 0;
+  const fetchImpl = async (_url, init) => init.method === 'POST' ? listing(row()) : (documentGets++, new Response(pdf));
+  const initial = browser({ fetchImpl }); const first = await runSuccessful(initial);
+  const archive = initial.directory, reports = archive.directories.get('reports');
+  archive.files.set('parent-only-marker.json', new TextEncoder().encode('{"unchanged":true}'));
+  const parentFilesBefore = Array.from(archive.files, ([name, bytes]) => [name, Uint8Array.from(bytes)]);
+  const selectedReports = browser({ root: reports, fetchImpl });
+  const manifest = await runSuccessful(selectedReports);
+  assert.equal(documentGets, 1, 'flat mode must use the already downloaded file');
+  assert.equal(selectedReports.directory, reports); assert.equal(reports.directories.size, 0, 'no nested archive/reports directory may be created');
+  assert.equal(manifest.records[0].fileName, first.records[0].fileName); assert.equal(manifest.records[0].status, 'downloaded');
+  assert.equal((await reports.readJson('reports.json')).downloadedCount, 1);
+  assert.ok(reports.files.has('errors.json')); assert.ok(reports.files.has('reports.resume.json'));
+  for (const [name, bytes] of parentFilesBefore) assert.deepEqual(archive.files.get(name), bytes, `selected child cannot rewrite its parent's ${name}`);
+});
+
+test('all existing files are recovered and checkpointed before the first missing-document request can stall', async () => {
+  const localRows = row({ href: '/medium/file/local_a/view' }) + row({ href: '/medium/file/local_b/view' });
+  const setup = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(localRows) : new Response(pdf) });
+  const original = await runSuccessful(setup); const archive = setup.directory; deleteManifests(archive);
+  const counters = { active: 0, aborted: 0 }; let firstDocumentUrl = null;
+  const resumed = browser({ root: archive, fetchImpl: async (url, init) => {
+    if (init.method === 'POST') return listing(row({ href: '/medium/file/missing_first/view' }) + localRows);
+    firstDocumentUrl = String(url); return blockedDocument(init, counters);
+  } });
+  const pending = resumed.api.start();
+  try {
+    await until(() => firstDocumentUrl !== null, 'missing document request did not start');
+    assert.equal(firstDocumentUrl, 'https://www.yapikredi.com.tr/medium/file/missing_first/view');
+    assert.equal(counters.active, 1);
+    const current = resumed.api.manifest;
+    assert.equal(current.records[0].status, 'pending');
+    assert.deepEqual(Array.from(current.records.slice(1), record => record.status), ['downloaded', 'downloaded']);
+    assert.deepEqual(Array.from(current.records.slice(1), record => record.fileName), Array.from(original.records, record => record.fileName));
+    assert.ok(current.records.slice(1).every(record => record.sha256 === sha256(pdf) && record.byteLength === pdf.length));
+    const saved = await archive.readJson('reports.json');
+    assert.equal(saved.downloadedCount, 2, 'recovered files must be checkpointed before any document GET');
+    assert.equal(saved.pendingCount, 1);
+  } finally {
+    resumed.api.stop(); await pending;
+  }
+  assert.equal(counters.active, 0); assert.equal(resumed.api.busy, false);
+});
+
+test('a valid PDF restored during source listing is found without a document GET', async () => {
+  let documentGets = 0;
+  const setup = browser({ fetchImpl: async (_url, init) => init.method === 'POST' ? listing(row()) : (documentGets++, new Response(pdf)) });
+  const first = await runSuccessful(setup);
+  const archive = setup.directory, reports = archive.directories.get('reports'), name = first.records[0].fileName;
+  reports.files.delete(name); deleteManifests(archive);
+  let restored = false;
+  const resumed = browser({ root: archive, fetchImpl: async (_url, init) => {
+    if (init.method === 'POST') {
+      // exportArchive has already scanned this directory before its first listing POST.
+      if (!restored) { reports.files.set(name, Uint8Array.from(pdf)); restored = true; }
+      return listing(row());
+    }
+    documentGets++; return new Response(pdf);
+  } });
+  const rebuilt = await runSuccessful(resumed);
+  assert.equal(restored, true); assert.equal(documentGets, 1, 'late restored files must be found beyond the initial directory map');
+  assert.equal(rebuilt.records[0].status, 'downloaded'); assert.equal(rebuilt.records[0].fileName, name);
+  assert.equal(rebuilt.records[0].sha256, sha256(pdf)); assert.equal(rebuilt.records[0].byteLength, pdf.length);
+  assert.equal((await archive.readJson('reports.json')).downloadedCount, 1);
 });
 
 test('failed documents are retried without redownloading intact reports', async () => {
