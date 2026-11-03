@@ -28,7 +28,8 @@ namespace YkbYapikredi.Web.Controllers
     // Temporary Kentico 13 ASP.NET Core tool. Copy this file to the REAL web app.
     // GET and preview never delete/move/write files. Only an explicit Apply POST
     // with the SAME snapshot and a valid preview PlanToken performs cleanup.
-    // Source refresh: verify a new COMPLETE snapshot, then update its pinned SHA.
+    // Source refresh: verify a new COMPLETE snapshot, then update BOTH pinned
+    // hashes (original bytes and BOM-free LF text) for that same snapshot.
     // MaxSnapshotAgeHours is deliberately limited. Do not disable freshness checks
     // merely to accept an old whitelist: newly published reports must be protected.
     // Rows missing from the source are deleted; source-present duplicate groups
@@ -40,6 +41,9 @@ namespace YkbYapikredi.Web.Controllers
         private const string TableClassName = "YkbYapikredi.DailyAllMarketBullettins";
         private const string SourceUrl = "https://www.yapikredi.com.tr/yapi-kredi-hakkinda/piyasa-bulteni/";
         private const string SnapshotSha256 = "a01ba358be73143b0841e3536c088830a5134b3221973de8219dfb42c7ade3f6";
+        // Same verified snapshot with CRLF/CR normalized to LF and no UTF-8 BOM.
+        // File transfer/editor line-ending changes must not change the whitelist.
+        private const string SnapshotNormalizedSha256 = "a296439b5be0c4f04cc7ecebdaad44c3484c5238b97889638df397b77fcba86e";
         private const int MaxSnapshotAgeHours = 48;
         private const int PlanLifetimeMinutes = 30;
         private const int MaxUploadBytes = 20 * 1024 * 1024;
@@ -158,10 +162,21 @@ namespace YkbYapikredi.Web.Controllers
         private Snapshot ValidateSnapshot(byte[] bytes, CleanupReport report)
         {
             report.SourceSha256 = Hash(bytes);
-            if (!string.Equals(report.SourceSha256, SnapshotSha256, StringComparison.OrdinalIgnoreCase))
-            { report.Hatalar.Add("Kaynak SHA-256 derlenmiş doğrulanmış snapshot ile eşleşmiyor. Değişmiş/kısmi kaynakla silme yapılmaz."); return null; }
+            string normalized;
+            try
+            {
+                normalized = new UTF8Encoding(false, true).GetString(bytes);
+                if (normalized.StartsWith("\uFEFF", StringComparison.Ordinal)) normalized = normalized.Substring(1);
+                normalized = normalized.Replace("\r\n", "\n").Replace("\r", "\n");
+            }
+            catch (DecoderFallbackException)
+            { report.Hatalar.Add("Kaynak dosyası geçerli UTF-8 değil. source-snapshot.json dosyasını UTF-8 olarak kaydedin."); return null; }
+            report.SourceNormalizedSha256 = HashText(normalized);
+            if (!string.Equals(report.SourceSha256, SnapshotSha256, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(report.SourceNormalizedSha256, SnapshotNormalizedSha256, StringComparison.OrdinalIgnoreCase))
+            { report.Hatalar.Add("Kaynak içeriğinin SHA-256 değeri doğrulanmış snapshot ile eşleşmiyor. UTF-8 BOM ve CRLF/LF farkları kabul edilir; değişmiş veya kısmi kaynakla silme yapılmaz."); return null; }
             Snapshot source;
-            try { source = JsonSerializer.Deserialize<Snapshot>(bytes, JsonOptions); }
+            try { source = JsonSerializer.Deserialize<Snapshot>(normalized, JsonOptions); }
             catch (JsonException error) { report.Hatalar.Add("Kaynak JSON geçersiz: " + error.Message); return null; }
             if (source == null || source.SchemaVersion != 1 || source.SourceUrl != SourceUrl || source.Endpoint != SourceUrl + "default.aspx/LoadMarketReleases" ||
                 source.Filters == null || source.Filters.DateFrom.ValueKind != JsonValueKind.Null || source.Filters.DateTo.ValueKind != JsonValueKind.Null || source.Filters.Type != "Any")
@@ -525,7 +540,13 @@ namespace YkbYapikredi.Web.Controllers
         private static string Encode(string value) { return WebUtility.HtmlEncode(value ?? ""); }
         private static StringComparison PathComparison { get { return Path.DirectorySeparatorChar == '\\' ? StringComparison.OrdinalIgnoreCase : StringComparison.Ordinal; } }
         private static StringComparer PathComparer { get { return Path.DirectorySeparatorChar == '\\' ? StringComparer.OrdinalIgnoreCase : StringComparer.Ordinal; } }
-        private JsonResult Result(CleanupReport report, int status) { return new JsonResult(report, JsonOptions) { StatusCode = status }; }
+        private JsonResult Result(CleanupReport report, int status)
+        {
+            if (report.Hatalar.Count > 0 && report.PlanToken == null &&
+                report.Durum == "Ön kontrol; hiçbir satır/dosya silinmedi")
+                report.Durum = "Ön kontrol başarısız; PlanToken oluşturulmadı. Hatalar alanını kontrol edin.";
+            return new JsonResult(report, JsonOptions) { StatusCode = status };
+        }
 
         private MediaPathDiagnostics InspectMediaFolder()
         {
@@ -692,7 +713,7 @@ namespace YkbYapikredi.Web.Controllers
         {
             public string Durum { get; set; } = "Ön kontrol; hiçbir satır/dosya silinmedi";
             public string TableClassName { get; set; } = DailyMarketBulletinsCleanupController.TableClassName;
-            public string SourceSha256 { get; set; } public DateTimeOffset SourceCapturedAtUtc { get; set; } public double SourceAgeHours { get; set; }
+            public string SourceSha256 { get; set; } public string SourceNormalizedSha256 { get; set; } public DateTimeOffset SourceCapturedAtUtc { get; set; } public double SourceAgeHours { get; set; }
             public string SourceMinDate { get; set; } public string SourceMaxDate { get; set; } public int SourceRows { get; set; } public int SourceUniqueDateTypes { get; set; }
             public int DbRows { get; set; } public int SourcePresentRows { get; set; } public int ToDeleteRows { get; set; } public int ToQuarantineFiles { get; set; }
             public int SharedFilesKept { get; set; } public int AlreadyMissingFiles { get; set; } public int DeletedRows { get; set; } public int QuarantinedFiles { get; set; }

@@ -42,7 +42,9 @@ Dosyalar:
 a01ba358be73143b0841e3536c088830a5134b3221973de8219dfb42c7ade3f6
 ```
 
-Controller bu dosyanın baytlarını sabit hash ile doğrular. Dosyayı düzenlemeyin veya yeniden biçimlendirmeyin. Eksik/yanlış kaynak listesiyle silme yapılmaz. Kaynak görüntüsü varsayılan olarak 48 saat geçerlidir; daha sonra kaynak yeniden taranmalı ve controller'daki sabit yeni dosyanın hash'iyle birlikte güncellenmelidir. Kaynaktaki en yeni tarihten sonraki tablo kayıtları ayrıca korunur.
+Controller hem özgün dosyanın hash'ini hem de UTF-8 BOM kaldırılıp satır sonları LF'ye çevrilmiş hash'i doğrular. Windows/Linux satır sonu ve UTF-8 BOM farkları kabul edilir; kayıtlar veya başka içerik değişmişse dosya reddedilir. Dosyayı yeniden biçimlendirmeyin. LF biçiminin SHA-256 değeri `a296439b5be0c4f04cc7ecebdaad44c3484c5238b97889638df397b77fcba86e` olur. Yanıttaki `SourceSha256` yüklenen dosyanın ham hash'i, `SourceNormalizedSha256` ise normalize edilmiş hash'tir.
+
+Eksik/yanlış kaynak listesiyle silme yapılmaz. Kaynak görüntüsü varsayılan olarak 48 saat geçerlidir; daha sonra kaynak yeniden taranmalı ve controller'daki `SnapshotSha256` ile `SnapshotNormalizedSha256` sabitleri yeni doğrulanmış dosyaya göre birlikte güncellenmelidir. Kaynaktaki en yeni tarihten sonraki tablo kayıtları ayrıca korunur. Ön kontrolde hata varsa `PlanToken` üretilmez; `Durum` ve `Hatalar` alanları engeli gösterir.
 
 ## Kullanım
 
@@ -61,6 +63,6 @@ Uygulama, ön kontrol planını SQL tablo kilidi altında yeniden doğrular; dos
 
 Bu çalışma sırasında gerçek Kentico tablosunda veya mevcut medya klasörünüzde silme/taşıma yapılmamıştır.
 
-Controller ASP.NET Core 8 ve CMS API benzetimleriyle derlendi; 40 davranış kontrolü geçti. Gerçek beş girdinin 3.516 satırıyla yapılan salt okunur plan testi 443 aday ve 3.073 korunacak satır verdi. Dosya taşıma, ortak dosya koruması, eski/değişmiş planın reddi ve hata sonrası kurtarma testleri yalnız test klasöründeki sentetik dosyalarla yapıldı. Gerçek Kentico DLL/veritabanı bu çalışma ortamında bulunmadığından hedef uygulamadaki ön kontrol yine gereklidir.
+Controller ASP.NET Core 8 ve CMS API benzetimleriyle derlendi; 48 davranış kontrolü geçti. Gerçek beş girdinin 3.516 satırıyla yapılan salt okunur plan testi 443 aday ve 3.073 korunacak satır verdi. Özgün/LF/CRLF/UTF-8 BOM biçimlerinde token üretimi ve içerik değişikliklerinin reddi de doğrulandı. Dosya taşıma, ortak dosya koruması, eski/değişmiş planın reddi ve hata sonrası kurtarma testleri yalnız test klasöründeki sentetik dosyalarla yapıldı. Gerçek Kentico DLL/veritabanı bu çalışma ortamında bulunmadığından hedef uygulamadaki ön kontrol yine gereklidir.
 
 API başvuruları: [Kentico custom table kayıtları](https://docs.kentico.com/13api/content-management/custom-table-data), [CMSTransactionScope](https://devnet.kentico.com/docs/13_0/api/html/T_CMS_DataEngine_CMSTransactionScope.htm).
