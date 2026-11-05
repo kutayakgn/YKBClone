@@ -4,9 +4,21 @@
  
 @{
 
-    var desktopColumns = Model.FooterColumns.Where(column => column.IsVisibleOnDesktop).ToList();
+    var currentCulture = ViewData["Culture"]?.ToString() ?? "tr-TR";
 
-    var mobileColumns = Model.FooterColumns.Where(column => column.IsVisibleOnMobile).ToList();
+    var isTurkish = string.Equals(currentCulture, "tr-TR", StringComparison.OrdinalIgnoreCase);
+
+    var isEnglish = !string.Equals(currentCulture, "tr-TR", StringComparison.OrdinalIgnoreCase);
+
+    var desktopColumns = Model.FooterColumns
+        .Where(column => column.IsVisibleOnDesktop
+            && (!isEnglish || column.Children.Any(link => link.IsVisibleOnDesktop)))
+        .ToList();
+
+    var mobileColumns = Model.FooterColumns
+        .Where(column => column.IsVisibleOnMobile
+            && (!isEnglish || column.Children.Any(link => link.IsVisibleOnMobile)))
+        .ToList();
 
     var socialLinks = Model.Social.Links.ToList();
 
@@ -102,7 +114,7 @@
 </section>
  
     <div class="footer-m ykb-footer-desktop">
-<div class="ykb-footer-container ykb-footer-desktop__grid">
+<div class="ykb-footer-container ykb-footer-desktop__grid @(isEnglish ? "ykb-footer-desktop__grid--en" : null)">
 
             @for (var columnIndex = 0; columnIndex < desktopColumns.Count; columnIndex++)
 
@@ -127,85 +139,20 @@
                         }
 </ul>
  
-                    @if (columnIndex == 0)
+                    @if (columnIndex == 0 && isTurkish)
 
                     {
-<div class="social ykb-footer-social">
-<h3>@Model.Social.Title</h3>
-<div class="social-links ykb-footer-social__links">
-
-                                @foreach (var social in socialLinks.Where(link => link.IsVisibleOnDesktop))
-
-                                {
-<a href="@social.Url"
-
-                                       target="@(social.OpenInNewTab ? "_blank" : null)"
-
-                                       rel="@(social.OpenInNewTab ? "noopener noreferrer nofollow" : "nofollow")"
-
-                                       aria-label="@social.Title">
-<span class="@social.IconCssClass" aria-hidden="true">
-<span class="path1"></span><span class="path2"></span><span class="path3"></span><span class="path4"></span>
-</span>
-</a>
-
-                                }
-</div>
-<div class="blog-box ykb-footer-brands__primary">
-
-                                @foreach (var brand in brandLinks.Take(2).Where(link => link.IsVisibleOnDesktop))
-
-                                {
-<a href="@brand.Url"
-
-                                       target="@(brand.OpenInNewTab ? "_blank" : null)"
-
-                                       rel="@(brand.OpenInNewTab ? "noopener noreferrer nofollow" : null)">
-<img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
-</a>
-
-                                }
-</div>
-
-                            @foreach (var brand in brandLinks.Skip(2).Where(link => link.IsVisibleOnDesktop))
-
-                            {
-
-                                if (string.IsNullOrWhiteSpace(brand.Url))
-
-                                {
-<picture class="ykb-footer-brand-mark">
-
-                                        @if (!string.IsNullOrWhiteSpace(brand.MobileImageUrl))
-
-                                        {
-<source media="(max-width: 991.98px)" srcset="@brand.MobileImageUrl" />
-
-                                        }
-<img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
-</picture>
-
-                                }
-
-                                else
-
-                                {
-<a class="ykb-footer-brand-mark" href="@brand.Url"
-
-                                       target="@(brand.OpenInNewTab ? "_blank" : null)"
-
-                                       rel="@(brand.OpenInNewTab ? "noopener noreferrer nofollow" : null)">
-<img src="@brand.ImageUrl" alt="@brand.ImageAlt" loading="lazy" />
-</a>
-
-                                }
-
-                            }
-</div>
+                        @await Html.PartialAsync("_FooterSocial", Model)
 
                     }
 </section>
 
+            }
+            @if (isEnglish)
+            {
+                <section class="ykb-footer-column ykb-footer-column--social" aria-label="@Model.Social.Title">
+                    @await Html.PartialAsync("_FooterSocial", Model)
+                </section>
             }
 </div>
  

@@ -238,6 +238,9 @@
     padding-block: var(--space-8);
     border-bottom: 1px solid var(--primitive-blue-150);
 }
+.ykb-footer-desktop__grid--en {
+    row-gap: var(--space-8);
+}
 .ykb-footer-column {
     min-width: 0;
     padding-right: 18px;
@@ -281,6 +284,9 @@
     font-weight: 500;
     letter-spacing: -0.14px;
     line-height: 16px;
+}
+.ykb-footer-column--social .ykb-footer-social h3 {
+    margin-top: 0;
 }
 .ykb-footer-social__links {
     display: flex;
@@ -502,4 +508,3 @@
         transition: none;
     }
 }
- 
