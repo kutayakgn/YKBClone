@@ -2,6 +2,12 @@
     var layoutData = ViewData["LayoutData"] as YkbYapikredi.Application.Layout.LayoutData;
     layoutData ??= YkbYapikredi.Application.Layout.LayoutData.Create(YkbClone.MockLayoutContent.Create());
     var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
+    ViewData["Culture"] ??= "tr-TR";
+    ViewData["Languages"] ??= new YkbYapikredi.Application.Localization.LanguageOptionDto[]
+    {
+        new() { CultureCode = "tr-TR", ShortName = "TR", NavigationUrl = "/" },
+        new() { CultureCode = "en-US", ShortName = "EN", NavigationUrl = "https://www.yapikredi.com.tr/en/" }
+    };
 }
 <!DOCTYPE html>
 <html lang="tr">
@@ -10,9 +16,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#ffffff" />
     <title>@ViewData["Title"] | Yapı Kredi Header Demo</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/layout-base.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/header.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/footer.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/layout-search.css" asp-append-version="true" />
 </head>
 <body class="@(isHomePage ? "home-page" : "inner-page")">
     @await Html.PartialAsync("Header", layoutData, ViewData)
@@ -22,9 +31,13 @@
     </main>
 
     @await Html.PartialAsync("Footer", layoutData, ViewData)
+    @await Html.PartialAsync("_LayoutModals", layoutData, ViewData)
 
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js" defer></script>
     <script src="~/js/header.js" asp-append-version="true" defer></script>
     <script src="~/js/footer.js" asp-append-version="true" defer></script>
+    <script src="~/js/layout-integration.js" asp-append-version="true" defer></script>
+    <script src="~/js/layout-search.js" asp-append-version="true" defer></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

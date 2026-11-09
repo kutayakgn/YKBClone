@@ -1,3 +1,4 @@
+using System.Text.Json;
 using YkbYapikredi.Application.Navigation;
 
 namespace YkbYapikredi.Application.Layout;
@@ -16,6 +17,9 @@ public sealed class LayoutData
 
     /// <summary>Yalnız mobil header tarafından kullanılan HeaderMain ağacı.</summary>
     public IReadOnlyList<NavigationNodeDto> MobileHeaderItems { get; init; } = [];
+
+    // Keep the default encoder: this JSON is embedded in a script element by the imported view.
+    public string MobileMenuJson => JsonSerializer.Serialize(MobileHeaderItems);
 
     public IReadOnlyList<HeaderNotificationDto> HeaderNotifications { get; init; } = [];
 

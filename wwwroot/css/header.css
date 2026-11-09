@@ -2,7 +2,7 @@
 /**/
 @font-face {
     font-family: "icomoon";
-    src: url("/css/icons/fonts/icomoon.woff2") format("woff2");
+    src: url("../assets/icomoon.woff2") format("woff2");
     font-weight: normal;
     font-style: normal;
     font-display: block;
@@ -658,7 +658,7 @@ body.ykb-menu-open {
 .ykb-home-search-band {
     position: fixed;
     z-index: 900;
-    top: 35px;
+    top: calc(var(--ykb-desktop-header-height) + var(--ykb-home-search-gap));
     right: 0;
     left: 0;
     height: 0px;

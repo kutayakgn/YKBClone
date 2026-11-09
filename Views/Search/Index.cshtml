@@ -1,0 +1,35 @@
+@model SearchViewModel
+@{
+    ViewData["Title"] = "Arama";
+}
+
+<section class="inner-demo-canvas ykb-search-results" aria-labelledby="search-results-title">
+    <div>
+        <h1 id="search-results-title">Arama</h1>
+        <form action="/arama" method="get" role="search" class="ykb-search-results__form">
+            <label for="results-query">Aranacak kelime</label>
+            <div>
+                <input id="results-query" name="q" type="search" value="@Model.Query" maxlength="85" />
+                <button type="submit">Ara</button>
+            </div>
+        </form>
+        @if (Model.Query.Length < 2)
+        {
+            <p>Aramak için en az iki karakter yazın.</p>
+        }
+        else if (Model.Results.Count == 0)
+        {
+            <p>“@Model.Query” için sonuç bulunamadı.</p>
+        }
+        else
+        {
+            <p>“@Model.Query” için @Model.Results.Count sonuç bulundu.</p>
+            <ul class="ykb-search-results__list">
+                @foreach (var result in Model.Results)
+                {
+                    <li><a href="@result.Url">@result.Title</a></li>
+                }
+            </ul>
+        }
+    </div>
+</section>

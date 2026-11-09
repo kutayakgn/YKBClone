@@ -2,7 +2,6 @@
 
 .site-main {
     min-height: 100vh;
-    padding-top: 144px;
 }
 
 .home-demo-canvas {
@@ -70,7 +69,7 @@
 
 @media (max-width: 991.98px) {
     .site-main {
-        padding-top: 105px;
+        padding-top: 127px;
     }
 
     .home-demo-canvas {
@@ -83,7 +82,7 @@
     }
 
     .inner-demo-canvas {
-        min-height: calc(100vh - 105px);
+        min-height: calc(100vh - 127px);
         padding: 28px 16px;
     }
 

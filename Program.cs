@@ -6,6 +6,7 @@ builder.Logging.AddConsole();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddSingleton<YkbYapikredi.Application.Localization.LayoutLocalizer>();
 
 var app = builder.Build();
 

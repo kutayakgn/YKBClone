@@ -1,0 +1,26 @@
+@model YkbYapikredi.Application.Layout.LayoutData
+
+@foreach (var modal in Model.Modals)
+{
+    <div class="modal fade" id="@modal.DomId" tabindex="-1" aria-labelledby="@(modal.DomId)-title" aria-hidden="true" data-mobil-uygulama-modal>
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h2 class="modal-title fs-5" id="@(modal.DomId)-title">@modal.Title</h2>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Kapat"></button>
+                </div>
+                <div class="modal-body">
+                    <p>Cihazınıza uygun uygulama mağazasını seçin.</p>
+                    <div class="d-flex flex-wrap gap-3 align-items-center">
+                        @foreach (var app in Model.FooterAppLinks)
+                        {
+                            <a href="@app.Url" target="_blank" rel="noopener noreferrer">
+                                <img src="@app.ImageUrl" alt="@app.ImageAlt" width="135" loading="lazy" />
+                            </a>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+}

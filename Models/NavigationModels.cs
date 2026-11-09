@@ -16,6 +16,8 @@ public sealed class NavigationNodeDto
     public string BadgeText { get; init; } = string.Empty;
     public string Role { get; init; } = NavigationRoles.MenuItem;
     public bool OpenInNewTab { get; init; }
+    public bool OpenInWindow { get; init; }
+    public string ModalReference { get; init; } = string.Empty;
     public bool DisplayOnDesktop { get; init; } = true;
     public bool DisplayOnMobile { get; init; } = true;
     public IReadOnlyList<NavigationNodeDto> Children { get; init; } = [];

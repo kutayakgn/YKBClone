@@ -1,4 +1,5 @@
 using YkbYapikredi.Application.Navigation;
+using YkbYapikredi.Application.Layout;
 
 namespace YkbClone;
 
@@ -17,10 +18,9 @@ public static class MockLayoutContent
             {
                 Items =
                 [
-                    N("mobile-download-top", "Mobil Uygulama İndir", "#mobil-uygulama"),
+                    N("mobile-download-top", "Mobil Uygulama İndir", "#mobil-uygulama", modal: "/Shared/Modals/MobileApp"),
                     N("branch-atm-top", "Şube ve ATM'ler", $"{YkbRoot}/sinirsiz-bankacilik/atm/sube-ve-atm-arama"),
-                    N("fees-top", "Ürün ve Hizmet Ücretleri", $"{YkbRoot}/bireysel-bankacilik/hesaplama-araclari/bireysel-urun-ve-hizmet-ucretleri"),
-                    N("language-en", "EN", $"{YkbRoot}/en/")
+                    N("fees-top", "Ürün ve Hizmet Ücretleri", $"{YkbRoot}/bireysel-bankacilik/hesaplama-araclari/bireysel-urun-ve-hizmet-ucretleri")
                 ]
             },
             [MenuKeys.HeaderMain] = new()
@@ -82,7 +82,11 @@ public static class MockLayoutContent
 
         return new LayoutContent(
             menus,
-            announcements: [],
+            announcements:
+            [
+                new AnnouncementDto { Title = "Yapı Kredi Mobil uygulamasını keşfedin", Url = $"{YkbRoot}/sinirsiz-bankacilik/mobil-bankacilik/" },
+                new AnnouncementDto { Title = "Yapı Kredi'den haberler", Url = $"{YkbRoot}/yapi-kredi-hakkinda/haberler" }
+            ],
             headerNotifications:
             [
                 new HeaderNotificationDto
@@ -105,6 +109,17 @@ public static class MockLayoutContent
                     Url = $"{YkbRoot}/bireysel-bankacilik/mevduat-urunleri/diger-kiymetli-madenler/gumus-hesap",
                     ImageUrl = "/assets/yapikredi-logo.svg",
                     ImageAlt = "Yapı Kredi"
+                }
+            ],
+            modals:
+            [
+                new ModalDto
+                {
+                    Id = Guid.Parse("2b88c2d2-36d9-4a42-922c-bb34c3c20a14"),
+                    NodeId = 1,
+                    Path = "/Shared/Modals/MobileApp",
+                    DomId = "mobil-uygulama-modal",
+                    Title = "Yapı Kredi Mobil'i İndirin"
                 }
             ]);
     }
@@ -388,7 +403,9 @@ public static class MockLayoutContent
         string imageAlt = "",
         bool newTab = false,
         bool desktop = true,
-        bool mobile = true) =>
+        bool mobile = true,
+        string modal = "",
+        bool popup = false) =>
         new()
         {
             Id = id,
@@ -401,6 +418,8 @@ public static class MockLayoutContent
             BadgeText = badge,
             Role = role,
             OpenInNewTab = newTab,
+            OpenInWindow = popup,
+            ModalReference = modal,
             DisplayOnDesktop = desktop,
             DisplayOnMobile = mobile,
             Children = children ?? []
