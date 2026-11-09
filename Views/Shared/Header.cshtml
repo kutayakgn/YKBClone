@@ -1,6 +1,6 @@
-@using System.Text.Json
-
 @using YkbYapikredi.Application.Layout
+
+@using YkbYapikredi.Application.Localization
 
 @using YkbYapikredi.Application.Navigation
 
@@ -8,9 +8,37 @@
 
 @{
 
+    var currentCulture = ViewData["Culture"]?.ToString() ?? "tr-TR";
+
+    var targetLanguageCode = string.Equals(currentCulture.Split('-')[0], "en", StringComparison.OrdinalIgnoreCase)
+
+        ? "tr"
+
+        : "en";
+
+    var languageOptions = ViewData["Languages"] as IReadOnlyList<LanguageOptionDto>
+
+        ?? Array.Empty<LanguageOptionDto>();
+
+    var targetLanguage = languageOptions.FirstOrDefault(language =>
+
+        string.Equals(language.CultureCode.Split('-')[0], targetLanguageCode, StringComparison.OrdinalIgnoreCase))
+
+        ?? new LanguageOptionDto
+
+        {
+
+            CultureCode = targetLanguageCode == "en" ? "en-US" : "tr-TR",
+
+            ShortName = targetLanguageCode.ToUpperInvariant()
+
+        };
+
     var isHomePage = ViewData["IsHomePage"] as bool? ?? false;
 
     var desktopTabNodes = Model.DesktopHeaderItems.Where(x => NavigationRoles.Is(x.Role, NavigationRoles.Tab)).ToArray();
+
+    var desktopLinkNodes = Model.DesktopHeaderItems.Where(x => NavigationRoles.Is(x.Role, NavigationRoles.MenuItem)).ToArray();
 
     var desktopCustomerAction = Model.DesktopHeaderItems.FirstOrDefault(x => NavigationRoles.Is(x.Role, NavigationRoles.CustomerAcquisition));
 
@@ -23,8 +51,8 @@
     var mobileInternetAction = Model.MobileHeaderItems.FirstOrDefault(x => NavigationRoles.Is(x.Role, NavigationRoles.InternetBranch));
 
     var mobileQuickLinks = Model.MobileHeaderItems.FirstOrDefault(x => NavigationRoles.Is(x.Role, NavigationRoles.MobileQuickLinks));
-
-    var menuJson = JsonSerializer.Serialize(Model.MobileHeaderItems);
+ 
+    var menuJson = Model.MobileMenuJson;
 
     var isNotificationRead = string.Equals(
 
@@ -35,29 +63,64 @@
         StringComparison.OrdinalIgnoreCase);
 
 }
+ 
 <header class="ykb-header" data-ykb-header data-home="@isHomePage.ToString().ToLowerInvariant()">
-<div class="ykb-desktop-header" aria-label="Ana üstbilgi">
+<div class="ykb-desktop-header" aria-label="@Localizer.Get("header.main", "Ana üstbilgi")">
 <div class="ykb-grey-bar">
 <div class="ykb-container ykb-top-links">
 
                 @foreach (var link in Model.HeaderTopLinks)
 
                 {
-<a href="@link.Url"
 
-                       target="@(link.OpenInNewTab ? "_blank" : null)"
+                    var modal = Model.Modal(link.ModalReference);
 
-                       rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
+                    var hasModal = modal is not null;
+
+                    var modalTarget = hasModal
+
+                        ? $"#{modal!.DomId}"
+
+                        : null;
+
+                    var openInNewTab =
+
+                        !hasModal && link.OpenInNewTab;
+ 
+                    <a href="@(hasModal ? modalTarget : link.Url)"
+
+                       data-popup="@(link.OpenInWindow ? "true" : null)"
+
+                       target="@(openInNewTab ? "_blank" : null)"
+
+                       rel="@(openInNewTab ? "noopener noreferrer" : null)"
+
+                       data-bs-toggle="@(hasModal ? "modal" : null)"
+
+                       data-bs-target="@modalTarget">
+
+                        @link.Title
+</a>
 
                 }
+<a href="@targetLanguage.NavigationUrl"
+
+                   hreflang="@targetLanguage.CultureCode"
+
+                   lang="@targetLanguage.CultureCode"
+
+                   site-language-changer-button>
+
+                    @targetLanguage.ShortName
+</a>
 </div>
 </div>
 <div class="ykb-main-row-wrap">
 <div class="ykb-container ykb-main-row">
-<a class="ykb-logo" href="/" aria-label="Yapı Kredi ana sayfa">
+<a class="ykb-logo" href="/" aria-label="@Localizer.Get("header.home", "Yapı Kredi ana sayfa")">
 <img src="~/assets/yapikredi-logo.svg" alt="Yapı Kredi" />
 </a>
-<nav class="ykb-tabs" aria-label="Müşteri türü">
+<nav class="ykb-tabs" aria-label="@Localizer.Get("header.customertype", "Müşteri türü")">
 
                     @for (var index = 0; index < desktopTabNodes.Length; index++)
 
@@ -77,6 +140,8 @@
                                     {
 <a href="@child.Url"
 
+                                           data-popup="@(child.OpenInWindow ? "true" : null)"
+
                                            target="@(child.OpenInNewTab ? "_blank" : null)"
 
                                            rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">@child.Title</a>
@@ -87,6 +152,21 @@
 </div>
 
                     }
+
+                    @foreach (var link in desktopLinkNodes)
+
+                    {
+<div class="ykb-tab">
+<a class="ykb-tab-button" href="@link.Url"
+
+                               data-popup="@(link.OpenInWindow ? "true" : null)"
+
+                               target="@(link.OpenInNewTab ? "_blank" : null)"
+
+                               rel="@(link.OpenInNewTab ? "noopener noreferrer" : null)">@link.Title</a>
+</div>
+
+                    }
 </nav>
 <div class="ykb-desktop-tools">
 
@@ -94,62 +174,68 @@
 
                     {
 <form class="ykb-inline-search" role="search" action="/arama" method="get">
-<label class="sr-only" for="header-search">Ara</label>
-<input id="header-search" name="q" type="search" placeholder="Ara..." maxlength="85" />
-<button type="submit" class="icon-search" aria-label="Ara"></button>
+<label class="sr-only" for="header-search">@Localizer.Get("common.search", "Ara")</label>
+<input id="header-search" name="q" type="search" placeholder="@(Localizer.Get("common.search", "Ara") + "...")" maxlength="85" />
+<button type="submit" class="icon-search" aria-label="@Localizer.Get("common.search", "Ara")"></button>
 </form>
 
                     }
+
+                    @if (currentCulture == "tr-TR")
+
+                    {
 <div class="ykb-notification-wrap">
-<button class="ykb-notification-button icon-notification" type="button" aria-label="Bildirimler" aria-expanded="false" data-header-dropdown="notifications">
+<button class="ykb-notification-button icon-notification" type="button" aria-label="@Localizer.Get("header.notifications", "Bildirimler")" aria-expanded="false" data-header-dropdown="notifications">
 
-                            @if (Model.HeaderNotifications.Count > 0 && !isNotificationRead)
+                                @if (Model.HeaderNotifications.Count > 0 && !isNotificationRead)
 
-                            {
+                                {
 <span class="ykb-notification-count">@Model.HeaderNotifications.Count</span>
 
-                            }
+                                }
 </button>
 <div class="ykb-notification-menu" data-dropdown-panel="notifications" hidden>
 
-                            @if (Model.HeaderNotifications.Count == 0)
+                                @if (Model.HeaderNotifications.Count == 0)
 
-                            {
-<p>Şu anda bildiriminiz bulunmamaktadır.</p>
+                                {
+<p>@Localizer.Get("header.nonotifications", "Şu anda bildiriminiz bulunmamaktadır.")</p>
 
-                            }
+                                }
 
-                            else
+                                else
 
-                            {
+                                {
 <ul>
 
-                                    @foreach (var notification in Model.HeaderNotifications)
+                                        @foreach (var notification in Model.HeaderNotifications)
 
-                                    {
+                                        {
 <li>
 <a href="@notification.Url"
 
-                                               target="@(notification.OpenInNewTab ? "_blank" : null)"
+                                                   target="@(notification.OpenInNewTab ? "_blank" : null)"
 
-                                               rel="@(notification.OpenInNewTab ? "noopener noreferrer" : null)">
+                                                   rel="@(notification.OpenInNewTab ? "noopener noreferrer" : null)">
 
-                                                @if (!string.IsNullOrWhiteSpace(notification.ImageUrl))
+                                                    @if (!string.IsNullOrWhiteSpace(notification.ImageUrl))
 
-                                                {
+                                                    {
 <span class="ykb-notification-image"><img src="@notification.ImageUrl" alt="@notification.ImageAlt" /></span>
 
-                                                }
+                                                    }
 <span>@notification.Title</span>
 </a>
 </li>
 
-                                    }
+                                        }
 </ul>
 
-                            }
+                                }
 </div>
 </div>
+
+                    }
 
                     @foreach (var action in new[] { desktopCustomerAction, desktopInternetAction }.OfType<NavigationNodeDto>())
 
@@ -159,7 +245,8 @@
 
                         var panelId = isInternet ? "internet-branch" : "become-customer";
 <div class="ykb-action-wrap @(isInternet ? "is-red" : "is-blue")">
-<button class="ykb-action-button" type="button" aria-expanded="false" data-header-dropdown="@panelId">
+ 
+                            <button class="ykb-action-button" type="button" aria-expanded="false" data-header-dropdown="@panelId">
 <i class="@action.IconCssClass" aria-hidden="true">
 
                                     @if (action.IconCssClass == "icon-user-plus-24")
@@ -171,13 +258,16 @@
 </i>
 <span>@action.Title</span>
 </button>
-<div class="ykb-action-menu" data-dropdown-panel="@panelId" hidden>
+ 
+                            <div class="ykb-action-menu" data-dropdown-panel="@panelId" hidden>
 
                                 @foreach (var group in action.Children)
 
                                 {
 <div class="ykb-action-group">
 <a class="ykb-action-item ykb-action-item--primary" href="@group.Url"
+
+                                           data-popup="@(group.OpenInWindow ? "true" : null)"
 
                                            target="@(group.OpenInNewTab ? "_blank" : null)"
 
@@ -204,6 +294,8 @@
 <a class="ykb-action-item ykb-action-item--child" href="@child.Url"
 
                                                        target="@(child.OpenInNewTab ? "_blank" : null)"
+
+                                                       data-popup="@(child.OpenInWindow ? "true" : null)"
 
                                                        rel="@(child.OpenInNewTab ? "noopener noreferrer" : null)">
 
@@ -234,17 +326,17 @@
 </div>
 <div class="ykb-mobile-header">
 <div class="ykb-mobile-topbar">
-<a class="ykb-mobile-logo" href="/" aria-label="Yapı Kredi ana sayfa">
+<a class="ykb-mobile-logo" href="/" aria-label="@Localizer.Get("header.home", "Yapı Kredi ana sayfa")">
 <img src="~/assets/yapikredi-logo.svg" alt="Yapı Kredi" />
 </a>
 <div class="ykb-mobile-top-actions">
 <a class="ykb-atm-link" href="https://www.yapikredi.com.tr/sube-ve-atm-arama">
 <img src="~/assets/pin-yapikredi.svg" alt="" />
-<span>Şube ve<br />ATM'ler</span>
+<span>@Localizer.Get("atms.branchesand", "Şube ve")<br />@Localizer.Get("atms.atms", "ATM'ler")</span>
 </a>
-<button class="ykb-mobile-bell icon-notification" type="button" aria-label="Bildirimler" data-mobile-notifications></button>
+<button class="ykb-mobile-bell icon-notification" type="button" aria-label="@Localizer.Get("header.notifications", "Bildirimler")" data-mobile-notifications></button>
 <span class="ykb-mobile-separator" aria-hidden="true"></span>
-<button class="ykb-menu-toggle" type="button" aria-label="Menüyü aç" aria-expanded="false" data-mobile-menu-toggle>
+<button class="ykb-menu-toggle" type="button" aria-label="@Localizer.Get("header.openmenu", "Menüyü aç")" aria-expanded="false" data-mobile-menu-toggle>
 <span></span><span></span><span></span>
 </button>
 </div>
@@ -254,7 +346,7 @@
             @if (Model.HeaderNotifications.Count == 0)
 
             {
-<p>Şu anda bildiriminiz bulunmamaktadır.</p>
+<p>@Localizer.Get("header.nonotifications", "Şu anda bildiriminiz bulunmamaktadır.")</p>
 
             }
 
@@ -315,26 +407,32 @@
             }
 </div>
 <div class="ykb-mobile-menu" data-mobile-menu hidden>
-<div class="ykb-mobile-tabs main-tab-menu" role="tablist" aria-label="Müşteri türü">
 
-                @for (var index = 0; index < mobileTabNodes.Length; index++)
+            @if (mobileTabNodes.Length > 0)
 
-                {
+            {
+<div class="ykb-mobile-tabs main-tab-menu" role="tablist" aria-label="@Localizer.Get("header.customertype", "Müşteri türü")">
 
-                    var tab = mobileTabNodes[index];
+                    @for (var index = 0; index < mobileTabNodes.Length; index++)
+
+                    {
+
+                        var tab = mobileTabNodes[index];
 <button type="button" role="tab" aria-selected="@(index == 0 ? "true" : "false")" class="@(index == 0 ? "is-active" : string.Empty)" data-mobile-tab="@tab.Id">
 
-                        @if (!string.IsNullOrWhiteSpace(tab.IconCssClass))
+                            @if (!string.IsNullOrWhiteSpace(tab.IconCssClass))
 
-                        {
+                            {
 <i class="@tab.IconCssClass" aria-hidden="true"></i>
 
-                        }
+                            }
 <span>@tab.Title</span>
 </button>
 
-                }
+                    }
 </div>
+
+            }
 <div class="ykb-mobile-menu-body">
 <div class="ykb-mobile-menu-content" data-mobile-menu-content></div>
 
@@ -350,6 +448,8 @@
                             var download = mobileQuickLinks.Children[0];
 <a class="ykb-mobile-download" href="@download.Url"
 
+                               data-popup="@(download.OpenInWindow ? "true" : null)"
+
                                target="@(download.OpenInNewTab ? "_blank" : null)"
 
                                rel="@(download.OpenInNewTab ? "noopener noreferrer" : null)">
@@ -364,6 +464,8 @@
 
                             {
 <a href="@quickLink.Url"
+
+                                   data-popup="@(quickLink.OpenInWindow ? "true" : null)"
 
                                    target="@(quickLink.OpenInNewTab ? "_blank" : null)"
 
@@ -402,13 +504,14 @@
           data-ykb-suggest-panel  sonuçların basılacağı boş kap
 
     *@
-<section class="ykb-home-search-band" aria-label="Site araması" data-ykb-suggest>
+<section class="ykb-home-search-band" aria-label="@Localizer.Get("search.page.label", "Site içi arama")" data-ykb-suggest>
 <form class="ykb-home-search" role="search" action="/arama" method="get">
-<label class="sr-only" for="home-search">Size nasıl yardımcı olabiliriz?</label>
-<input id="home-search" name="q" type="search" maxlength="85" autocomplete="off" placeholder="Size Nasıl Yardımcı Olabiliriz?" data-ykb-suggest-input />
+<label class="sr-only" for="home-search">@Localizer.Get("sitesearch.placeholder", "Size nasıl yardımcı olabiliriz?")</label>
+<input id="home-search" name="q" type="search" maxlength="85" autocomplete="off" placeholder="@Localizer.Get("sitesearch.placeholder", "Size nasıl yardımcı olabiliriz?")" data-ykb-suggest-input />
 <button class="icon-search" type="submit" aria-label="Ara"></button>
 </form>
 <div class="suggest-panel suggest-panel--home" data-ykb-suggest-panel hidden></div>
 </section>
 
 }
+ 

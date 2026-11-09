@@ -241,6 +241,11 @@
 .ykb-footer-desktop__grid--en {
     row-gap: var(--space-8);
 }
+.ykb-footer-desktop__grid--en > .ykb-footer-column--social {
+    grid-column: -2 / -1;
+    justify-self: end;
+    width: min(100%, 169px);
+}
 .ykb-footer-column {
     min-width: 0;
     padding-right: 18px;

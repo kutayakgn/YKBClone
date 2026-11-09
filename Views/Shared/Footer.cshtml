@@ -1,7 +1,7 @@
 @using YkbYapikredi.Application.Layout
 
 @model LayoutData
- 
+
 @{
 
     var currentCulture = ViewData["Culture"]?.ToString() ?? "tr-TR";
@@ -11,13 +11,17 @@
     var isEnglish = !string.Equals(currentCulture, "tr-TR", StringComparison.OrdinalIgnoreCase);
 
     var desktopColumns = Model.FooterColumns
+
         .Where(column => column.IsVisibleOnDesktop
-            && (!isEnglish || column.Children.Any(link => link.IsVisibleOnDesktop)))
+&& (!isEnglish || column.Children.Any(link => link.IsVisibleOnDesktop)))
+
         .ToList();
 
     var mobileColumns = Model.FooterColumns
+
         .Where(column => column.IsVisibleOnMobile
-            && (!isEnglish || column.Children.Any(link => link.IsVisibleOnMobile)))
+&& (!isEnglish || column.Children.Any(link => link.IsVisibleOnMobile)))
+
         .ToList();
 
     var socialLinks = Model.Social.Links.ToList();
@@ -28,22 +32,15 @@
 
     var announcements = Model.Announcements.ToList();
 
-    const string announcementsTitle = "Duyurular";
-
-    const string allAnnouncementsTitle = "Tüm Duyurular";
-
-    const string allAnnouncementsUrl = "/yapi-kredi-hakkinda/haberler";
-
     const int announcementRotationIntervalMilliseconds = 5000;
 
-    var copyrightText = $"©{DateTime.Now.Year} Yapı ve Kredi Bankası A.Ş.";
+    var copyrightText = string.Format(Localizer.Get("copyrightText", "©{0} Yapı ve Kredi Bankası A.Ş."), DateTime.Now.Year);
 
 }
- 
 <footer class="footer ykb-footer">
 <section class="announcements ykb-announcements"
 
-             aria-label="@announcementsTitle"
+             aria-label="@Localizer.Get("common.announcements", "Duyurular")"
 
              data-ykb-announcements
 
@@ -52,9 +49,9 @@
 <span class="megaphone ykb-announcements__title" data-href="#">
 <i class="icon-megaphone" aria-hidden="true"></i>
 
-                @announcementsTitle
+                @Localizer.Get("common.announcements", "Duyurular")
 </span>
- 
+
             @if (announcements.Count > 0)
 
             {
@@ -82,7 +79,7 @@
 
                     }
 </div>
- 
+
                 @if (announcements.Count > 1)
 
                 {
@@ -105,15 +102,19 @@
 <span class="ykb-announcements__spacer" aria-hidden="true"></span>
 
             }
- 
-            <a class="allBtn ykb-announcements__all" href="@allAnnouncementsUrl">
 
-                @allAnnouncementsTitle
+            @if (currentCulture == "tr-TR")
+
+            {
+<a class="allBtn ykb-announcements__all" href="@Localizer.Get("common.allAnnouncementsUrl", "/yapi-kredi-hakkinda/haberler")">
+
+                    @Localizer.Get("common.allAnnouncements", "Tüm Duyurular")
 </a>
+
+            }
 </div>
 </section>
- 
-    <div class="footer-m ykb-footer-desktop">
+<div class="footer-m ykb-footer-desktop">
 <div class="ykb-footer-container ykb-footer-desktop__grid @(isEnglish ? "ykb-footer-desktop__grid--en" : null)">
 
             @for (var columnIndex = 0; columnIndex < desktopColumns.Count; columnIndex++)
@@ -138,25 +139,29 @@
 
                         }
 </ul>
- 
+
                     @if (columnIndex == 0 && isTurkish)
 
                     {
+
                         @await Html.PartialAsync("_FooterSocial", Model)
 
                     }
 </section>
 
             }
+
             @if (isEnglish)
+
             {
-                <section class="ykb-footer-column ykb-footer-column--social" aria-label="@Model.Social.Title">
+<section class="ykb-footer-column ykb-footer-column--social" aria-label="@Model.Social.Title">
+
                     @await Html.PartialAsync("_FooterSocial", Model)
-                </section>
+</section>
+
             }
 </div>
- 
-        <div class="footer-b ykb-footer-desktop__bottom">
+<div class="footer-b ykb-footer-desktop__bottom">
 <div class="ykb-footer-container">
 <strong>@copyrightText</strong>
 <nav aria-label="Yasal bağlantılar">
@@ -175,8 +180,7 @@
 </div>
 </div>
 </div>
- 
-    <div class="footer-mobile ykb-footer-mobile">
+<div class="footer-mobile ykb-footer-mobile">
 <div class="ykb-footer-mobile__columns">
 
             @foreach (var column in mobileColumns)
@@ -224,8 +228,7 @@
 
             }
 </div>
- 
-        <section class="social ykb-footer-mobile__social" aria-label="@Model.Social.Title">
+<section class="social ykb-footer-mobile__social" aria-label="@Model.Social.Title">
 <h2>@Model.Social.Title</h2>
 <div class="social-links ykb-footer-social__links">
 
@@ -246,8 +249,7 @@
 
                 }
 </div>
- 
-            <div class="ykb-footer-mobile__brands">
+<div class="ykb-footer-mobile__brands">
 <div class="blog-box ykb-footer-brands__primary">
 
                     @foreach (var brand in brandLinks.Take(2).Where(link => link.IsVisibleOnMobile))
@@ -300,8 +302,7 @@
                 }
 </div>
 </section>
- 
-        <nav class="bottom-links ykb-footer-mobile__legal" aria-label="Yasal ve yardımcı bağlantılar">
+<nav class="bottom-links ykb-footer-mobile__legal" aria-label="Yasal ve yardımcı bağlantılar">
 
             @foreach (var link in Model.FooterBottomLinks.Where(link => link.IsVisibleOnMobile))
 
@@ -314,7 +315,7 @@
 
             }
 </nav>
- 
+
         @if (appLinks.Count > 0)
 
         {
@@ -335,9 +336,9 @@
 </div>
 
         }
- 
-        <div class="copyright-f ykb-footer-mobile__copyright">
+<div class="copyright-f ykb-footer-mobile__copyright">
 <strong>@copyrightText</strong>
 </div>
 </div>
 </footer>
+ 
