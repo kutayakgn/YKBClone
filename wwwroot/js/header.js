@@ -4,813 +4,900 @@
 
     const initializeHeader = () => {
 
-    const header = document.querySelector("[data-ykb-header]");
+        const header = document.querySelector("[data-ykb-header]");
 
-    if (!header) return;
+        if (!header) return;
 
-    if (header.dataset.ykbHeaderInitialized === "true") return;
+        if (header.dataset.ykbHeaderInitialized === "true") return;
 
-    header.dataset.ykbHeaderInitialized = "true";
+        header.dataset.ykbHeaderInitialized = "true";
 
-    const desktopTabs = [...header.querySelectorAll("[data-desktop-tab]")];
+        const desktopTabs = [...header.querySelectorAll("[data-desktop-tab]")];
 
-    const dropdownButtons = [...header.querySelectorAll("[data-header-dropdown]")];
+        const dropdownButtons = [...header.querySelectorAll("[data-header-dropdown]")];
 
-    const dropdownPanels = [...header.querySelectorAll("[data-dropdown-panel]")];
+        const dropdownPanels = [...header.querySelectorAll("[data-dropdown-panel]")];
 
-    const desktopHeader = header.querySelector(".ykb-desktop-header");
+        const desktopHeader = header.querySelector(".ykb-desktop-header");
 
-    const notificationWrap = header.querySelector(".ykb-notification-wrap");
+        const notificationWrap = header.querySelector(".ykb-notification-wrap");
 
-    const notificationButton = notificationWrap?.querySelector('[data-header-dropdown="notifications"]');
+        const notificationButton = notificationWrap?.querySelector('[data-header-dropdown="notifications"]');
 
-    const notificationPanel = notificationWrap?.querySelector('[data-dropdown-panel="notifications"]');
+        const notificationPanel = notificationWrap?.querySelector('[data-dropdown-panel="notifications"]');
 
-    const notificationCount = notificationWrap?.querySelector(".ykb-notification-count");
+        const notificationCount = notificationWrap?.querySelector(".ykb-notification-count");
 
-    const mobileAppModal = document.querySelector("[data-mobil-uygulama-modal]");
+        const mobileAppModal = document.querySelector("[data-mobil-uygulama-modal]");
 
-    let pinnedDesktopTab = null;
+        let pinnedDesktopTab = null;
 
-    const closeDesktopTabs = () => {
+        const closeDesktopTabs = () => {
 
-        pinnedDesktopTab = null;
+            pinnedDesktopTab = null;
 
-        desktopTabs.forEach((tab) => {
+            desktopTabs.forEach((tab) => {
 
-            tab.classList.remove("is-open");
+                tab.classList.remove("is-open");
 
-            tab.querySelector(".ykb-tab-button")?.setAttribute("aria-expanded", "false");
-
-        });
-
-    };
-
-    const openDesktopTab = (tab, pin = false) => {
-
-        closeDesktopTabs();
-
-        tab.classList.add("is-open");
-
-        tab.querySelector(".ykb-tab-button")?.setAttribute("aria-expanded", "true");
-
-        if (pin) pinnedDesktopTab = tab;
-
-    };
-
-    desktopTabs.forEach((tab) => {
-
-        const button = tab.querySelector(".ykb-tab-button");
-
-        tab.addEventListener("mouseenter", () => {
-
-            if (pinnedDesktopTab !== tab) openDesktopTab(tab);
-
-        });
-
-        tab.addEventListener("mouseleave", () => {
-
-            if (pinnedDesktopTab !== tab) closeDesktopTabs();
-
-        });
-
-        button?.addEventListener("focus", () => openDesktopTab(tab));
-
-        button?.addEventListener("click", (event) => {
-
-            event.stopPropagation();
-
-            openDesktopTab(tab, true);
-
-        });
-
-    });
-
-    desktopHeader?.addEventListener("mouseleave", () => {
-
-        if (!pinnedDesktopTab) closeDesktopTabs();
-
-    });
-
-    let scrollFrame = 0;
-
-    const updateDesktopHeaderState = () => {
-
-        scrollFrame = 0;
-
-        desktopHeader?.classList.toggle("is-condensed", window.scrollY >= 32);
-
-    };
-
-    updateDesktopHeaderState();
-
-    window.addEventListener("scroll", () => {
-
-        if (scrollFrame) return;
-
-        scrollFrame = window.requestAnimationFrame(updateDesktopHeaderState);
-
-    }, { passive: true });
-
-    let notificationCloseTimer = 0;
-
-    let notificationTransitionTimer = 0;
-
-    const clearNotificationTimers = () => {
-
-        window.clearTimeout(notificationCloseTimer);
-
-        window.clearTimeout(notificationTransitionTimer);
-
-        notificationCloseTimer = 0;
-
-        notificationTransitionTimer = 0;
-
-    };
-
-    const setNotificationOpen = (open, immediate = false) => {
-
-        if (!notificationButton || !notificationPanel) return;
-
-        clearNotificationTimers();
-
-        notificationButton.setAttribute("aria-expanded", String(open));
-
-        if (open) {
-
-            notificationPanel.hidden = false;
-
-            window.requestAnimationFrame(() => {
-
-                if (!notificationPanel.hidden) notificationPanel.classList.add("is-open");
+                tab.querySelector(".ykb-tab-button")?.setAttribute("aria-expanded", "false");
 
             });
 
-            return;
+        };
 
-        }
-
-        notificationPanel.classList.remove("is-open");
-
-        if (immediate) {
-
-            notificationPanel.hidden = true;
-
-            return;
-
-        }
-
-        notificationTransitionTimer = window.setTimeout(() => {
-
-            if (notificationButton.getAttribute("aria-expanded") === "false") {
-
-                notificationPanel.hidden = true;
-
-            }
-
-        }, 260);
-
-    };
-
-    const scheduleNotificationClose = () => {
-
-        window.clearTimeout(notificationCloseTimer);
-
-        notificationCloseTimer = window.setTimeout(() => {
-
-            const hasPointer = notificationWrap?.matches(":hover") ?? false;
-
-            if (!hasPointer) setNotificationOpen(false);
-
-        }, 1000);
-
-    };
-
-    const closeDesktopDropdowns = (exceptName = "") => {
-
-        dropdownPanels.forEach((panel) => {
-
-            const matchesException = panel.dataset.dropdownPanel === exceptName;
-
-            if (!matchesException && panel !== notificationPanel) panel.hidden = true;
-
-        });
-
-        if (exceptName !== "notifications") setNotificationOpen(false, true);
-
-        dropdownButtons.forEach((button) => {
-
-            if (button.dataset.headerDropdown !== exceptName) {
-
-                button.setAttribute("aria-expanded", "false");
-
-            }
-
-        });
-
-    };
-
-    dropdownButtons.filter((button) => button !== notificationButton).forEach((button) => {
-
-        button.addEventListener("click", (event) => {
-
-            event.stopPropagation();
+        const openDesktopTab = (tab, pin = false) => {
 
             closeDesktopTabs();
 
-            const name = button.dataset.headerDropdown;
+            tab.classList.add("is-open");
 
-            const panel = header.querySelector(`[data-dropdown-panel="${name}"]`);
+            tab.querySelector(".ykb-tab-button")?.setAttribute("aria-expanded", "true");
 
-            if (!panel) return;
+            if (pin) pinnedDesktopTab = tab;
 
-            const willOpen = panel.hidden;
+        };
 
-            closeDesktopDropdowns(willOpen ? name : "");
+        desktopTabs.forEach((tab) => {
 
-            panel.hidden = !willOpen;
+            const button = tab.querySelector(".ykb-tab-button");
 
-            button.setAttribute("aria-expanded", String(willOpen));
+            tab.addEventListener("mouseenter", () => {
+
+                if (pinnedDesktopTab !== tab) openDesktopTab(tab, true);
+
+            });
+
+            tab.addEventListener("mouseleave", () => {
+
+                if (pinnedDesktopTab !== tab) closeDesktopTabs();
+
+            });
+
+            button?.addEventListener("focus", () => openDesktopTab(tab, true));
+
+            button?.addEventListener("click", (event) => {
+
+                event.stopPropagation();
+
+                openDesktopTab(tab, true);
+
+            });
 
         });
 
-    });
+        desktopHeader?.addEventListener("mouseleave", () => {
 
-    const markNotificationsRead = () => {
+            if (!pinnedDesktopTab) closeDesktopTabs();
 
-        notificationCount?.remove();
+        });
 
-        document.cookie = "isNotificationRead=true; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=Lax";
+        let scrollFrame = 0;
 
-    };
+        const updateDesktopHeaderState = () => {
 
-    const openNotifications = () => {
+            scrollFrame = 0;
 
-        closeDesktopTabs();
+            desktopHeader?.classList.toggle("is-condensed", window.scrollY >= 32);
 
-        closeDesktopDropdowns("notifications");
+        };
 
-        setNotificationOpen(true);
+        updateDesktopHeaderState();
 
-        markNotificationsRead();
+        window.addEventListener("scroll", () => {
 
-    };
+            if (scrollFrame) return;
 
-    notificationWrap?.addEventListener("mouseenter", openNotifications);
+            scrollFrame = window.requestAnimationFrame(updateDesktopHeaderState);
 
-    notificationWrap?.addEventListener("mouseleave", scheduleNotificationClose);
+        }, { passive: true });
 
-    notificationPanel?.addEventListener("mouseenter", openNotifications);
+        let notificationCloseTimer = 0;
 
-    notificationPanel?.addEventListener("mouseleave", scheduleNotificationClose);
+        let notificationTransitionTimer = 0;
 
-    notificationWrap?.addEventListener("focusin", openNotifications);
+        const clearNotificationTimers = () => {
 
-    notificationWrap?.addEventListener("focusout", (event) => {
+            window.clearTimeout(notificationCloseTimer);
 
-        if (event.relatedTarget instanceof Node && notificationWrap.contains(event.relatedTarget)) return;
+            window.clearTimeout(notificationTransitionTimer);
 
-        scheduleNotificationClose();
+            notificationCloseTimer = 0;
 
-    });
+            notificationTransitionTimer = 0;
 
-    notificationButton?.addEventListener("click", (event) => {
+        };
 
-        event.stopPropagation();
+        const setNotificationOpen = (open, immediate = false) => {
 
-        if (notificationButton.getAttribute("aria-expanded") === "true") {
+            if (!notificationButton || !notificationPanel) return;
 
-            setNotificationOpen(false);
+            clearNotificationTimers();
 
-        } else {
+            notificationButton.setAttribute("aria-expanded", String(open));
 
-            openNotifications();
+            if (open) {
 
-        }
+                notificationPanel.hidden = false;
 
-    });
+                window.requestAnimationFrame(() => {
 
-    if (mobileAppModal && window.bootstrap?.Modal) {
+                    if (!notificationPanel.hidden) notificationPanel.classList.add("is-open");
 
-        document.addEventListener("click", (event) => {
-
-            const opener = event.target.closest?.("[data-mobil-uygulama-open]");
-
-            if (!opener) {
+                });
 
                 return;
 
             }
- 
-            event.preventDefault();
 
-            window.bootstrap.Modal.getOrCreateInstance(mobileAppModal).show();
+            notificationPanel.classList.remove("is-open");
 
-        });
+            if (immediate) {
 
-    }
+                notificationPanel.hidden = true;
 
-    const dataElement = document.getElementById("ykb-mobile-menu-data");
-
-    const readNodeProperty = (node, propertyName) => {
-
-        if (!node) return undefined;
-
-        const camelCaseName = propertyName.charAt(0).toLowerCase() + propertyName.slice(1);
-
-        return node[propertyName] ?? node[camelCaseName];
-
-    };
-
-    const normalizeRole = (role) => String(role || "MenuItem")
-
-        .split(";", 1)[0]
-
-        .trim()
-
-        .toLowerCase();
-
-    const hasRole = (node, role) => normalizeRole(node?.Role) === normalizeRole(role);
-
-    const normalizeNode = (node) => ({
-
-        Id: String(readNodeProperty(node, "Id") || ""),
-
-        Title: String(readNodeProperty(node, "Title") || ""),
-
-        Url: String(readNodeProperty(node, "Url") || ""),
-
-        IconCssClass: String(readNodeProperty(node, "IconCssClass") || ""),
-
-        BadgeText: String(readNodeProperty(node, "BadgeText") || ""),
-
-        Role: String(readNodeProperty(node, "Role") || "MenuItem").split(";", 1)[0].trim(),
-
-        OpenInNewTab: readNodeProperty(node, "OpenInNewTab") === true,
-
-        Children: (readNodeProperty(node, "Children") || []).map(normalizeNode)
-
-    });
-
-    let allNodes = [];
-
-    try {
-
-        const parsedNodes = JSON.parse(dataElement?.textContent || "[]");
-
-        allNodes = Array.isArray(parsedNodes) ? parsedNodes.map(normalizeNode) : [];
-
-    } catch {
-
-        allNodes = [];
-
-    }
-
-    const tabNodes = allNodes.filter((node) => hasRole(node, "Tab"));
-
-    const mobileMenu = header.querySelector("[data-mobile-menu]");
-
-    const mobileMenuToggle = header.querySelector("[data-mobile-menu-toggle]");
-
-    const mobileButtons = header.querySelector("[data-mobile-buttons]");
-
-    const mobileMenuContent = header.querySelector("[data-mobile-menu-content]");
-
-    const mobileTabButtons = [...header.querySelectorAll("[data-mobile-tab]")];
-
-    const mobileNotificationButton = header.querySelector("[data-mobile-notifications]");
-
-    const mobileNotificationMenu = header.querySelector("[data-mobile-notification-menu]");
-
-    const menuItemNodes = allNodes.filter((node) => hasRole(node, "MenuItem"));
-
-    let activeTab = tabNodes[0]
-
-        || (menuItemNodes.length ? { Id: "", Title: "", Children: menuItemNodes } : null);
-
-    let navigationStack = [];
-
-    let mobileActionSheet = null;
-
-    const mobileChildren = (node) => node?.Children || [];
-
-    const createIcon = (className, extraClass = "") => {
-
-        const icon = document.createElement("i");
-
-        icon.className = `${extraClass} ${className || ""}`.trim();
-
-        icon.setAttribute("aria-hidden", "true");
-
-        return icon;
-
-    };
-
-    const renderMobileLevel = () => {
-
-        if (!mobileMenuContent || !activeTab) return;
-
-        mobileMenuContent.replaceChildren();
-
-        if (mobileMenu) mobileMenu.scrollTop = 0;
-
-        const currentNode = navigationStack[navigationStack.length - 1] || activeTab;
-
-        const isRoot = navigationStack.length === 0;
-
-        if (!isRoot) {
-
-            const back = document.createElement("button");
-
-            back.type = "button";
-
-            back.className = "ykb-mobile-back";
-
-            back.append(createIcon("icon-chevron-left"));
-
-            const backLabel = document.createElement("span");
-
-            backLabel.textContent = navigationStack.length === 1
-
-                ? "Geri"
-
-                : navigationStack[navigationStack.length - 2].Title;
-
-            back.append(backLabel);
-
-            back.addEventListener("click", () => {
-
-                navigationStack.pop();
-
-                renderMobileLevel();
-
-            });
-
-            mobileMenuContent.append(back);
-
-            const title = document.createElement("div");
-
-            title.className = "ykb-mobile-level-title";
-
-            if (navigationStack.length === 1 && currentNode.IconCssClass) {
-
-                title.append(createIcon(currentNode.IconCssClass));
+                return;
 
             }
 
-            const titleText = document.createElement("span");
+            notificationTransitionTimer = window.setTimeout(() => {
 
-            titleText.textContent = currentNode.Title;
+                if (notificationButton.getAttribute("aria-expanded") === "false") {
 
-            title.append(titleText);
+                    notificationPanel.hidden = true;
 
-            mobileMenuContent.append(title);
+                }
+
+            }, 260);
+
+        };
+
+        const scheduleNotificationClose = () => {
+
+            window.clearTimeout(notificationCloseTimer);
+
+            notificationCloseTimer = window.setTimeout(() => {
+
+                const hasPointer = notificationWrap?.matches(":hover") ?? false;
+
+                if (!hasPointer) setNotificationOpen(false);
+
+            }, 1000);
+
+        };
+
+        const closeDesktopDropdowns = (exceptName = "") => {
+
+            dropdownPanels.forEach((panel) => {
+
+                const matchesException = panel.dataset.dropdownPanel === exceptName;
+
+                if (!matchesException && panel !== notificationPanel) panel.hidden = true;
+
+            });
+
+            if (exceptName !== "notifications") setNotificationOpen(false, true);
+
+            dropdownButtons.forEach((button) => {
+
+                if (button.dataset.headerDropdown !== exceptName) {
+
+                    button.setAttribute("aria-expanded", "false");
+
+                }
+
+            });
+
+        };
+
+        dropdownButtons.filter((button) => button !== notificationButton).forEach((button) => {
+
+            button.addEventListener("click", (event) => {
+
+                event.stopPropagation();
+
+                closeDesktopTabs();
+
+                const name = button.dataset.headerDropdown;
+
+                const panel = header.querySelector(`[data-dropdown-panel="${name}"]`);
+
+                if (!panel) return;
+
+                const willOpen = panel.hidden;
+
+                closeDesktopDropdowns(willOpen ? name : "");
+
+                panel.hidden = !willOpen;
+
+                button.setAttribute("aria-expanded", String(willOpen));
+
+            });
+
+        });
+
+        const markNotificationsRead = () => {
+
+            notificationCount?.remove();
+
+            document.cookie = "isNotificationRead=true; path=/; expires=Fri, 31 Dec 9999 23:59:59 GMT; SameSite=Lax";
+
+        };
+
+        const openNotifications = () => {
+
+            closeDesktopTabs();
+
+            closeDesktopDropdowns("notifications");
+
+            setNotificationOpen(true);
+
+            markNotificationsRead();
+
+        };
+
+        notificationWrap?.addEventListener("mouseenter", openNotifications);
+
+        notificationWrap?.addEventListener("mouseleave", scheduleNotificationClose);
+
+        notificationPanel?.addEventListener("mouseenter", openNotifications);
+
+        notificationPanel?.addEventListener("mouseleave", scheduleNotificationClose);
+
+        notificationWrap?.addEventListener("focusin", openNotifications);
+
+        notificationWrap?.addEventListener("focusout", (event) => {
+
+            if (event.relatedTarget instanceof Node && notificationWrap.contains(event.relatedTarget)) return;
+
+            scheduleNotificationClose();
+
+        });
+
+        notificationButton?.addEventListener("click", (event) => {
+
+            event.stopPropagation();
+
+            if (notificationButton.getAttribute("aria-expanded") === "true") {
+
+                setNotificationOpen(false);
+
+            } else {
+
+                openNotifications();
+
+            }
+
+        });
+
+        if (mobileAppModal && window.bootstrap?.Modal) {
+
+            document.addEventListener("click", (event) => {
+
+                const opener = event.target.closest?.("[data-mobil-uygulama-open]");
+
+                if (!opener) {
+
+                    return;
+
+                }
+
+                event.preventDefault();
+
+                window.bootstrap.Modal.getOrCreateInstance(mobileAppModal).show();
+
+            });
 
         }
 
-        const list = document.createElement("div");
+        const dataElement = document.getElementById("ykb-mobile-menu-data");
 
-        list.className = `ykb-mobile-menu-list${isRoot ? " is-root" : ""}`;
+        const readNodeProperty = (node, propertyName) => {
 
-        const animateRows = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+            if (!node) return undefined;
 
-        if (animateRows) list.classList.add("is-entering");
+            const camelCaseName = propertyName.charAt(0).toLowerCase() + propertyName.slice(1);
 
-        mobileChildren(currentNode).forEach((node, index) => {
+            return node[propertyName] ?? node[camelCaseName];
 
-            const children = mobileChildren(node);
+        };
 
-            const element = document.createElement(children.length ? "button" : "a");
+        const normalizeRole = (role) => String(role || "MenuItem")
 
-            element.className = "ykb-mobile-menu-row";
+            .split(";", 1)[0]
 
-            element.style.setProperty("--ykb-row-index", index);
+            .trim()
 
-            if (children.length) {
+            .toLowerCase();
 
-                element.type = "button";
+        const hasRole = (node, role) => normalizeRole(node?.Role) === normalizeRole(role);
 
-                element.addEventListener("click", () => {
+        const normalizeNode = (node) => ({
 
-                    navigationStack.push(node);
+            Id: String(readNodeProperty(node, "Id") || ""),
+
+            Title: String(readNodeProperty(node, "Title") || ""),
+
+            Url: String(readNodeProperty(node, "Url") || ""),
+
+            IconCssClass: String(readNodeProperty(node, "IconCssClass") || ""),
+
+            BadgeText: String(readNodeProperty(node, "BadgeText") || ""),
+
+            Role: String(readNodeProperty(node, "Role") || "MenuItem").split(";", 1)[0].trim(),
+
+            OpenInNewTab: readNodeProperty(node, "OpenInNewTab") === true,
+
+            Children: (readNodeProperty(node, "Children") || []).map(normalizeNode)
+
+        });
+
+        let allNodes = [];
+
+        try {
+
+            const parsedNodes = JSON.parse(dataElement?.textContent || "[]");
+
+            allNodes = Array.isArray(parsedNodes) ? parsedNodes.map(normalizeNode) : [];
+
+        } catch {
+
+            allNodes = [];
+
+        }
+
+        const tabNodes = allNodes.filter((node) => hasRole(node, "Tab"));
+
+        const mobileMenu = header.querySelector("[data-mobile-menu]");
+
+        const mobileMenuToggle = header.querySelector("[data-mobile-menu-toggle]");
+
+        const mobileButtons = header.querySelector("[data-mobile-buttons]");
+
+        const mobileMenuContent = header.querySelector("[data-mobile-menu-content]");
+
+        const mobileTabButtons = [...header.querySelectorAll("[data-mobile-tab]")];
+
+        const mobileNotificationButton = header.querySelector("[data-mobile-notifications]");
+
+        const mobileNotificationMenu = header.querySelector("[data-mobile-notification-menu]");
+
+        const menuItemNodes = allNodes.filter((node) => hasRole(node, "MenuItem"));
+
+        let activeTab = tabNodes[0]
+
+            || (menuItemNodes.length ? { Id: "", Title: "", Children: menuItemNodes } : null);
+
+        let navigationStack = [];
+
+        let mobileActionSheet = null;
+
+        const mobileChildren = (node) => node?.Children || [];
+
+        const mobileMenuStateKey = `ykb-mobile-menu-state:${document.documentElement.lang || "tr"}`;
+        let mobileMenuScrollTop = 0;
+
+        const saveMobileMenuState = () => {
+            try {
+                window.sessionStorage.setItem(mobileMenuStateKey, JSON.stringify({
+                    tabId: activeTab?.Id || "",
+                    path: navigationStack.map((node) => node.Id),
+                    scrollTop: mobileMenuScrollTop
+                }));
+            } catch {
+                // Keep navigation usable when browser storage is unavailable.
+            }
+        };
+
+        const restoreMobileMenuState = () => {
+            try {
+                const saved = JSON.parse(window.sessionStorage.getItem(mobileMenuStateKey) || "null");
+                if (!saved || !Array.isArray(saved.path)) return;
+
+                const savedTab = tabNodes.find((tab) => tab.Id === saved.tabId)
+                    || (!tabNodes.length && activeTab?.Id === saved.tabId ? activeTab : null);
+                if (!savedTab) return;
+
+                activeTab = savedTab;
+                let parent = activeTab;
+                for (const id of saved.path) {
+                    const child = mobileChildren(parent).find((node) => node.Id === id && mobileChildren(node).length);
+                    if (!child) break;
+                    navigationStack.push(child);
+                    parent = child;
+                }
+
+                if (navigationStack.length === saved.path.length && Number.isFinite(saved.scrollTop) && saved.scrollTop >= 0) {
+                    mobileMenuScrollTop = saved.scrollTop;
+                }
+            } catch {
+                // Ignore malformed or obsolete state; resolve nodes from the current menu only.
+            }
+        };
+
+        restoreMobileMenuState();
+
+        const rememberMobileMenuPosition = () => {
+            if (!mobileMenu || mobileMenu.hidden) return;
+            mobileMenuScrollTop = mobileMenu.scrollTop;
+            saveMobileMenuState();
+        };
+
+        const createIcon = (className, extraClass = "") => {
+
+            const icon = document.createElement("i");
+
+            icon.className = `${extraClass} ${className || ""}`.trim();
+
+            icon.setAttribute("aria-hidden", "true");
+
+            return icon;
+
+        };
+
+        const renderMobileLevel = (preserveScroll = false) => {
+
+            if (!mobileMenuContent || !activeTab) return;
+
+            const scrollTop = preserveScroll ? mobileMenuScrollTop : 0;
+
+            mobileMenuContent.replaceChildren();
+
+            mobileTabButtons.forEach((button) => {
+                const selected = button.dataset.mobileTab === activeTab.Id;
+                button.classList.toggle("is-active", selected);
+                button.setAttribute("aria-selected", String(selected));
+            });
+
+            const currentNode = navigationStack[navigationStack.length - 1] || activeTab;
+
+            const isRoot = navigationStack.length === 0;
+
+            if (!isRoot) {
+
+                const back = document.createElement("button");
+
+                back.type = "button";
+
+                back.className = "ykb-mobile-back";
+
+                back.append(createIcon("icon-chevron-left"));
+
+                const backLabel = document.createElement("span");
+
+                backLabel.textContent = navigationStack.length === 1
+
+                    ? "Geri"
+
+                    : navigationStack[navigationStack.length - 2].Title;
+
+                back.append(backLabel);
+
+                back.addEventListener("click", () => {
+
+                    navigationStack.pop();
 
                     renderMobileLevel();
 
                 });
 
-            } else {
+                mobileMenuContent.append(back);
 
-                element.href = node.Url || "#";
+                const title = document.createElement("a");
 
-                if (node.OpenInNewTab) {
+                title.href = currentNode.Url || "#";
 
-                    element.target = "_blank";
+                title.className = "ykb-mobile-level-title";
 
-                    element.rel = "noopener noreferrer";
+                if (navigationStack.length === 1 && currentNode.IconCssClass) {
+
+                    title.append(createIcon(currentNode.IconCssClass));
+
+                }
+
+                const titleText = document.createElement("span");
+
+                titleText.textContent = currentNode.Title;
+
+                title.append(titleText);
+
+                mobileMenuContent.append(title);
+
+                if (currentNode.BadgeText) {
+
+                    const badge = document.createElement("span");
+
+                    badge.className = "ykb-mobile-badge";
+
+                    badge.style.marginLeft = "-7px";
+
+                    badge.textContent = currentNode.BadgeText;
+
+                    title.append(" ", badge);
 
                 }
 
             }
 
-            if (isRoot && node.IconCssClass) {
+            const list = document.createElement("div");
 
-                element.append(createIcon(node.IconCssClass, "ykb-row-icon"));
+            list.className = `ykb-mobile-menu-list${isRoot ? " is-root" : ""}`;
 
-            } else if (isRoot) {
+            const animateRows = !window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-                const spacer = document.createElement("span");
+            if (animateRows) list.classList.add("is-entering");
 
-                spacer.className = "ykb-row-icon";
+            mobileChildren(currentNode).forEach((node, index) => {
 
-                element.append(spacer);
+                const children = mobileChildren(node);
 
+                const element = document.createElement(children.length ? "button" : "a");
+
+                element.className = "ykb-mobile-menu-row";
+
+                element.style.setProperty("--ykb-row-index", index);
+
+                if (children.length) {
+
+                    element.type = "button";
+
+                    element.addEventListener("click", () => {
+
+                        navigationStack.push(node);
+
+                        renderMobileLevel();
+
+                    });
+
+                } else {
+
+                    element.href = node.Url || "#";
+
+                    if (node.OpenInNewTab) {
+
+                        element.target = "_blank";
+
+                        element.rel = "noopener noreferrer";
+
+                    }
+
+                }
+
+                if (isRoot && node.IconCssClass) {
+
+                    element.append(createIcon(node.IconCssClass, "ykb-row-icon"));
+
+                } else if (isRoot) {
+
+                    const spacer = document.createElement("span");
+
+                    spacer.className = "ykb-row-icon";
+
+                    element.append(spacer);
+
+                }
+
+                const label = document.createElement("span");
+
+                label.className = "ykb-row-title";
+
+                label.textContent = node.Title;
+
+                if (node.BadgeText) {
+
+                    const badge = document.createElement("span");
+
+                    badge.className = "ykb-mobile-badge";
+
+                    badge.textContent = node.BadgeText;
+
+                    label.append(" ", badge);
+
+                }
+
+                element.append(label);
+
+                if (children.length) {
+
+                    element.append(createIcon("icon-chevron-right", "ykb-chevron"));
+
+                }
+
+                list.append(element);
+
+            });
+
+            mobileMenuContent.append(list);
+
+            if (mobileMenu) {
+                mobileMenu.scrollTop = scrollTop;
+                mobileMenuScrollTop = mobileMenu.scrollTop;
             }
+            saveMobileMenuState();
 
-            const label = document.createElement("span");
-
-            label.className = "ykb-row-title";
-
-            label.textContent = node.Title;
-
-            if (node.BadgeText) {
-
-                const badge = document.createElement("span");
-
-                badge.className = "ykb-mobile-badge";
-
-                badge.textContent = node.BadgeText;
-
-                label.append(" ", badge);
-
-            }
-
-            element.append(label);
-
-            if (children.length) {
-
-                element.append(createIcon("icon-chevron-right", "ykb-chevron"));
-
-            }
-
-            list.append(element);
-
-        });
-
-        mobileMenuContent.append(list);
-
-        if (animateRows) {
-
-            window.requestAnimationFrame(() => {
+            if (animateRows) {
 
                 window.requestAnimationFrame(() => {
 
-                    if (list.isConnected) list.classList.remove("is-entering");
+                    window.requestAnimationFrame(() => {
+
+                        if (list.isConnected) list.classList.remove("is-entering");
+
+                    });
+
+                });
+
+            }
+
+        };
+
+        const closeMobileActionSheet = () => {
+
+            const sheet = mobileActionSheet;
+
+            mobileActionSheet = null;
+
+            header.querySelectorAll("[data-mobile-action]").forEach((button) => {
+
+                button.setAttribute("aria-expanded", "false");
+
+            });
+
+            if (!sheet?.parentNode) return;
+
+            let removed = false;
+
+            const removeSheet = (event) => {
+
+                if (event && (event.target !== sheet || event.propertyName !== "max-height")) return;
+
+                if (removed) return;
+
+                removed = true;
+
+                sheet.removeEventListener("transitionend", removeSheet);
+
+                sheet.remove();
+
+            };
+
+            sheet.classList.remove("is-open");
+
+            sheet.addEventListener("transitionend", removeSheet);
+
+            window.setTimeout(removeSheet, 360);
+
+        };
+
+        const closeMobileOverlays = () => {
+
+            if (mobileNotificationMenu) mobileNotificationMenu.hidden = true;
+
+            closeMobileActionSheet();
+
+        };
+
+        const setMobileMenuOpen = (open) => {
+
+            if (!mobileMenu || !mobileMenuToggle) return;
+
+            if (!open) rememberMobileMenuPosition();
+
+            closeMobileOverlays();
+
+            mobileMenu.hidden = !open;
+
+            if (mobileButtons) mobileButtons.hidden = open;
+
+            mobileMenuToggle.setAttribute("aria-expanded", String(open));
+
+            mobileMenuToggle.setAttribute("aria-label", open ? "Menüyü kapat" : "Menüyü aç");
+
+            document.body.classList.toggle("ykb-menu-open", open);
+
+            if (open) {
+
+                renderMobileLevel(true);
+
+            }
+
+        };
+
+        mobileMenuToggle?.addEventListener("click", () => {
+
+            setMobileMenuOpen(mobileMenu?.hidden ?? true);
+
+        });
+
+        mobileMenu?.addEventListener("click", (event) => {
+            if (event.target.closest?.("a")) rememberMobileMenuPosition();
+        });
+
+        window.addEventListener("pagehide", rememberMobileMenuPosition);
+
+        mobileTabButtons.forEach((button) => {
+
+            button.addEventListener("click", () => {
+
+                const nextTab = tabNodes.find((tab) => tab.Id === button.dataset.mobileTab);
+
+                if (!nextTab) return;
+
+                activeTab = nextTab;
+
+                navigationStack = [];
+
+                renderMobileLevel();
+
+            });
+
+        });
+
+        mobileNotificationButton?.addEventListener("click", (event) => {
+
+            event.stopPropagation();
+
+            closeMobileActionSheet();
+
+            if (mobileNotificationMenu) mobileNotificationMenu.hidden = !mobileNotificationMenu.hidden;
+
+            if (mobileNotificationMenu && !mobileNotificationMenu.hidden) markNotificationsRead();
+
+        });
+
+        const appendActionLink = (parent, node, modifier) => {
+
+            const link = document.createElement("a");
+
+            link.className = `ykb-action-item ykb-action-item--${modifier}`;
+
+            link.href = node.Url || "#";
+
+            if (node.OpenInNewTab) {
+
+                link.target = "_blank";
+
+                link.rel = "noopener noreferrer";
+
+            }
+
+            if (node.IconCssClass) link.append(createIcon(node.IconCssClass));
+
+            const label = document.createElement("span");
+
+            label.textContent = node.Title;
+
+            link.append(label);
+
+            link.append(createIcon("icon-chevron-right", "ykb-action-item-chevron"));
+
+            parent.append(link);
+
+        };
+
+        const appendActionGroup = (parent, groupNode) => {
+
+            const group = document.createElement("div");
+
+            const children = mobileChildren(groupNode);
+
+            group.className = "ykb-action-group";
+
+            appendActionLink(group, groupNode, "primary");
+
+            if (children.length) {
+
+                const childList = document.createElement("div");
+
+                childList.className = "ykb-action-children";
+
+                children.forEach((child) => appendActionLink(childList, child, "child"));
+
+                group.append(childList);
+
+            }
+
+            parent.append(group);
+
+        };
+
+        const findNodeById = (nodes, id) => {
+
+            for (const node of nodes) {
+
+                if (String(node.Id) === String(id)) return node;
+
+                const childMatch = findNodeById(mobileChildren(node), id);
+
+                if (childMatch) return childMatch;
+
+            }
+
+            return null;
+
+        };
+
+        header.querySelectorAll("[data-mobile-action]").forEach((button) => {
+
+            button.addEventListener("click", (event) => {
+
+                event.stopPropagation();
+
+                const node = findNodeById(allNodes, button.dataset.mobileAction);
+
+                const wasSame = String(mobileActionSheet?.dataset.actionId) === String(node?.Id);
+
+                closeMobileActionSheet();
+
+                if (!node || wasSame) return;
+
+                const wrap = button.closest("[data-mobile-action-wrap]");
+
+                if (!wrap) return;
+
+                const sheet = document.createElement("div");
+
+                sheet.className = `ykb-mobile-action-sheet ${hasRole(node, "InternetBranch") ? "is-red" : "is-blue"}`;
+
+                sheet.dataset.actionId = String(node.Id);
+
+                mobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
+
+                wrap.append(sheet);
+
+                button.setAttribute("aria-expanded", "true");
+
+                mobileActionSheet = sheet;
+
+                window.requestAnimationFrame(() => {
+
+                    if (sheet.parentNode && mobileActionSheet === sheet) sheet.classList.add("is-open");
 
                 });
 
             });
 
-        }
+        });
 
-    };
+        document.addEventListener("click", (event) => {
 
-    const closeMobileActionSheet = () => {
+            if (!event.target.closest("[data-mobile-action-wrap]")) closeMobileActionSheet();
 
-        const sheet = mobileActionSheet;
+            if (!header.contains(event.target)) {
 
-        mobileActionSheet = null;
+                closeDesktopDropdowns();
 
-        header.querySelectorAll("[data-mobile-action]").forEach((button) => {
+                closeDesktopTabs();
 
-            button.setAttribute("aria-expanded", "false");
+                closeMobileOverlays();
+
+            }
 
         });
 
-        if (!sheet?.parentNode) return;
+        document.addEventListener("keydown", (event) => {
 
-        let removed = false;
-
-        const removeSheet = (event) => {
-
-            if (event && (event.target !== sheet || event.propertyName !== "max-height")) return;
-
-            if (removed) return;
-
-            removed = true;
-
-            sheet.removeEventListener("transitionend", removeSheet);
-
-            sheet.remove();
-
-        };
-
-        sheet.classList.remove("is-open");
-
-        sheet.addEventListener("transitionend", removeSheet);
-
-        window.setTimeout(removeSheet, 360);
-
-    };
-
-    const closeMobileOverlays = () => {
-
-        if (mobileNotificationMenu) mobileNotificationMenu.hidden = true;
-
-        closeMobileActionSheet();
-
-    };
-
-    const setMobileMenuOpen = (open) => {
-
-        if (!mobileMenu || !mobileMenuToggle) return;
-
-        closeMobileOverlays();
-
-        mobileMenu.hidden = !open;
-
-        if (mobileButtons) mobileButtons.hidden = open;
-
-        mobileMenuToggle.setAttribute("aria-expanded", String(open));
-
-        mobileMenuToggle.setAttribute("aria-label", open ? "Menüyü kapat" : "Menüyü aç");
-
-        document.body.classList.toggle("ykb-menu-open", open);
-
-        if (open) {
-
-            navigationStack = [];
-
-            renderMobileLevel();
-
-        }
-
-    };
-
-    mobileMenuToggle?.addEventListener("click", () => {
-
-        setMobileMenuOpen(mobileMenu?.hidden ?? true);
-
-    });
-
-    mobileTabButtons.forEach((button) => {
-
-        button.addEventListener("click", () => {
-
-            const nextTab = tabNodes.find((tab) => tab.Id === button.dataset.mobileTab);
-
-            if (!nextTab) return;
-
-            activeTab = nextTab;
-
-            navigationStack = [];
-
-            mobileTabButtons.forEach((item) => {
-
-                const selected = item === button;
-
-                item.classList.toggle("is-active", selected);
-
-                item.setAttribute("aria-selected", String(selected));
-
-            });
-
-            renderMobileLevel();
-
-        });
-
-    });
-
-    mobileNotificationButton?.addEventListener("click", (event) => {
-
-        event.stopPropagation();
-
-        closeMobileActionSheet();
-
-        if (mobileNotificationMenu) mobileNotificationMenu.hidden = !mobileNotificationMenu.hidden;
-
-        if (mobileNotificationMenu && !mobileNotificationMenu.hidden) markNotificationsRead();
-
-    });
-
-    const appendActionLink = (parent, node, modifier) => {
-
-        const link = document.createElement("a");
-
-        link.className = `ykb-action-item ykb-action-item--${modifier}`;
-
-        link.href = node.Url || "#";
-
-        if (node.OpenInNewTab) {
-
-            link.target = "_blank";
-
-            link.rel = "noopener noreferrer";
-
-        }
-
-        if (node.IconCssClass) link.append(createIcon(node.IconCssClass));
-
-        const label = document.createElement("span");
-
-        label.textContent = node.Title;
-
-        link.append(label);
-
-        link.append(createIcon("icon-chevron-right", "ykb-action-item-chevron"));
-
-        parent.append(link);
-
-    };
-
-    const appendActionGroup = (parent, groupNode) => {
-
-        const group = document.createElement("div");
-
-        const children = mobileChildren(groupNode);
-
-        group.className = "ykb-action-group";
-
-        appendActionLink(group, groupNode, "primary");
-
-        if (children.length) {
-
-            const childList = document.createElement("div");
-
-            childList.className = "ykb-action-children";
-
-            children.forEach((child) => appendActionLink(childList, child, "child"));
-
-            group.append(childList);
-
-        }
-
-        parent.append(group);
-
-    };
-
-    const findNodeById = (nodes, id) => {
-
-        for (const node of nodes) {
-
-            if (String(node.Id) === String(id)) return node;
-
-            const childMatch = findNodeById(mobileChildren(node), id);
-
-            if (childMatch) return childMatch;
-
-        }
-
-        return null;
-
-    };
-
-    header.querySelectorAll("[data-mobile-action]").forEach((button) => {
-
-        button.addEventListener("click", (event) => {
-
-            event.stopPropagation();
-
-            const node = findNodeById(allNodes, button.dataset.mobileAction);
-
-            const wasSame = String(mobileActionSheet?.dataset.actionId) === String(node?.Id);
-
-            closeMobileActionSheet();
-
-            if (!node || wasSame) return;
-
-            const wrap = button.closest("[data-mobile-action-wrap]");
-
-            if (!wrap) return;
-
-            const sheet = document.createElement("div");
-
-            sheet.className = `ykb-mobile-action-sheet ${hasRole(node, "InternetBranch") ? "is-red" : "is-blue"}`;
-
-            sheet.dataset.actionId = String(node.Id);
-
-            mobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
-
-            wrap.append(sheet);
-
-            button.setAttribute("aria-expanded", "true");
-
-            mobileActionSheet = sheet;
-
-            window.requestAnimationFrame(() => {
-
-                if (sheet.parentNode && mobileActionSheet === sheet) sheet.classList.add("is-open");
-
-            });
-
-        });
-
-    });
-
-    document.addEventListener("click", (event) => {
-
-        if (!event.target.closest("[data-mobile-action-wrap]")) closeMobileActionSheet();
-
-        if (!header.contains(event.target)) {
+            if (event.key !== "Escape") return;
 
             closeDesktopDropdowns();
 
@@ -818,32 +905,18 @@
 
             closeMobileOverlays();
 
-        }
+            setMobileMenuOpen(false);
 
-    });
+        });
 
-    document.addEventListener("keydown", (event) => {
+        window.addEventListener("resize", () => {
 
-        if (event.key !== "Escape") return;
+            if (window.innerWidth >= 992) setMobileMenuOpen(false);
 
-        closeDesktopDropdowns();
-
-        closeDesktopTabs();
-
-        closeMobileOverlays();
-
-        setMobileMenuOpen(false);
-
-    });
-
-    window.addEventListener("resize", () => {
-
-        if (window.innerWidth >= 992) setMobileMenuOpen(false);
-
-    });
+        });
 
     };
- 
+
     if (document.readyState === "loading") {
 
         document.addEventListener("DOMContentLoaded", initializeHeader, { once: true });
@@ -855,4 +928,4 @@
     }
 
 })();
- 
+
