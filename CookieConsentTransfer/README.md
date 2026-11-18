@@ -4,6 +4,8 @@ Bu aktarım paketi asıl Xperience 13 **ASP.NET Core canlı site** projesi için
 
 ## Kentico CMS panelinde yapılacaklar
 
+Kurulum için Kentico panelinde site ayarını, metinleri ve iki custom table tanımını oluşturun. Uygulama kararları ve sayaçları kendisi yazar. Günlük özet **Custom table data** ekranında görüntülenir.
+
 ### 1. Site çerez seviyesini ayarlayın
 
 **Settings → System → Cookies → Default cookie level** alanında üstten asıl siteyi seçin. Gerekirse global değeri devralmayı kapatıp **Essential** seçin ve kaydedin.
@@ -39,38 +41,53 @@ Bu ayar Xperience'ın kendi çerezlerini yönetir. Üç isteğe bağlı izin tar
 
 Bileşen kültürü layout’taki `ViewData["Culture"]` değerinden, yoksa ASP.NET Core istek kültüründen alır. Yeni bir izin gerektiren metin veya kategori değişikliğinde canlı site ayarındaki `CookieConsent:PolicyVersion` değerini artırın. Geçerli sürüme ait tercih bulunana kadar banner yeniden açılır ve GA4 bekler. [Kentico resource strings](https://docs.kentico.com/13/multilingual-websites/setting-up-a-multilingual-user-interface/localizing-builder-components)
 
-### 3. Karar tablosunu oluşturun
+### 3. İki custom table oluşturun
 
-**Custom tables → New custom table** üzerinden tabloyu oluşturun. XML/DB alan adlarını aşağıdaki gibi girin.
+Global administrator ile **Custom tables → New custom table** sihirbazını kullanın. Her iki tablo için **Create a new database table** seçin, Kentico’nun önerdiği tablo adını ve **Primary key name** olarak `ItemID` değerini bırakın. Her alanı **New field** ile oluşturun. Kodun kullandığı **Field name** değerini aşağıdaki adlarla aynen girin. **Field caption** panelde görünen başlıktır. Alanları tamamlayıp **Add sites** ile asıl siteyi seçin ve sihirbazı bitirin. Tabloların ilk satırlarını canlı site oluşturur. [Custom tables sihirbazı](https://docs.kentico.com/13/developing-websites/defining-website-content-structure/managing-custom-tables/creating-custom-tables)
 
-- Display name **Çerez tercih kararları**
-- Namespace **Ykb**, name **CookieConsentDecision**, code name **Ykb.CookieConsentDecision**
-- Table name **customtable_YkbCookieConsentDecision**. Varsayılan şema `dbo` kabul edilir.
-- **Include ItemGUID field** açık. Sihirbazın sunduğu kullanıcı damgası alanlarını (`ItemCreatedBy`, `ItemModifiedBy`) kapatabilirsiniz.
-- Sihirbazdaki site seçimi veya tablonun **Sites** sekmesi üzerinden asıl siteyi atayın.
+#### Çerez tercih kararları
 
-| Field name | Kentico data type | Boyut |
-| --- | --- | --- |
-| `SiteCodeName` | Text | 100 |
-| `DecisionUtc` | Date and time | |
-| `DecisionAction` | Text | 10 |
-| `Outcome` | Text | 10 |
-| `IsInitial` | Boolean (Yes/No) | |
-| `FunctionalAllowed` | Boolean (Yes/No) | |
-| `AnalyticsAllowed` | Boolean (Yes/No) | |
-| `AdvertisingAllowed` | Boolean (Yes/No) | |
-| `PolicyVersion` | Integer number | |
+**Display name** alanına **Çerez tercih kararları**, **Namespace** alanına `Ykb`, **Name** alanına `CookieConsentDecision` girin. Tam code name `Ykb.CookieConsentDecision` olur. **Include ItemGUID field** seçili olmalı. Bu alan, aynı kaydetme isteği tekrar gelirse tek karar sayılmasını sağlar. Önceden bu code name ile açtığınız tabloyu kullanabilirsiniz.
 
-Tablo oluşturulunca [DecisionIndex.sql](Integration/DecisionIndex.sql) dosyasını veritabanı dağıtım adımı olarak bir kez çalıştırın. Aynı kaydetme isteği yeniden gönderilirse benzersiz olay GUID'i çift sayımı önler. Kentico **Custom table data → Çerez tercih kararları** üzerinden satırlar görüntülenebilir. [Custom tables kurulumu](https://docs.kentico.com/13/developing-websites/defining-website-content-structure/managing-custom-tables/creating-custom-tables)
+| Field name | Data type | Size | Field caption |
+| --- | --- | --- | --- |
+| `SiteCodeName` | Text | 100 | Site |
+| `DecisionUtc` | Date & time | | Karar zamanı (UTC) |
+| `DecisionAction` | Text | 10 | Kaydetme eylemi |
+| `Outcome` | Text | 10 | Tercih sonucu |
+| `IsInitial` | Boolean (Yes/No) | | İlk karar |
+| `FunctionalAllowed` | Boolean (Yes/No) | | İşlevselliğe izin |
+| `AnalyticsAllowed` | Boolean (Yes/No) | | Analytics’e izin |
+| `AdvertisingAllowed` | Boolean (Yes/No) | | Reklama izin |
+| `PolicyVersion` | Integer number | | Politika sürümü |
 
-### 4. Raporu ekleyin
+#### Çerez tercih istatistikleri
 
-1. **Reporting → Custom reports → New report** ile **Çerez tercihleri** raporunu açın.
-2. **General → Tables → New** üzerinden **Günlük çerez kararları** tablosunu ekleyin. **Query** alanına [Reporting.sql](Integration/Reporting.sql) içeriğini yapıştırın. **Is stored procedure** kapalı, **Enable paging** açık olsun.
-3. Tabloyu kaydedin. **General → Tables** listesinden tabloyu seçip **Insert** ile rapor gövdesine ekleyin ve raporu kaydedin. **View** sekmesinde sayıları kontrol edin.
-4. **Permissions → Module → Reporting** üzerinden görüntüleyecek rollere **Read** verin. **Edit SQL queries** yetkisini raporu yöneten rolle sınırlandırın. Birden fazla canlı site aynı DB'yi paylaşıyor ve raporu gören roller farklıysa [Reporting.sql](Integration/Reporting.sql) sorgusuna ilgili site için `WHERE SiteCodeName = N'…'` ekleyip siteye özel rapor oluşturun. [Rapor ekleme](https://docs.kentico.com/13/configuring-xperience/working-with-system-reports/example-creating-a-simple-report), [Rapor yetkileri](https://docs.kentico.com/13/configuring-xperience/working-with-system-reports/reporting-security)
+**Display name** alanına **Çerez tercih istatistikleri**, **Namespace** alanına `Ykb`, **Name** alanına `CookieConsentDaily` girin. Tam code name `Ykb.CookieConsentDaily` olur. Uygulama her site, UTC günü ve politika sürümü için bir satır oluşturur. Sayaç alanlarında **Data type** olarak **Long integer number** seçin. [Kentico alan tipleri](https://docs.kentico.com/13/custom-development/managing-field-data-types)
 
-Rapor gün, site ve politika sürümü başına karar sayar. İlk seçim ve sonraki değişiklikler ayrı sütunlardadır. **Özel kaydetme** tıklanan eylemdir. Özel kaydetmede üç seçenek de kapatılırsa sonuç **Yalnızca zorunlu** sütununa girer. Aynı değerlerin tekrar kaydedilmesi yeni karar oluşturmaz. Ölçü birimi kaydedilen karardır. Tabloda IP, e-posta veya contact kimliği tutulmaz. DB kaydı başarısız olursa tercih yine tarayıcıya kaydedilir ve kayıt hatası uygulama loguna yazılır.
+| Field name | Data type | Size | Field caption |
+| --- | --- | --- | --- |
+| `DayUtc` | Text | 10 | Gün (UTC) |
+| `SiteCodeName` | Text | 100 | Site |
+| `PolicyVersion` | Integer number | | Politika sürümü |
+| `TotalCount` | Long integer number | | Toplam karar |
+| `AcceptedCount` | Long integer number | | Tümüne izin |
+| `RejectedCount` | Long integer number | | Yalnızca zorunlu |
+| `PartialCount` | Long integer number | | Kısmi izin |
+| `CustomCount` | Long integer number | | Özel kaydetme |
+| `InitialCount` | Long integer number | | İlk karar |
+| `ChangedCount` | Long integer number | | Tercih değişikliği |
+| `FunctionalCount` | Long integer number | | İşlevsellik izni |
+| `AnalyticsCount` | Long integer number | | Analytics izni |
+| `AdvertisingCount` | Long integer number | | Reklam izni |
+
+### 4. Sayaçları panelde açın
+
+1. **Custom table data** uygulamasını açın ve **Çerez tercih istatistikleri** satırının **Edit** simgesine tıklayın.
+2. **Select displayed fields** ile tabloda görmek istediğiniz alanları seçip **Save & Close** deyin. İlk test kararından sonra günlük satır görünür. Karar ayrıntıları için aynı uygulamada **Çerez tercih kararları** tablosunu açın. [Custom table data ekranı](https://docs.kentico.com/13/developing-websites/defining-website-content-structure/managing-custom-tables/managing-custom-table-data)
+3. Görüntüleyecek rol için **Permissions → Custom table → Çerez tercih istatistikleri** altında **Read** verin. Karar tablosu için de erişim gerekiyorsa aynı işlemi o tabloya uygulayın. [Custom table yetkileri](https://docs.kentico.com/13/developing-websites/defining-website-content-structure/managing-custom-tables/setting-custom-table-permissions)
+
+**Tümüne izin**, **Yalnızca zorunlu** ve **Kısmi izin** sonuç sayaçlarıdır. **Özel kaydetme** modalda kullanılan eylemi sayar ve aynı karar bir sonuç sütununda da yer alır. Aynı tercihi tekrar kaydetmek sayaçları artırmaz. Ölçü birimi karardır. Tercih tablosunda IP, e-posta veya contact kimliği tutulmaz. Sayaçlar bu sürümle kaydedilen kararlardan başlar. Daha önce yazılan satırlar karar tablosundan görüntülenebilir. Veri yazma hatasında tarayıcı tercihi kaydedilir ve istatistik hatası uygulama loguna yazılır.
 
 ## Asıl projeye aktarım
 
@@ -86,9 +103,9 @@ GA4 **Basic Consent Mode** ile yüklenir. Layout, kaydedilmiş analiz izni varsa
 ## Yayın öncesi doğrulama
 
 - Temiz bir profilde banner görünür. Opsiyonel düğmeler kapalı, zorunlu düğme açık ve değiştirilemez olmalı. Network panelinde Google ölçüm isteği bulunmamalı.
-- Tümünü reddedin. Sonraki sayfada ikon görünmeli, tercih modala yansımalı, Google ölçüm isteği olmamalı ve Kentico raporuna bir karar eklenmeli.
+- Tümünü reddedin. Sonraki sayfada ikon görünmeli, tercih modala yansımalı, Google ölçüm isteği olmamalı ve panelde günlük ret sayacı bir artmalı.
 - Yalnızca işlevsellik veya reklamı açın. Analytics isteği oluşmamalı. Yalnızca Analytics’i açtığınızda GA4 yüklenmeli, Google Consent Mode’daki reklam sinyalleri kapalı kalmalı.
-- İkonu kullanarak Analytics’i kapatın. Bu origin’deki `ykbconsent` önekli GA çerezleri silinmeli, yeniden yüklenen sayfada Google isteği olmamalı. Aynı tercihi tekrar kaydedince rapor artmamalı.
+- İkonu kullanarak Analytics’i kapatın. Bu origin’deki `ykbconsent` önekli GA çerezleri silinmeli, yeniden yüklenen sayfada Google isteği olmamalı. Aynı tercihi tekrar kaydedince sayaç artmamalı.
 - İkinci bir tarayıcı profili, uzun CMS metni, 1424 px çevresi ve dar mobil ekranla kontrol edin. Eski politika sürümü ve Kentico önizlemesinde GA4'ün etkinleşmediğini doğrulayın.
 
 Yerel JavaScript davranış testleri için `node --test CookieConsentTransfer/Tests/*.test.cjs` çalıştırılabilir.
