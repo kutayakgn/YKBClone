@@ -1,0 +1,7 @@
+using YkbYapikredi.Infrastructure.CookieConsent;
+
+// Mevcut AddKentico ve AddControllersWithViews kayıtlarının bulunduğu bölüm:
+builder.Services.AddYkbCookieConsent(builder.Configuration);
+
+// Uygulamanızda çalışan controller endpoint kaydını koruyun.
+// Attribute routing henüz eşlenmediyse mevcut endpoint bloğuna endpoints.MapControllers() ekleyin.

@@ -8,6 +8,9 @@
 
   <!-- Transfer package targets the external Kentico/Clean Architecture solution. -->
   <ItemGroup>
+    <Compile Remove="CookieConsentTransfer/**/*.cs" />
+    <Content Remove="CookieConsentTransfer/**" />
+    <None Include="CookieConsentTransfer/**/*.cs;CookieConsentTransfer/**/*.cshtml" />
     <Compile Remove="ChooseCreditComponentTransfer/**/*.cs" />
     <Content Remove="ChooseCreditComponentTransfer/**" />
     <None Include="ChooseCreditComponentTransfer/**/*.cs;ChooseCreditComponentTransfer/**/*.cshtml" />

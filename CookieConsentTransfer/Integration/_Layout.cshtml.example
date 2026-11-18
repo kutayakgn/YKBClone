@@ -1,0 +1,45 @@
+@using System.Globalization
+@using Kentico.Content.Web.Mvc
+@using Kentico.PageBuilder.Web.Mvc
+@using Kentico.Web.Mvc
+@using YkbYapikredi.Infrastructure.CookieConsent
+@inject CookieConsentSettings CookieConsent
+
+@{
+    var showCookieConsent = !Context.Kentico().Preview().Enabled && !Context.Kentico().PageBuilder().EditMode;
+    var cookieCulture = ViewData["Culture"]?.ToString() ?? CultureInfo.CurrentUICulture.Name;
+    if (string.IsNullOrWhiteSpace(cookieCulture)) cookieCulture = "tr-TR";
+    var measurementId = CookieConsent.Options.MeasurementId;
+    var loadGoogleAnalytics = false;
+
+    if (showCookieConsent)
+    {
+        Context.Response.Headers["Cache-Control"] = "private, no-store";
+        var cookiePreferences = CookieConsent.Read(Context);
+        loadGoogleAnalytics = cookiePreferences?.Analytics == true && !string.IsNullOrEmpty(measurementId);
+
+        if (cookiePreferences?.Analytics != true)
+        {
+            CookieConsent.ClearAnalyticsCookies(Context);
+        }
+    }
+}
+
+@* <head> içinde, ana tema stillerinden sonra *@
+@if (showCookieConsent)
+{
+    <link rel="stylesheet" href="~/css/components/cookie-consent.css" asp-append-version="true" />
+}
+@if (loadGoogleAnalytics)
+{
+    <script id="ykbCookieAnalytics" src="~/js/components/cookie-analytics.js"
+            data-measurement-id="@measurementId" data-cookie-prefix="@CookieConsentSettings.AnalyticsCookiePrefix"
+            asp-append-version="true" defer></script>
+}
+
+@* </body> öncesinde, diğer formların dışında *@
+@if (showCookieConsent)
+{
+    @await Component.InvokeAsync("CookieConsent", new { culture = cookieCulture })
+    <script src="~/js/components/cookie-consent.js" asp-append-version="true" defer></script>
+}

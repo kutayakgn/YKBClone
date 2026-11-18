@@ -1,0 +1,347 @@
+:where(#cookieConsent) .cookie-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+}
+:where(#cookieConsent) .cookie-modal-content h3 {
+    font-size: 18px;
+    font-family: "ubuntu-bold", Ubuntu, Arial, sans-serif;
+    line-height: 24px;
+    margin: 0;
+    padding: 0;
+}
+:where(#cookieConsent) .cookie-icon {
+    /* Artık <button> (klavyeyle erişilebilir); görünüm ikonla aynı kalsın diye sıfırlanıyor. */
+    -webkit-appearance: none;
+    appearance: none;
+    background: none;
+    border: 0;
+    padding: 0;
+    line-height: 0;
+    display: block;
+    position: fixed;
+    bottom: 20px;
+    cursor: pointer;
+    left: 20px;
+    z-index: 9999999;
+}
+:where(#cookieConsent) .cookie-banner {
+    box-shadow: rgba(100, 100, 111, 0.2) 0px 7px 29px 0px;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 9999998;
+    color: #000;
+    background-color: #ffffff !important;
+    padding-top: 20px;
+    padding-bottom: 20px;
+    font-size: 11px;
+    font-weight: 400;
+    line-height: 15px;
+    /* CLS önlemi (PageSpeed 2.5): band her zaman DOM'da, ekran altına transform ile itilmiş.
+       display toggle yerine transform kullanılır; transform layout tetiklemez, kayma sayılmaz.
+       JS, fontlar hazır olunca .is-visible ekler. */
+    display: flex;
+    min-height: 72px;
+    visibility: hidden;
+    transform: translateY(100%);
+    transition: transform 0.3s ease, visibility 0s linear 0.3s;
+}
+
+    :where(#cookieConsent) .cookie-banner.is-visible {
+        visibility: visible;
+        transform: none;
+        transition: transform 0.3s ease;
+    }
+@media (prefers-reduced-motion: reduce) {
+    :where(#cookieConsent) .cookie-banner,
+    :where(#cookieConsent) .cookie-banner.is-visible {
+        transition: none;
+    }
+}
+
+    :where(#cookieConsent) .cookie-banner .cookie-banner-content {
+        width: 100%;
+        display: flex;
+        flex-flow: row;
+        align-items: center;
+    }
+@media(max-width: 1424px) {
+    :where(#cookieConsent) .cookie-banner .cookie-banner-content {
+        width: 100%;
+        display: flex;
+        flex-flow: row;
+        flex-direction: column;
+        gap: 24px;
+        align-items: center;
+    }
+}
+:where(#cookieConsent) .cookie-banner .text-content {
+    padding-right: 24px;
+}
+
+    :where(#cookieConsent) .cookie-banner .text-content a {
+        color: #004990;
+        text-decoration: underline;
+        font-weight: 500;
+        cursor: pointer;
+    }
+:where(#cookieConsent) .cookie-banner .cookie-btns {
+    display: flex;
+    flex-flow: row;
+    align-items: center;
+}
+
+    :where(#cookieConsent) .cookie-banner .cookie-btns .cookie-btn {
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 20px; /* fonttan bağımsız sabit yükseklik (CLS) */
+        font-family: "ubuntu-bold", Ubuntu, Arial, sans-serif;
+        color: #fff;
+        padding: 10px 20px;
+        background: #004990;
+        border: 1px solid #004990;
+        border-radius: 10px;
+        text-align: center;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        width: max-content;
+    }
+
+    :where(#cookieConsent) .cookie-banner .cookie-btns .cookie-btn-bordered {
+        font-size: 14px;
+        font-style: normal;
+        font-weight: 700;
+        line-height: 20px; /* fonttan bağımsız sabit yükseklik (CLS) */
+        color: #212121;
+        padding: 10px 20px;
+        background: #ffffff;
+        border: 1px solid #212121;
+        border-radius: 10px;
+        text-align: center;
+        margin-right: 10px;
+        margin-bottom: 10px;
+        cursor: pointer;
+        width: max-content;
+    }
+@media(max-width:1424px) {
+    :where(#cookieConsent) .cookie-banner .cookie-btns .cookie-btn-bordered {
+        width: 100%;
+    }
+
+    :where(#cookieConsent) .cookie-banner .cookie-btns .cookie-btn {
+        width: 100%;
+    }
+
+    :where(#cookieConsent) .cookie-banner .cookie-btns {
+        flex-direction: column;
+        width: 100%;
+    }
+}
+:where(#cookieConsent) .cookie-modal-content {
+    font-size: 16px;
+    line-height: 22px;
+    background-color: white;
+    color: #212121;
+    width: 100%;
+    max-height: 80dvh;
+    margin-left: clamp(16px, 13.33vw, 267px);
+    margin-right: clamp(16px, 13.18vw, 267px);
+    padding: 24px;
+    gap: 4px;
+    display: flex;
+    flex-direction: column;
+    border-radius: 24px;
+    font-family: "ubuntu-regular", Ubuntu, Arial, sans-serif !important;
+    overflow-y: auto;
+    height: fit-content;
+}
+
+:where(#cookieConsent) .cookie-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    padding-top: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+    :where(#cookieConsent) .cookie-option.last-child {
+        border-bottom: 0px solid #e0e0e0 !important;
+    }
+:where(#cookieConsent) .option-text-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+:where(#cookieConsent) .onoffswitch {
+    position: relative;
+    width: 48px;
+    -webkit-user-select: none;
+    -moz-user-select: none;
+    -ms-user-select: none;
+}
+:where(#cookieConsent) .onoffswitch-checkbox {
+    position: absolute;
+    opacity: 0;
+    pointer-events: none;
+}
+:where(#cookieConsent) .onoffswitch-label {
+    display: block;
+    overflow: hidden;
+    cursor: pointer;
+    border: 2px solid #ffffff;
+    border-radius: 24px;
+}
+:where(#cookieConsent) .onoffswitch-inner {
+    display: block;
+    width: 200%;
+    margin-left: -100%;
+    transition: margin 0.1s ease-in 0s;
+}
+
+    :where(#cookieConsent) .onoffswitch-inner:before,
+    :where(#cookieConsent) .onoffswitch-inner:after {
+        display: block;
+        float: left;
+        width: 44px;
+        height: 24px;
+        padding: 0;
+        line-height: 24px;
+        font-size: 11px;
+        color: white;
+        font-family: "ubuntu-medium", Arial, sans-serif;
+        font-family: "ubuntu-bold", Ubuntu, Arial, sans-serif !important;
+        box-sizing: border-box;
+    }
+
+    :where(#cookieConsent) .onoffswitch-inner:before {
+        content: "";
+        padding-left: 6px;
+        background-color: #004990;
+        color: #ffffff;
+    }
+
+    :where(#cookieConsent) .onoffswitch-inner:after {
+        content: "";
+        padding-right: 6px;
+        background-color: #eeeeee;
+        color: #999999;
+        text-align: right;
+    }
+:where(#cookieConsent) .onoffswitch-switch {
+    display: block;
+    width: 20px;
+    margin: 4px;
+    background: #ffffff;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    right: 20px;
+    border: 2px solid #ffffff;
+    border-radius: 24px;
+    transition: all 0.1s ease-in 0s;
+}
+:where(#cookieConsent) .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-inner {
+    margin-left: 0;
+}
+:where(#cookieConsent) .onoffswitch-checkbox:checked + .onoffswitch-label .onoffswitch-switch {
+    right: 0px;
+}
+:where(#cookieConsent) .cookie-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    justify-content: flex-end;
+    margin-top: 32px;
+}
+
+    :where(#cookieConsent) .cookie-buttons button.filled {
+        font-family: "ubuntu-medium", Ubuntu, Arial, sans-serif !important;
+        font-size: 16px;
+        width: fit-content;
+        text-align: start;
+        word-wrap: break-word;
+        text-decoration: none;
+        line-height: 22px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border-width: 0px;
+        color: white;
+        gap: 8px;
+        background-color: #004990;
+    }
+
+    :where(#cookieConsent) .cookie-buttons button.bordered {
+        display: flex;
+        font-family: "ubuntu-medium", Ubuntu, Arial, sans-serif !important;
+        font-size: 16px;
+        text-align: start;
+        justify-content: center;
+        word-wrap: break-word;
+        white-space: nowrap;
+        text-decoration: none;
+        line-height: 22px;
+        gap: 8px;
+        padding: 10px 16px;
+        border-radius: 8px;
+        border-width: 1px;
+        border-color: #212121;
+        color: #212121;
+        background-color: transparent;
+    }
+@media(max-width:1423px) {
+    :where(#cookieConsent) .cookie-modal-content {
+        margin-left: 16px;
+        margin-right: 16px;
+    }
+
+    :where(#cookieConsent) .cookie-option {
+        align-items: flex-start;
+    }
+
+    :where(#cookieConsent) .cookie-buttons button.bordered {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+
+    :where(#cookieConsent) .cookie-buttons button.filled {
+        width: 100%;
+        text-align: center;
+        justify-content: center;
+    }
+}
+
+#cookieConsent [hidden] {
+    display: none !important;
+}
+
+:where(#cookieConsent) .onoffswitch-checkbox:focus-visible + .onoffswitch-label,
+#cookieConsent button:focus-visible {
+    outline: 2px solid #004990;
+    outline-offset: 2px;
+}
+
+:where(#cookieConsent) .cookie-save-error {
+    color: #a12622;
+    margin: 8px 0 0;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :where(#cookieConsent) .onoffswitch-inner,
+    :where(#cookieConsent) .onoffswitch-switch {
+        transition: none;
+    }
+}
