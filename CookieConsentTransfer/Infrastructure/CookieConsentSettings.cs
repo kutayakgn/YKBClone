@@ -1,38 +1,69 @@
 using System;
+using System.Globalization;
 using System.Security.Cryptography;
+using System.Text.RegularExpressions;
+using CMS.Core;
 using CMS.SiteProvider;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Options;
 using YkbYapikredi.Application.CookieConsent;
 
 namespace YkbYapikredi.Infrastructure.CookieConsent
 {
     public sealed class CookieConsentOptions
     {
-        public int PolicyVersion { get; set; } = 1;
-        public string MeasurementId { get; set; } = string.Empty;
+        public int PolicyVersion { get; init; }
+        public string MeasurementId { get; init; } = string.Empty;
     }
 
     public sealed class CookieConsentSettings
     {
         public const string CookieName = "YkbCookiePreferences";
         public const string AnalyticsCookiePrefix = "ykbconsent";
+        private const string PolicyVersionKey = "YkbCookieConsentPolicyVersion";
+        private const string MeasurementIdKey = "YkbCookieConsentMeasurementId";
         private static readonly TimeSpan PreferenceLifetime = TimeSpan.FromDays(365);
         private readonly IDataProtectionProvider protection;
+        private readonly ISettingsService settingsService;
+        private CookieConsentOptions? options;
 
-        public CookieConsentSettings(IDataProtectionProvider protection, IOptions<CookieConsentOptions> options)
+        public CookieConsentSettings(IDataProtectionProvider protection, ISettingsService settingsService)
         {
             this.protection = protection;
-            Options = options.Value;
+            this.settingsService = settingsService;
         }
 
-        public CookieConsentOptions Options { get; }
+        public CookieConsentOptions Options => options ??= LoadOptions();
+
+        private CookieConsentOptions LoadOptions()
+        {
+            var siteName = SiteContext.CurrentSiteName;
+            if (string.IsNullOrWhiteSpace(siteName))
+            {
+                return new CookieConsentOptions();
+            }
+
+            var versionValue = settingsService[siteName + "." + PolicyVersionKey];
+            if (!int.TryParse(versionValue, NumberStyles.Integer, CultureInfo.InvariantCulture, out var version) ||
+                version < 1)
+            {
+                return new CookieConsentOptions();
+            }
+
+            var measurementId = settingsService[siteName + "." + MeasurementIdKey]?.Trim();
+            return new CookieConsentOptions
+            {
+                PolicyVersion = version,
+                MeasurementId = measurementId != null && Regex.IsMatch(measurementId, @"\AG-[A-Z0-9]+\z")
+                    ? measurementId
+                    : string.Empty
+            };
+        }
 
         public CookiePreferences? Read(HttpContext context)
         {
             if (!context.Request.Cookies.TryGetValue(CookieName, out var value) ||
-                string.IsNullOrEmpty(value) || value.Length > 512)
+                string.IsNullOrEmpty(value) || value.Length > 512 || Options.PolicyVersion < 1)
             {
                 return null;
             }
@@ -71,7 +102,7 @@ namespace YkbYapikredi.Infrastructure.CookieConsent
 
         private ITimeLimitedDataProtector Protector() =>
             protection.CreateProtector("Ykb.CookieConsent", SiteContext.CurrentSiteName,
-                Options.PolicyVersion.ToString(System.Globalization.CultureInfo.InvariantCulture))
+                Options.PolicyVersion.ToString(CultureInfo.InvariantCulture))
                 .ToTimeLimitedDataProtector();
 
         private static CookieOptions CookieOptions(HttpContext context) => new CookieOptions

@@ -31,7 +31,13 @@ namespace YkbYapikredi.Web.Controllers
                 return BadRequest();
             }
 
-            if (input.PolicyVersion != settings.Options.PolicyVersion)
+            var policyVersion = settings.Options.PolicyVersion;
+            if (policyVersion < 1)
+            {
+                return StatusCode(503);
+            }
+
+            if (input.PolicyVersion != policyVersion)
             {
                 return Conflict();
             }
@@ -62,7 +68,7 @@ namespace YkbYapikredi.Web.Controllers
             }
 
             settings.Write(HttpContext, preferences);
-            recorder.Record(input.EventId, input.Action!, preferences, previous is null, settings.Options.PolicyVersion);
+            recorder.Record(input.EventId, input.Action!, preferences, previous is null, policyVersion);
             return Ok(new { changed = true, analytics = preferences.Analytics });
         }
     }

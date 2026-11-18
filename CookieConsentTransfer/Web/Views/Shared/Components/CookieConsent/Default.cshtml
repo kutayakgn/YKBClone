@@ -1,8 +1,12 @@
 @using YkbYapikredi.Web.Controllers
 @model YkbYapikredi.Web.ViewComponents.CookieConsentViewModel
+@{
+    var copy = Model.Copy;
+    var labels = copy.Labels;
+}
 
 <div id="cookieConsent" data-has-choice="@(Model.HasChoice ? "true" : "false")"
-     data-save-error="@Model.SaveError" data-policy-changed="@Model.PolicyChanged">
+     data-save-error="@labels.SaveError" data-policy-changed="@labels.PolicyChanged">
     <form id="cookieConsentToken" action="@Url.RouteUrl(CookieConsentController.SaveRouteName)"
           method="post" asp-antiforgery="false" hidden>
         @Html.AntiForgeryToken()
@@ -10,57 +14,65 @@
     </form>
 
     <div id="cookieModal" class="cookie-modal" role="dialog" aria-modal="true"
-         aria-labelledby="cookieModalTitle" tabindex="-1" hidden>
+         aria-labelledby="cookieModalTitle" aria-describedby="cookieModalIntro" tabindex="-1" hidden>
         <div class="cookie-modal-content">
-            <h3 id="cookieModalTitle">@Model.Dialog.Title</h3>
-            <div class="cookie-copy">@Html.Raw(Model.Dialog.Html)</div>
-
-            @for (var index = 0; index < Model.Categories.Count; index++)
-            {
-                var category = Model.Categories[index];
-                <div class="cookie-option @(index == Model.Categories.Count - 1 ? "last-child" : "")">
-                    <div class="option-text-wrap">
-                        <strong id="@(category.Id)-title">@category.Text.Title</strong>
-                        <div class="cookie-copy">@Html.Raw(category.Text.Html)</div>
-                    </div>
-                    <div class="onoffswitch">
-                        <input type="checkbox" class="onoffswitch-checkbox" id="@category.Id"
-                               aria-labelledby="@(category.Id)-title" data-cookie-field="@category.Field"
-                               checked="@category.Checked" disabled="@(category.Field == null)" />
-                        <label class="onoffswitch-label" for="@category.Id">
-                            <span class="onoffswitch-inner" aria-hidden="true"></span>
-                            <span class="onoffswitch-switch" aria-hidden="true"></span>
-                        </label>
-                    </div>
-                </div>
-            }
-
-            <div class="cookie-buttons">
-                <button type="button" class="bordered" data-cookie-action="reject">@Model.Reject</button>
-                <button type="button" class="filled" data-cookie-action="accept">@Model.Accept</button>
-                <button type="button" class="filled" data-cookie-action="custom">@Model.Save</button>
+            <div class="cookie-modal-header">
+                <h2 id="cookieModalTitle">@copy.Dialog.Title</h2>
+                <button type="button" class="cookie-close" data-cookie-action="close"
+                        aria-label="@labels.Close"><span aria-hidden="true"></span></button>
             </div>
-            <p class="cookie-save-error" role="alert" hidden></p>
+
+            <div class="cookie-modal-body">
+                <div id="cookieModalIntro" class="cookie-copy">@Html.Raw(copy.Dialog.Html)</div>
+                @foreach (var category in Model.Categories)
+                {
+                    <section class="cookie-option" aria-labelledby="@(category.Id)-title">
+                        <div class="cookie-option-heading">
+                            <h3 id="@(category.Id)-title">@category.Text.Title</h3>
+                            @if (category.Field == null)
+                            {
+                                <span class="cookie-required-status">@labels.AlwaysActive</span>
+                            }
+                            else
+                            {
+                                <label class="cookie-switch">
+                                    <input type="checkbox" role="switch" id="@category.Id"
+                                           aria-labelledby="@(category.Id)-title" data-cookie-field="@category.Field"
+                                           checked="@category.Checked" />
+                                    <span class="cookie-switch-track" aria-hidden="true"></span>
+                                </label>
+                            }
+                        </div>
+                        <div class="cookie-copy">@Html.Raw(category.Text.Html)</div>
+                    </section>
+                }
+            </div>
+
+            <div class="cookie-modal-actions">
+                <p class="cookie-save-error" role="alert" hidden></p>
+                <button type="button" class="cookie-button cookie-button-primary"
+                        data-cookie-action="custom">@labels.Save</button>
+            </div>
         </div>
     </div>
 
-    <div id="cookieBanner" class="cookie-banner">
-        <div class="container">
-            <div class="cookie-banner-content">
-                <div class="text-content cookie-copy">@Html.Raw(Model.Banner.Html)</div>
-                <div class="cookie-btns">
-                    <button type="button" class="cookie-btn-bordered" data-cookie-action="reject">@Model.Reject</button>
-                    <button type="button" class="cookie-btn" data-cookie-action="edit"
-                            aria-haspopup="dialog" aria-controls="cookieModal">@Model.Edit</button>
-                    <button type="button" class="cookie-btn" data-cookie-action="accept">@Model.Accept</button>
-                </div>
+    <div id="cookieBanner" class="cookie-banner @(Model.HasChoice ? "" : "is-visible")" hidden="@Model.HasChoice">
+        <div class="cookie-banner-content">
+            <div class="cookie-copy">@Html.Raw(copy.BannerHtml)</div>
+            <div class="cookie-banner-actions">
+                <button type="button" class="cookie-button cookie-button-secondary" data-cookie-action="edit"
+                        aria-haspopup="dialog" aria-controls="cookieModal">@labels.Edit</button>
+                <button type="button" class="cookie-button cookie-button-secondary"
+                        data-cookie-action="reject">@labels.Reject</button>
+                <button type="button" class="cookie-button cookie-button-primary"
+                        data-cookie-action="accept">@labels.Accept</button>
             </div>
             <p class="cookie-save-error" role="alert" hidden></p>
         </div>
     </div>
 
     <button type="button" id="cookieIcon" class="cookie-icon" data-cookie-action="edit"
-            aria-label="@Model.Settings" aria-haspopup="dialog" aria-controls="cookieModal" hidden>
+            aria-label="@labels.Settings" aria-haspopup="dialog" aria-controls="cookieModal" hidden>
         <img src="@Url.Content("~/assets/icons/cookie-icon.svg")" alt="" />
     </button>
 </div>

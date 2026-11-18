@@ -1,6 +1,8 @@
 # Kentico Xperience 13 çerez tercihleri
 
-Bu aktarım paketi asıl Xperience 13 **ASP.NET Core canlı site** projesi içindir. Razor ve CSS, gönderdiğiniz banner ve modalın sınıflarını, renklerini, yerleşimini ve responsive eşiklerini kullanır. Ubuntu font aileleri ve `.container` ölçüleri asıl sitenin temasından gelir. `cookie-icon.svg` dosyasını `wwwroot/assets/icons/cookie-icon.svg` yoluna eklediğinizde ilk tercihten sonra sol altta görünür.
+Bu aktarım paketi asıl Xperience 13 **ASP.NET Core canlı site** projesi içindir. Banner, metni ve üç eylemi geniş ekranda yan yana yerleştirir. Modal, kategori kontrolleri ve ortalanmış kaydetme düğmesi içerir. Bileşen kendi CSS ölçülerini ve sitenin Ubuntu fontlarını kullanır. `cookie-icon.svg` dosyasını `wwwroot/assets/icons/cookie-icon.svg` yoluna eklediğinizde ilk tercihten sonra sol altta görünür.
+
+Mevcut kurulumu güncelliyorsanız [CMS güncelleme kılavuzundaki](CMS-GUNCELLEME.md) adımları uygulayın.
 
 ## Kentico CMS panelinde yapılacaklar
 
@@ -25,7 +27,7 @@ Bu ayar Xperience'ın kendi çerezlerini yönetir. Üç isteğe bağlı izin tar
 | `YkbCookieAnalytics` | Performans ve analiz çerezleri | GA4 dahil ölçüm araçlarının açıklaması |
 | `YkbCookieAdvertising` | Hedefleme ve reklam çerezleri | Sitedeki reklam kategorisinin açıklaması |
 
-**Short text** düz metin olarak, **Full text** CMS'deki HTML içeriğiyle gösterilir. Ekteki görünümü yakalamak için metinleri aynı paragraf ve bağlantı biçimiyle girin. Bu kayıtları düzenleme yetkisini ilgili içerik rolüyle sınırlandırın. Kurulum sırasında eksik alanlarda bileşenin Türkçe veya İngilizce varsayılan metinleri görünür. Ölçüm kimliğini eklemeden önce yayınlanacak metinleri CMS’de tamamlayın. [Xperience Consents](https://docs.kentico.com/13/configuring-xperience/data-protection/gdpr-compliance/working-with-consents)
+**Short text** düz metin olarak, **Full text** CMS'deki HTML içeriğiyle gösterilir. Ekteki görünümü yakalamak için metinleri aynı paragraf ve bağlantı biçimiyle girin. Bu kayıtları düzenleme yetkisini ilgili içerik rolüyle sınırlandırın. Bütün metin ve etiketleri yayın dillerinde CMS’de tamamlayın. Kentico gerekli metinlerden birini çözemediğinde arayüz ve GA4 ilgili sayfa isteğinde devre dışı kalır. [Xperience Consents](https://docs.kentico.com/13/configuring-xperience/data-protection/gdpr-compliance/working-with-consents)
 
 **Localization → Resource strings** altında şu anahtarları oluşturun ve sayfa dillerine göre çevirilerini kaydedin.
 
@@ -38,8 +40,12 @@ Bu ayar Xperience'ın kendi çerezlerini yönetir. Üç isteğe bağlı izin tar
 | `Ykb.CookieConsent.Settings` | Çerez ayarları |
 | `Ykb.CookieConsent.SaveError` | Çerez tercihleriniz kaydedilemedi. Lütfen tekrar deneyin. |
 | `Ykb.CookieConsent.PolicyChanged` | Çerez bilgileri güncellendi. Sayfayı yenileyip tekrar deneyin. |
+| `Ykb.CookieConsent.Close` | Çerez tercihlerini kapat |
+| `Ykb.CookieConsent.AlwaysActive` | Her zaman açık |
 
-Bileşen kültürü layout’taki `ViewData["Culture"]` değerinden, yoksa ASP.NET Core istek kültüründen alır. Yeni bir izin gerektiren metin veya kategori değişikliğinde canlı site ayarındaki `CookieConsent:PolicyVersion` değerini artırın. Geçerli sürüme ait tercih bulunana kadar banner yeniden açılır ve GA4 bekler. [Kentico resource strings](https://docs.kentico.com/13/multilingual-websites/setting-up-a-multilingual-user-interface/localizing-builder-components)
+Bileşen kültürü layout’taki `ViewData["Culture"]` değerinden, yoksa ASP.NET Core istek kültüründen alır. Yeni bir izin gerektiren metin veya kategori değişikliğinde **Settings → Çerez tercihleri** altındaki politika sürümünü artırın. Geçerli sürüme ait tercih bulunana kadar banner yeniden açılır ve GA4 bekler. [Kentico resource strings](https://docs.kentico.com/13/multilingual-websites/setting-up-a-multilingual-user-interface/localizing-builder-components)
+
+Politika sürümü ve GA4 ölçüm kimliği için [CMS ayarlarını](CMS-GUNCELLEME.md#1-politika-sürümü-ve-ga4-ayarlarını-panele-ekleyin) oluşturun.
 
 ### 3. İki custom table oluşturun
 
@@ -92,7 +98,7 @@ Global administrator ile **Custom tables → New custom table** sihirbazını ku
 ## Asıl projeye aktarım
 
 1. Bu paketteki `Application`, `Infrastructure` ve `Web` dosyalarını asıl çözümdeki karşılık gelen projelere taşıyın. Web katmanındaki `Controllers`, `ViewComponents`, `Views` ve `wwwroot` klasörleri canlı siteye gider. Proje isim alanınız farklıysa `YkbYapikredi` isim alanlarını eşleyin. Razor için MVC tag helper’larının `_ViewImports.cshtml` içinde kayıtlı olduğundan emin olun. `CookieConsentModule` ayrı bir class library’deyse o assembly’de `[assembly: CMS.AssemblyDiscoverable]` tanımını kontrol edin. [Kentico modül başlatma](https://docs.kentico.com/13/custom-development/creating-custom-modules/initializing-modules-to-run-custom-code)
-2. [ProgramRegistration.cs.example](Integration/ProgramRegistration.cs.example) içindeki servis kaydını uygulayın. Mevcut endpoint bloğu attribute route'ları eşliyorsa ek bir route kaydı gerekmiyor. Daha önce başka bir `POST /cookie/agree` varsa bu endpoint'i yeni controller ile değiştirin. [appsettings.json.example](Integration/appsettings.json.example) bölümünü canlı site yapılandırmasına ekleyin. Ölçümü açmak için GA4 web veri akışının `G-...` kimliğini girin.
+2. [ProgramRegistration.cs.example](Integration/ProgramRegistration.cs.example) içindeki servis kaydını uygulayın. Mevcut endpoint bloğu attribute route'ları eşliyorsa ek bir route kaydı gerekmiyor. Daha önce başka bir `POST /cookie/agree` varsa bu endpoint'i yeni controller ile değiştirin. Ölçümü açmak için Kentico’daki site ayarında GA4 web veri akışının `G-...` kimliğini girin.
 3. [_Layout.cshtml örneğindeki Razor bloklarını](Integration/_Layout.cshtml.example) asıl `_Layout.cshtml` dosyasında belirtilen yerlere ekleyin. Diğer layout’lar aynı izni kullanıyorsa aynı blokları oraya da uygulayın. Sayfada zaten bulunan koşulsuz GA4/GTM yükleyicilerini ve üçüncü taraf izleme çağrılarını kontrol edin. Tek GA4 kurulumunun bu izin kontrolü üzerinden çalışmasını sağlayın. GA4'e bağlanan Google Ads hedefleri kullanılıyorsa mevcut tag ayarlarını da kontrol edin. Paketteki GA4 kodu reklam izni sinyallerini kapalı tutar. İşlevsellik ve reklam tercihi yeni entegrasyonlar için `CookieConsentSettings.Read(Context)` sonucundan ayrı ayrı okunabilir.
 4. HTML yanıtı tercihe ve antiforgery token’ına bağlıdır. Layout `private, no-store` döndürür. Kentico `[CacheOutput]`, response/output cache, ters proxy ve CDN kurallarında bu HTML yanıtlarının cache dışında kaldığını doğrulayın ve yayın sırasında eski HTML cache’ini temizleyin. Font ve CSS dahil statik dosyalar önbelleğe alınabilir. [Kentico output caching](https://docs.kentico.com/13/developing-websites/developing-xperience-applications-using-asp-net-core/caching-page-output-in-asp-net-core-applications)
 5. Canlı siteyi HTTPS üzerinden sunun. TLS ters proxy’de sonlanıyorsa uygulamanın HTTPS şemasını doğru algıladığını doğrulayın. Birden fazla uygulama örneği varsa aynı Data Protection anahtar deposunu ve uygulama adını kullanın. Bu depo yayında korunmalı. Tarayıcı tercihi yalnızca ilgili site ve politika sürümünde, 365 gün geçerlidir.
@@ -106,6 +112,6 @@ GA4 **Basic Consent Mode** ile yüklenir. Layout, kaydedilmiş analiz izni varsa
 - Tümünü reddedin. Sonraki sayfada ikon görünmeli, tercih modala yansımalı, Google ölçüm isteği olmamalı ve panelde günlük ret sayacı bir artmalı.
 - Yalnızca işlevsellik veya reklamı açın. Analytics isteği oluşmamalı. Yalnızca Analytics’i açtığınızda GA4 yüklenmeli, Google Consent Mode’daki reklam sinyalleri kapalı kalmalı.
 - İkonu kullanarak Analytics’i kapatın. Bu origin’deki `ykbconsent` önekli GA çerezleri silinmeli, yeniden yüklenen sayfada Google isteği olmamalı. Aynı tercihi tekrar kaydedince sayaç artmamalı.
-- İkinci bir tarayıcı profili, uzun CMS metni, 1424 px çevresi ve dar mobil ekranla kontrol edin. Eski politika sürümü ve Kentico önizlemesinde GA4'ün etkinleşmediğini doğrulayın.
+- İkinci bir tarayıcı profili, uzun CMS metni, 1024 px çevresi ve dar mobil ekranla kontrol edin. Eski politika sürümü ve Kentico önizlemesinde GA4'ün etkinleşmediğini doğrulayın.
 
 Yerel JavaScript davranış testleri için `node --test CookieConsentTransfer/Tests/*.test.cjs` çalıştırılabilir.

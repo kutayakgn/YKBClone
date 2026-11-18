@@ -118,6 +118,7 @@
         if (button && !saving) {
             const action = button.dataset.cookieAction;
             if (action === "edit") openModal(button);
+            else if (action === "close") closeModal();
             else void save(action);
         } else if (event.target === modal && !saving) {
             closeModal();
@@ -168,9 +169,5 @@
         if (event.persisted) window.location.reload();
     });
 
-    if (hasChoice || !document.fonts?.ready) {
-        showRestingState();
-    } else {
-        document.fonts.ready.then(showRestingState, showRestingState);
-    }
+    showRestingState();
 })();

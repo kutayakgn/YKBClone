@@ -2,23 +2,37 @@
 @using Kentico.Content.Web.Mvc
 @using Kentico.PageBuilder.Web.Mvc
 @using Kentico.Web.Mvc
+@using YkbYapikredi.Application.CookieConsent
 @using YkbYapikredi.Infrastructure.CookieConsent
 @inject CookieConsentSettings CookieConsent
+@inject CookieConsentCopyProvider CookieCopy
 
 @{
-    var showCookieConsent = !Context.Kentico().Preview().Enabled && !Context.Kentico().PageBuilder().EditMode;
+    var isLivePage = !Context.Kentico().Preview().Enabled && !Context.Kentico().PageBuilder().EditMode;
     var cookieCulture = ViewData["Culture"]?.ToString() ?? CultureInfo.CurrentUICulture.Name;
     if (string.IsNullOrWhiteSpace(cookieCulture)) cookieCulture = "tr-TR";
-    var measurementId = CookieConsent.Options.MeasurementId;
-    var loadGoogleAnalytics = false;
 
-    if (showCookieConsent)
+    var policyVersion = 0;
+    var measurementId = string.Empty;
+    var loadGoogleAnalytics = false;
+    CookieConsentCopy? cookieCopy = null;
+    CookiePreferences? cookiePreferences = null;
+
+    if (isLivePage)
     {
         Context.Response.Headers["Cache-Control"] = "private, no-store";
-        var cookiePreferences = CookieConsent.Read(Context);
-        loadGoogleAnalytics = cookiePreferences?.Analytics == true && !string.IsNullOrEmpty(measurementId);
+        var settings = CookieConsent.Options;
+        policyVersion = settings.PolicyVersion;
+        measurementId = settings.MeasurementId;
+        if (policyVersion > 0)
+        {
+            cookieCopy = CookieCopy.Read(cookieCulture);
+            cookiePreferences = CookieConsent.Read(Context);
+        }
 
-        if (cookiePreferences?.Analytics != true)
+        loadGoogleAnalytics = cookieCopy != null && cookiePreferences?.Analytics == true &&
+            !string.IsNullOrEmpty(measurementId);
+        if (!loadGoogleAnalytics)
         {
             CookieConsent.ClearAnalyticsCookies(Context);
         }
@@ -26,7 +40,7 @@
 }
 
 @* <head> içinde, ana tema stillerinden sonra *@
-@if (showCookieConsent)
+@if (cookieCopy != null)
 {
     <link rel="stylesheet" href="~/css/components/cookie-consent.css" asp-append-version="true" />
 }
@@ -38,8 +52,8 @@
 }
 
 @* </body> öncesinde, diğer formların dışında *@
-@if (showCookieConsent)
+@if (cookieCopy != null)
 {
-    @await Component.InvokeAsync("CookieConsent", new { culture = cookieCulture })
+    @await Component.InvokeAsync("CookieConsent", new { copy = cookieCopy, policyVersion, saved = cookiePreferences })
     <script src="~/js/components/cookie-consent.js" asp-append-version="true" defer></script>
 }

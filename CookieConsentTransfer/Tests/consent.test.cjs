@@ -37,7 +37,7 @@ test("GA4 loader only runs with a valid measurement ID and puts consent before c
     assert.equal(commands[3][2].cookie_prefix, "ykbconsent");
 });
 
-function consentPage({ saved, replies }) {
+function consentPage({ saved, replies, fonts }) {
     const errors = [{ hidden: true }, { hidden: true }];
     const visible = new Set();
     const switches = ["Functional", "Analytics", "Advertising"].map((field, index) => ({
@@ -87,7 +87,7 @@ function consentPage({ saved, replies }) {
     };
 
     runInNewContext(script("cookie-consent"), {
-        document: { getElementById: id => elements[id] },
+        document: { getElementById: id => elements[id], fonts },
         window,
         crypto: { randomUUID: () => "event-" + (++postNumber) },
         FormData: class extends Map {
@@ -142,6 +142,11 @@ test("fresh modal starts with optional switches off and submits analytics-only w
     assert.equal(page.reloads(), 1);
 });
 
+test("a first visit shows the banner while web fonts are still loading", () => {
+    const page = consentPage({ replies: [], fonts: { ready: new Promise(() => {}) } });
+    assert.equal(page.bannerVisible(), true);
+});
+
 test("withdrawal disables the current GA4 instance before refreshing the layout", async () => {
     const page = consentPage({
         saved: [true, true, true],
@@ -150,10 +155,11 @@ test("withdrawal disables the current GA4 instance before refreshing the layout"
     assert.equal(page.bannerVisible(), false);
     assert.equal(page.icon.hidden, false);
     await page.click("edit");
-    await page.click("reject");
+    page.switches[1].checked = false;
+    await page.click("custom");
 
-    assert.equal(page.requests[0].options.body.get("Action"), "reject");
-    assert.equal(page.requests[0].options.body.has("Analytics"), false);
+    assert.equal(page.requests[0].options.body.get("Action"), "custom");
+    assert.equal(page.requests[0].options.body.get("Analytics"), "false");
     assert.equal(page.window["ga-disable-G-TEST"], true);
     assert.equal(page.messages[0].analytics, false);
     assert.equal(page.reloads(), 1);
@@ -172,17 +178,37 @@ test("failed saves keep the choice visible and stable request ID is reused on re
     assert.equal(page.reloads(), 1);
 });
 
-test("unchanged choices close the editor without reloading or saving unsent switch edits", async () => {
+test("saving unchanged choices closes the modal without reloading", async () => {
     const page = consentPage({
         saved: [false, false, false],
         replies: [{ status: 200, result: { changed: false, analytics: false } }]
     });
     await page.click("edit");
-    page.switches[1].checked = true;
-    await page.click("reject");
+    await page.click("custom");
     assert.equal(page.reloads(), 0);
     assert.equal(page.modal.hidden, true);
     assert.equal(page.icon.hidden, false);
     await page.click("edit");
     assert.equal(page.switches[1].checked, false);
+});
+
+test("the close button restores the banner and discards unsaved switches without posting", async () => {
+    const page = consentPage({ replies: [] });
+    await page.click("edit");
+    page.switches[1].checked = true;
+    await page.click("close");
+    assert.equal(page.modal.hidden, true);
+    assert.equal(page.bannerVisible(), true);
+    assert.equal(page.requests.length, 0);
+    await page.click("edit");
+    assert.equal(page.switches[1].checked, false);
+});
+
+test("an outdated form displays the localized policy message and keeps the modal open", async () => {
+    const page = consentPage({ replies: [{ status: 409 }] });
+    await page.click("edit");
+    await page.click("custom");
+    assert.equal(page.errors[1].textContent, "Policy changed");
+    assert.equal(page.modal.hidden, false);
+    assert.equal(page.reloads(), 0);
 });
