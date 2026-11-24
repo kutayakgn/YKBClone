@@ -1,41 +1,31 @@
 @using System.Globalization
-@using Kentico.Content.Web.Mvc
-@using Kentico.PageBuilder.Web.Mvc
-@using Kentico.Web.Mvc
 @using YkbYapikredi.Application.CookieConsent
 @using YkbYapikredi.Infrastructure.CookieConsent
 @inject CookieConsentSettings CookieConsent
 @inject CookieConsentCopyProvider CookieCopy
 
 @{
-    var isLivePage = !Context.Kentico().Preview().Enabled && !Context.Kentico().PageBuilder().EditMode;
     var cookieCulture = ViewData["Culture"]?.ToString() ?? CultureInfo.CurrentUICulture.Name;
     if (string.IsNullOrWhiteSpace(cookieCulture)) cookieCulture = "tr-TR";
 
-    var policyVersion = 0;
-    var measurementId = string.Empty;
-    var loadGoogleAnalytics = false;
+    Context.Response.Headers["Cache-Control"] = "private, no-store";
+    var settings = CookieConsent.Options;
+    var policyVersion = settings.PolicyVersion;
+    var measurementId = settings.MeasurementId;
     CookieConsentCopy? cookieCopy = null;
     CookiePreferences? cookiePreferences = null;
 
-    if (isLivePage)
+    if (policyVersion > 0)
     {
-        Context.Response.Headers["Cache-Control"] = "private, no-store";
-        var settings = CookieConsent.Options;
-        policyVersion = settings.PolicyVersion;
-        measurementId = settings.MeasurementId;
-        if (policyVersion > 0)
-        {
-            cookieCopy = CookieCopy.Read(cookieCulture);
-            cookiePreferences = CookieConsent.Read(Context);
-        }
+        cookieCopy = CookieCopy.Read(cookieCulture);
+        cookiePreferences = CookieConsent.Read(Context);
+    }
 
-        loadGoogleAnalytics = cookieCopy != null && cookiePreferences?.Analytics == true &&
-            !string.IsNullOrEmpty(measurementId);
-        if (!loadGoogleAnalytics)
-        {
-            CookieConsent.ClearAnalyticsCookies(Context);
-        }
+    var loadGoogleAnalytics = cookieCopy != null && cookiePreferences?.Analytics == true &&
+        !string.IsNullOrEmpty(measurementId);
+    if (!loadGoogleAnalytics)
+    {
+        CookieConsent.ClearAnalyticsCookies(Context);
     }
 }
 

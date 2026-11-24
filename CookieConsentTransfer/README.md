@@ -104,7 +104,7 @@ Global administrator ile **Custom tables → New custom table** sihirbazını ku
 5. Canlı siteyi HTTPS üzerinden sunun. TLS ters proxy’de sonlanıyorsa uygulamanın HTTPS şemasını doğru algıladığını doğrulayın. Birden fazla uygulama örneği varsa aynı Data Protection anahtar deposunu ve uygulama adını kullanın. Bu depo yayında korunmalı. Tarayıcı tercihi yalnızca ilgili site ve politika sürümünde, 365 gün geçerlidir.
 6. SVG’yi belirtilen yola ekleyin. Görünüm karşılaştırması için ekin kullandığı `ubuntu-regular`, `ubuntu-medium`, `ubuntu-bold` font ailelerinin asıl projede kayıtlı olduğunu doğrulayın.
 
-GA4 **Basic Consent Mode** ile yüklenir. Layout, kaydedilmiş analiz izni varsa yerel GA başlatıcısını ekler. Rette, iznin geri alınmasında ve tercih sona erdiğinde başlatıcı sonraki sayfaya eklenmez. Uygulama, kendi GA4 kurulumuyla yazılan `ykbconsent` önekli çerezleri aynı origin'de temizler. Eski GA kurulumu başka domain/path veya önek kullandıysa onun çerezlerini geçişte eski kapsamlarıyla ayrıca sonlandırın. Kentico editör önizlemesinde bileşen ve GA4 yüklenmez. [Google Basic Consent Mode](https://developers.google.com/tag-platform/security/concepts/consent-mode), [GA4 çerez yapılandırması](https://developers.google.com/analytics/devguides/collection/ga4/reference/config)
+GA4 **Basic Consent Mode** ile yüklenir. Layout, kaydedilmiş analiz izni varsa yerel GA başlatıcısını ekler. Rette, iznin geri alınmasında ve tercih sona erdiğinde başlatıcı sonraki sayfaya eklenmez. Uygulama, kendi GA4 kurulumuyla yazılan `ykbconsent` önekli çerezleri aynı origin'de temizler. Eski GA kurulumu başka domain/path veya önek kullandıysa onun çerezlerini geçişte eski kapsamlarıyla ayrıca sonlandırın. Layout, Kentico önizlemesi ve Page Builder düzenleme modunda da aynı koşulları uygular. [Google Basic Consent Mode](https://developers.google.com/tag-platform/security/concepts/consent-mode), [GA4 çerez yapılandırması](https://developers.google.com/analytics/devguides/collection/ga4/reference/config)
 
 ## Yayın öncesi doğrulama
 
@@ -112,6 +112,6 @@ GA4 **Basic Consent Mode** ile yüklenir. Layout, kaydedilmiş analiz izni varsa
 - Tümünü reddedin. Sonraki sayfada ikon görünmeli, tercih modala yansımalı, Google ölçüm isteği olmamalı ve panelde günlük ret sayacı bir artmalı.
 - Yalnızca işlevsellik veya reklamı açın. Analytics isteği oluşmamalı. Yalnızca Analytics’i açtığınızda GA4 yüklenmeli, Google Consent Mode’daki reklam sinyalleri kapalı kalmalı.
 - İkonu kullanarak Analytics’i kapatın. Bu origin’deki `ykbconsent` önekli GA çerezleri silinmeli, yeniden yüklenen sayfada Google isteği olmamalı. Aynı tercihi tekrar kaydedince sayaç artmamalı.
-- İkinci bir tarayıcı profili, uzun CMS metni, 1024 px çevresi ve dar mobil ekranla kontrol edin. Eski politika sürümü ve Kentico önizlemesinde GA4'ün etkinleşmediğini doğrulayın.
+- İkinci bir tarayıcı profili, uzun CMS metni, 1024 px çevresi ve dar mobil ekranla kontrol edin. Eski politika sürümündeki tercihin GA4’ü etkinleştirmediğini doğrulayın.
 
 Yerel JavaScript davranış testleri için `node --test CookieConsentTransfer/Tests/*.test.cjs` çalıştırılabilir.
