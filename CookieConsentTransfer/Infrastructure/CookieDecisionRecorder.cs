@@ -3,6 +3,7 @@ using System.Data;
 using System.Data.Common;
 using System.Globalization;
 using System.Linq;
+using CMS.Base;
 using CMS.CustomTables;
 using CMS.DataEngine;
 using CMS.SiteProvider;
@@ -52,6 +53,8 @@ namespace YkbYapikredi.Infrastructure.CookieConsent
                 item.SetValue("AnalyticsAllowed", preferences.Analytics);
                 item.SetValue("AdvertisingAllowed", preferences.Advertising);
                 item.SetValue("PolicyVersion", policyVersion);
+
+                using var stagingContext = new CMSActionContext { LogSynchronization = false };
                 item.Insert();
 
                 UpdateDailySummary(site, day, policyVersion, action, preferences, initial);
