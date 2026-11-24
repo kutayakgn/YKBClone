@@ -1,14 +1,8 @@
-using System;
-using CMS;
-using CMS.CustomTables;
-using CMS.DataEngine;
-using CMS.Synchronization;
-
-[assembly: RegisterModule(typeof(YkbYapikredi.CmsModules.CookieConsentStagingExclusionModule))]
+[assembly: global::CMS.RegisterModuleAttribute(typeof(YkbYapikredi.CmsModules.CookieConsentStagingExclusionModule))]
 
 namespace YkbYapikredi.CmsModules
 {
-    public sealed class CookieConsentStagingExclusionModule : Module
+    public sealed class CookieConsentStagingExclusionModule : global::CMS.DataEngine.Module
     {
         private const string DailyTable = "YkbYapikredi.CookieConsentDaily";
         private const string DecisionTable = "YkbYapikredi.CookieConsentDecision";
@@ -21,19 +15,19 @@ namespace YkbYapikredi.CmsModules
         protected override void OnInit()
         {
             base.OnInit();
-            StagingEvents.LogTask.Before += ExcludeCookieConsentRows;
+            global::CMS.Synchronization.StagingEvents.LogTask.Before += ExcludeCookieConsentRows;
         }
 
-        private static void ExcludeCookieConsentRows(object sender, StagingLogTaskEventArgs e)
+        private static void ExcludeCookieConsentRows(object sender, global::CMS.Synchronization.StagingLogTaskEventArgs e)
         {
-            var item = e.Object as CustomTableItem;
+            var item = e.Object as global::CMS.CustomTables.CustomTableItem;
             if (item == null)
             {
                 return;
             }
 
-            if (string.Equals(item.ClassName, DailyTable, StringComparison.OrdinalIgnoreCase) ||
-                string.Equals(item.ClassName, DecisionTable, StringComparison.OrdinalIgnoreCase))
+            if (string.Equals(item.ClassName, DailyTable, global::System.StringComparison.OrdinalIgnoreCase) ||
+                string.Equals(item.ClassName, DecisionTable, global::System.StringComparison.OrdinalIgnoreCase))
             {
                 e.Cancel();
             }
