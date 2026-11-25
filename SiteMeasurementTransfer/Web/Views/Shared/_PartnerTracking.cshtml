@@ -1,0 +1,39 @@
+@using System
+@using System.Text.RegularExpressions
+@using CMS.Core
+@using Kentico.Content.Web.Mvc
+@using Kentico.PageBuilder.Web.Mvc
+@using Kentico.Web.Mvc
+@using YkbYapikredi.Application.CookieConsent
+@using YkbYapikredi.Infrastructure.CookieConsent
+@model CookiePreferences
+@inject ISettingsService SettingsService
+@inject CookieConsentSettings CookieSettings
+
+@{
+    var pagePath = ViewData["PartnerTrackingPath"] as string ?? string.Empty;
+    if (Model?.Analytics != true || !Context.Request.IsHttps || !PartnerSettings.IsPublicSiteHost(Context.Request.Host.Host) ||
+        Context.Kentico().Preview().Enabled ||
+        Context.Kentico().PageBuilder().EditMode || pagePath.Length > 250 || pagePath.IndexOf("%2f", StringComparison.OrdinalIgnoreCase) >= 0 ||
+        !Regex.IsMatch(pagePath, @"\A/(?:(?:[\p{L}\p{M}\p{N}_.~-]|%[0-9A-Fa-f]{2})+/)*(?:[\p{L}\p{M}\p{N}_.~-]|%[0-9A-Fa-f]{2})*\z"))
+    {
+        return;
+    }
+
+    var settings = new PartnerSettings(SettingsService);
+    var containerId = settings.ContainerId;
+    var sdkKey = Context.Request.QueryString.HasValue ? string.Empty : settings.DataroidSdkKey;
+    var endpoint = settings.DataroidEndpoint;
+    var gaId = CookieSettings.Options.MeasurementId;
+    if (string.IsNullOrEmpty(gaId) && (containerId.Length == 0 || sdkKey.Length == 0 || endpoint.Length == 0))
+    {
+        return;
+    }
+
+    const string dataroidAppName = "yapikredi.com.tr";
+    const string dataroidAppVersion = "1.0";
+}
+<script id="ykbPartnerTracking" src="~/js/components/partner-tracking.js" asp-append-version="true" defer
+        data-ga-id="@gaId" data-container-id="@containerId" data-dataroid-sdk-key="@sdkKey" data-dataroid-endpoint="@endpoint"
+        data-dataroid-app-name="@dataroidAppName" data-dataroid-app-version="@dataroidAppVersion"
+        data-page-path="@pagePath"></script>

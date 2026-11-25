@@ -361,3 +361,5 @@ MigrationBackup/
 
 # Fody - auto-generated XML schema
 FodyWeavers.xsd
+# Inventoried browser keys for local migration reference
+/SiteMeasurementTransfer/Integration/CANLI-DEGERLER.local.md

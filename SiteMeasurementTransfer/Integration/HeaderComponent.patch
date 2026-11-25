@@ -1,0 +1,93 @@
+--- a/Models/NavigationModels.cs
++++ b/Models/NavigationModels.cs
+@@ -9,6 +9,7 @@
+     public string Id { get; init; } = string.Empty;
+     public string Title { get; init; } = string.Empty;
+     public string Url { get; init; } = string.Empty;
++    public string PartnerClick { get; init; } = string.Empty;
+     public string IconCssClass { get; init; } = string.Empty;
+     public string ImageUrl { get; init; } = string.Empty;
+     public string MobileImageUrl { get; init; } = string.Empty;
+--- a/KenticoIntegration/LayoutContentProvider.cs.example
++++ b/KenticoIntegration/LayoutContentProvider.cs.example
+@@ -189,6 +189,7 @@
+             Id = page.NodeGUID.ToString("N"),
+             Title = Clean(page.NavigationTitle),
+             Url = Clean(page.NavigationUrl),
++            PartnerClick = CMS.Helpers.ValidationHelper.GetString(page.GetValue("PartnerClick"), string.Empty).Trim(),
+             IconCssClass = Clean(page.NavigationIconCssClass),
+             ImageUrl = Clean(page.NavigationImage),
+             MobileImageUrl = Clean(page.NavigationMobileImage),
+--- a/Views/Shared/Header.cshtml
++++ b/Views/Shared/Header.cshtml
+@@ -266,6 +266,7 @@
+                                 {
+ <div class="ykb-action-group">
+ <a class="ykb-action-item ykb-action-item--primary" href="@group.Url"
++                                           ykb-partner-click="@(isInternet ? null : group.PartnerClick)"
+ 
+                                            data-popup="@(group.OpenInWindow ? "true" : null)"
+ 
+@@ -292,6 +293,7 @@
+ 
+                                                 {
+ <a class="ykb-action-item ykb-action-item--child" href="@child.Url"
++                                                       ykb-partner-click="@(isInternet ? null : child.PartnerClick)"
+ 
+                                                        target="@(child.OpenInNewTab ? "_blank" : null)"
+ 
+--- a/wwwroot/js/header.js
++++ b/wwwroot/js/header.js
+@@ -765,13 +765,14 @@
+ 
+         });
+ 
+-        const appendActionLink = (parent, node, modifier) => {
++        const appendActionLink = (parent, node, modifier, allowTracking) => {
+ 
+             const link = document.createElement("a");
+ 
+             link.className = `ykb-action-item ykb-action-item--${modifier}`;
+ 
+             link.href = node.Url || "#";
++            if (allowTracking && node.PartnerClick) link.dataset.partnerClick = node.PartnerClick;
+ 
+             if (node.OpenInNewTab) {
+ 
+@@ -795,7 +796,7 @@
+ 
+         };
+ 
+-        const appendActionGroup = (parent, groupNode) => {
++        const appendActionGroup = (parent, groupNode, allowTracking) => {
+ 
+             const group = document.createElement("div");
+ 
+@@ -803,7 +804,7 @@
+ 
+             group.className = "ykb-action-group";
+ 
+-            appendActionLink(group, groupNode, "primary");
++            appendActionLink(group, groupNode, "primary", allowTracking);
+ 
+             if (children.length) {
+ 
+@@ -811,7 +812,7 @@
+ 
+                 childList.className = "ykb-action-children";
+ 
+-                children.forEach((child) => appendActionLink(childList, child, "child"));
++                children.forEach((child) => appendActionLink(childList, child, "child", allowTracking));
+ 
+                 group.append(childList);
+ 
+@@ -861,7 +862,8 @@
+ 
+                 sheet.dataset.actionId = String(node.Id);
+ 
+-                mobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode));
++                const allowTracking = !hasRole(node, "InternetBranch");
++                mobileChildren(node).forEach((groupNode) => appendActionGroup(sheet, groupNode, allowTracking));
+ 
+                 wrap.append(sheet);
+ 

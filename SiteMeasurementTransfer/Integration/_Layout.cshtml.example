@@ -1,0 +1,5 @@
+@* Ziyaretçi sitesinde <head> içinde, mevcut cookie-analytics.js bloğunun hemen altında. *@
+@if (cookieCopy != null && cookiePreferences?.Analytics == true)
+{
+    @await Html.PartialAsync("~/Views/Shared/_PartnerTracking.cshtml", cookiePreferences)
+}

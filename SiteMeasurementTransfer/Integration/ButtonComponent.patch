@@ -1,0 +1,20 @@
+--- a/ButtonMobileUrlTransfer/Infrastructure/Components/Mappers/ButtonComponentMapper.cs
++++ b/ButtonMobileUrlTransfer/Infrastructure/Components/Mappers/ButtonComponentMapper.cs
+@@ -14,6 +14,7 @@
+             return new ButtonComponentModel
+             {
+                 Order = node.NodeOrder,
++                PartnerClick = ComponentFields.String(node, "PartnerClick"),
+                 Label = ComponentFields.String(node, nameof(CmsButtonComponent.Label)),
+                 ButtonClass = ParseButtonClass(ComponentFields.String(node, nameof(CmsButtonComponent.ButtonClass))),
+                 ButtonSize = ParseButtonSize(ComponentFields.String(node, "ButtonSize")),
+--- a/ButtonMobileUrlTransfer/Web/Views/Shared/Components/_ButtonComponent.cshtml
++++ b/ButtonMobileUrlTransfer/Web/Views/Shared/Components/_ButtonComponent.cshtml
+@@ -32,6 +32,7 @@
+ <a href="@(Model.IsDisabled ? null : href)"
+    class="@cssClass @(Model.IsDisabled ? "disabled" : "")"
+    data-ykb-button
++   ykb-partner-click="@(Model.IsDisabled ? null : Model.PartnerClick)"
+    data-ykb-animation="@(isAnimated ? "true" : "false")"
+    data-animation-url="@(isAnimated ? Url.Content("~/assets/animations/become-customer.json") : null)"
+    data-player-url="@(isAnimated ? Url.Content("~/lib/lottie-web/lottie_light.min.js") : null)"

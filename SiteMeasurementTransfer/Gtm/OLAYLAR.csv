@@ -1,0 +1,13 @@
+GTM trigger,Dataroid aksiyonu,Dataroid olay adı,Parametreler,Kod noktası
+k13.dataroid_page_view,Page View,,View Label={{k13_page_path}},Public sayfa
+k13.AnasayfaBIK_HemenBasvur_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},İhtiyaç kredisi – Hemen Başvur
+k13.AnasayfaKK_HemenBasvur_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},Kredi kartı – Hemen Başvur
+k13.TumBasvuruIslemleri_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},Tüm Başvuru İşlemleri
+k13.TumOdemeler_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},Tüm Ödemeler
+k13.OdemeMerkezi_ElektrikFaturasi_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},Elektrik Faturası
+k13.OdemeMerkezi_SuFaturasi_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},Su Faturası
+k13.OdemeMerkezi_DogalgazFaturasi_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},Doğal Gaz Faturası
+k13.OdemeMerkezi_CepTelefonFaturasi_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},Cep Telefonu Faturası
+k13.OdemeMerkezi_TelekomFaturasi_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},Telekom Faturası
+k13.OdemeMerkezi_MtvBorcu_ButtonClick,Custom Event,Anasayfa_Buttons,section={{k13_section}};buttonName={{k13_button_name}};buttonDetail={{k13_button_url}},MTV Borcu
+k13.Yapi_Kredili_Ol_ButtonClick,Custom Event,YapıKrediliOl_Butonu,buttonName={{k13_button_name}};buttonURL={{k13_button_url}};pageURL={{k13_page_url}},Yapı Kredili Ol

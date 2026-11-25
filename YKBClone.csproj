@@ -20,6 +20,9 @@
     <Content Remove="CustomTableFeedTransfer/**;cardgroupcomponent/**;HorecaImportTransfer/**;RichTextModalTransfer/**;ButtonMobileUrlTransfer/**;DailyMarketBulletinsTransfer/**;ContractedProjectsTransfer/**;AssetAllocationRecommendationsTransfer/**" />
     <None Include="CustomTableFeedTransfer/**/*.cs;CustomTableFeedTransfer/**/*.cshtml;cardgroupcomponent/**/*.cs;cardgroupcomponent/**/*.cshtml;HorecaImportTransfer/**/*.cs;RichTextModalTransfer/**/*.cs;RichTextModalTransfer/**/*.cshtml" />
     <None Include="ButtonMobileUrlTransfer/**/*.cs;ButtonMobileUrlTransfer/**/*.cshtml" />
+    <Compile Remove="SiteMeasurementTransfer/**/*.cs" />
+    <Content Remove="SiteMeasurementTransfer/**" />
+    <None Include="SiteMeasurementTransfer/**/*.cs;SiteMeasurementTransfer/**/*.cshtml" />
   </ItemGroup>
 
 </Project>
