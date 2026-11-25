@@ -1,0 +1,75 @@
+using System;
+using System.Threading;
+using System.Threading.Tasks;
+using CMS.Core;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using YkbYapikredi.Application.ErrorPages;
+using YkbYapikredi.Application.Localization;
+using YkbYapikredi.Infrastructure.ErrorPages;
+
+namespace YkbYapikredi.Web.Controllers;
+
+[Route("error")]
+public sealed class ErrorController : Controller
+{
+    private readonly ICultureResolver cultureResolver;
+    private readonly IErrorPageService errorPageService;
+    private readonly IEventLogService eventLogService;
+    private readonly PageNotFoundFallback pageNotFoundFallback;
+
+    public ErrorController(IErrorPageService errorPageService, IEventLogService eventLogService,
+        ICultureResolver cultureResolver, PageNotFoundFallback pageNotFoundFallback)
+    {
+        this.errorPageService = errorPageService;
+        this.eventLogService = eventLogService;
+        this.cultureResolver = cultureResolver;
+        this.pageNotFoundFallback = pageNotFoundFallback;
+    }
+
+    [Route("{statusCode:int}")]
+    public async Task<IActionResult> Index(int statusCode, CancellationToken cancellationToken)
+    {
+        var safeStatusCode = statusCode is >= 400 and < 600 ? statusCode : StatusCodes.Status404NotFound;
+        Response.StatusCode = safeStatusCode;
+
+        return safeStatusCode == StatusCodes.Status404NotFound
+            ? await NotFoundViewAsync(cancellationToken)
+            : GenericErrorView();
+    }
+
+    private async Task<IActionResult> NotFoundViewAsync(CancellationToken cancellationToken)
+    {
+        var reExecute = HttpContext.Features.Get<IStatusCodeReExecuteFeature>();
+        var path = reExecute is null
+            ? Request.PathBase.Add(Request.Path)
+            : new PathString(reExecute.OriginalPathBase).Add(new PathString(reExecute.OriginalPath));
+        var culture = "tr-TR";
+        PageNotFoundModel model;
+
+        try
+        {
+            culture = path.StartsWithSegments("/en") ? "en-US" : cultureResolver.GetCultureCode();
+            model = await errorPageService.GetNotFoundAsync(culture, cancellationToken);
+        }
+        catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            eventLogService.LogException(
+                "YkbYapikredi.Web",
+                "ERRORPAGE",
+                exception,
+                additionalMessage: "404 içeriği CMS'ten okunamadı.");
+            model = pageNotFoundFallback.Create(culture);
+        }
+
+        ViewData["Title"] = model.Title;
+        return View("NotFound", model);
+    }
+
+    private IActionResult GenericErrorView()
+    {
+        ViewData["Title"] = "Bir hata oluştu";
+        return View("Error");
+    }
+}

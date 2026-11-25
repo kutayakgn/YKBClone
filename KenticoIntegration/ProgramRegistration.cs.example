@@ -1,8 +1,10 @@
 using YkbYapikredi.Application.Layout;
+using YkbYapikredi.Infrastructure.ErrorPages;
 using YkbYapikredi.Infrastructure.Kentico;
 
 // Mevcut Kentico/Xperience servis kayıtlarınızdan sonra ekleyin.
 builder.Services.AddScoped<ILayoutContentProvider, LayoutContentProvider>();
+builder.Services.AddScoped<PageNotFoundFallback>();
 
 // Controller'lar SiteController üzerinden LoadLayoutDataAsync çağırıyorsa
 // başka bir MVC filter kaydına gerek yoktur.

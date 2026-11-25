@@ -1,0 +1,106 @@
+using System;
+using System.Linq;
+using System.Threading;
+using System.Threading.Tasks;
+using CMS.DocumentEngine;
+using CMS.Helpers;
+using CMS.SiteProvider;
+using Microsoft.Extensions.Logging;
+using YkbYapikredi.Application.Caching;
+using YkbYapikredi.Application.ErrorPages;
+using YkbYapikredi.Infrastructure.Caching;
+using CmsPageNotFound = CMS.DocumentEngine.Types.YkbYapikredi.PageNotFound;
+
+namespace YkbYapikredi.Infrastructure.ErrorPages;
+
+public sealed class KenticoErrorPageService : IErrorPageService
+{
+    private readonly IProgressiveCache cache;
+    private readonly ILogger<KenticoErrorPageService> logger;
+    private readonly PageNotFoundFallback pageNotFoundFallback;
+
+    public KenticoErrorPageService(IProgressiveCache cache, ILogger<KenticoErrorPageService> logger,
+        PageNotFoundFallback pageNotFoundFallback)
+    {
+        this.cache = cache;
+        this.logger = logger;
+        this.pageNotFoundFallback = pageNotFoundFallback;
+    }
+
+    public async Task<PageNotFoundModel> GetNotFoundAsync(
+        string culture, CancellationToken cancellationToken = default)
+    {
+        var siteName = SiteContext.CurrentSiteName;
+        var cultureCode = string.Equals(culture, "en", StringComparison.OrdinalIgnoreCase)
+            ? "en-US"
+            : culture;
+        PageNotFoundModel? model;
+        try
+        {
+            model = await cache.LoadAsync(
+                async (settings, token) =>
+                {
+                    var result = await LoadAsync(siteName, cultureCode, token);
+                    if (settings.Cached)
+                    {
+                        settings.CacheDependency = CacheHelper.GetCacheDependency(
+                            [$"nodes|{siteName}|{CmsPageNotFound.CLASS_NAME}|all".ToLowerInvariant()]);
+                    }
+
+                    return result;
+                },
+                CacheSettingsFactory.For(CacheCatalog.NotFoundPage, siteName, cultureCode),
+                cancellationToken);
+        }
+        catch (Exception exception) when (!cancellationToken.IsCancellationRequested)
+        {
+            logger.LogWarning(exception, "Could not load the 404 page for {Site} and {Culture}.", siteName, cultureCode);
+            return pageNotFoundFallback.Create(cultureCode);
+        }
+
+        if (model is null)
+        {
+            return pageNotFoundFallback.Create(cultureCode);
+        }
+
+        if (!string.IsNullOrWhiteSpace(model.Title) && !string.IsNullOrWhiteSpace(model.Subtitle)
+            && !string.IsNullOrWhiteSpace(model.Content))
+        {
+            return model;
+        }
+
+        var fallback = pageNotFoundFallback.Create(cultureCode);
+        return new PageNotFoundModel
+        {
+            Title = string.IsNullOrWhiteSpace(model.Title) ? fallback.Title : model.Title,
+            Subtitle = string.IsNullOrWhiteSpace(model.Subtitle) ? fallback.Subtitle : model.Subtitle,
+            Content = string.IsNullOrWhiteSpace(model.Content) ? fallback.Content : model.Content
+        };
+    }
+
+    private static async Task<PageNotFoundModel?> LoadAsync(
+        string siteName, string cultureCode, CancellationToken cancellationToken)
+    {
+        var pages = await DocumentHelper.GetDocuments<CmsPageNotFound>()
+            .OnSite(siteName)
+            .Culture(cultureCode)
+            .CombineWithDefaultCulture(false)
+            .Published()
+            .PublishedVersion()
+            .TopN(1)
+            .GetEnumerableTypedResultAsync(cancellationToken: cancellationToken);
+
+        var page = pages.FirstOrDefault();
+        if (page is null)
+        {
+            return null;
+        }
+
+        return new PageNotFoundModel
+        {
+            Title = page.Title,
+            Subtitle = page.Subtitle,
+            Content = page.Content
+        };
+    }
+}

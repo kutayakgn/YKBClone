@@ -1,0 +1,15 @@
+namespace YkbYapikredi.Application.ErrorPages;
+
+public sealed class PageNotFoundModel
+{
+    public static readonly PageNotFoundModel Fallback = new()
+    {
+        Title = "404"
+    };
+
+    public string Title { get; init; } = string.Empty;
+
+    public string Subtitle { get; init; } = string.Empty;
+
+    public string Content { get; init; } = string.Empty;
+}

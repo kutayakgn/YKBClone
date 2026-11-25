@@ -1,0 +1,7 @@
+namespace YkbYapikredi.Application.Localization;
+
+public interface ILocalizer
+{
+    string Get(string key, string fallback);
+    string Get(string key, string fallback, string cultureCode);
+}

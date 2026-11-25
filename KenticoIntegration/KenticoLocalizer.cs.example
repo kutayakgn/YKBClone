@@ -1,0 +1,57 @@
+using System;
+using CMS.Helpers;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using YkbYapikredi.Application.Localization;
+
+namespace YkbYapikredi.Infrastructure.Localization;
+
+public sealed class KenticoLocalizer : ILocalizer
+{
+    private readonly IHttpContextAccessor httpContextAccessor;
+
+    public KenticoLocalizer(IHttpContextAccessor httpContextAccessor)
+    {
+        this.httpContextAccessor = httpContextAccessor;
+    }
+
+    public string Get(string key, string fallback)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return fallback;
+        }
+
+        return Get(key, string.IsNullOrEmpty(fallback) ? key : fallback, ResolveCultureCode());
+    }
+
+    public string Get(string key, string fallback, string cultureCode)
+    {
+        if (string.IsNullOrWhiteSpace(key))
+        {
+            return fallback;
+        }
+
+        var value = ResHelper.GetString(key, cultureCode, useDefaultCulture: true);
+        return string.IsNullOrWhiteSpace(value) || string.Equals(value, key, StringComparison.Ordinal)
+            ? fallback
+            : value;
+    }
+
+    private string ResolveCultureCode()
+    {
+        var context = httpContextAccessor.HttpContext;
+        if (context is null)
+        {
+            return LanguageHelper.CultureCode;
+        }
+
+        var reExecute = context.Features.Get<IStatusCodeReExecuteFeature>();
+        var path = reExecute is null ? context.Request.Path : new PathString(reExecute.OriginalPath);
+        var pathBase = reExecute is null ? context.Request.PathBase : new PathString(reExecute.OriginalPathBase);
+        return path.StartsWithSegments("/en", StringComparison.OrdinalIgnoreCase)
+            || pathBase.StartsWithSegments("/en", StringComparison.OrdinalIgnoreCase)
+            ? "en-US"
+            : LanguageHelper.CultureCode;
+    }
+}

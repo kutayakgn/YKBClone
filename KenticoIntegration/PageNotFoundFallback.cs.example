@@ -1,0 +1,37 @@
+using System;
+using Microsoft.Extensions.Logging;
+using YkbYapikredi.Application.ErrorPages;
+using YkbYapikredi.Application.Localization;
+
+namespace YkbYapikredi.Infrastructure.ErrorPages;
+
+public sealed class PageNotFoundFallback
+{
+    private readonly ILocalizer localizer;
+    private readonly ILogger<PageNotFoundFallback> logger;
+
+    public PageNotFoundFallback(ILocalizer localizer, ILogger<PageNotFoundFallback> logger)
+    {
+        this.localizer = localizer;
+        this.logger = logger;
+    }
+
+    public PageNotFoundModel Create(string cultureCode)
+    {
+        try
+        {
+            var defaults = PageNotFoundModel.Fallback;
+            return new PageNotFoundModel
+            {
+                Title = localizer.Get("Ykb.ErrorPages.NotFound.Title", defaults.Title, cultureCode),
+                Subtitle = localizer.Get("Ykb.ErrorPages.NotFound.Subtitle", defaults.Subtitle, cultureCode),
+                Content = localizer.Get("Ykb.ErrorPages.NotFound.Content", defaults.Content, cultureCode)
+            };
+        }
+        catch (Exception exception)
+        {
+            logger.LogWarning(exception, "Could not load 404 resource strings for culture {Culture}.", cultureCode);
+            return PageNotFoundModel.Fallback;
+        }
+    }
+}
