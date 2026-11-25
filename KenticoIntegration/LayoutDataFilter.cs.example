@@ -1,0 +1,171 @@
+using System;
+using System.Linq;
+using System.Threading.Tasks;
+using CMS.Core;
+using CMS.DocumentEngine;
+using CMS.Localization;
+using Kentico.Content.Web.Mvc;
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
+using Microsoft.Extensions.DependencyInjection;
+using YkbYapikredi.Application.Layout;
+using YkbYapikredi.Application.Localization;
+
+namespace YkbYapikredi.Web.Filters;
+
+public class LayoutDataFilter : IAsyncResultFilter
+{
+    private const string DefaultCulture = "tr-TR";
+    private const string EnglishCulture = "en-US";
+
+    private readonly ILayoutContentProvider _contentProvider;
+    private readonly ICultureResolver _culture;
+    private readonly ILanguageService _languageService;
+
+    public LayoutDataFilter(
+        ILayoutContentProvider contentProvider,
+        ICultureResolver culture,
+        ILanguageService languageService)
+    {
+        _contentProvider = contentProvider;
+        _culture = culture;
+        _languageService = languageService;
+    }
+
+    public async Task OnResultExecutionAsync(ResultExecutingContext context, ResultExecutionDelegate next)
+    {
+        if (context.Result is ViewResult viewResult)
+        {
+            var cultureCode = ResolveCultureCode(context.HttpContext);
+
+            using (BeginCultureScope(cultureCode))
+            {
+                await PopulateAsync(context, viewResult, cultureCode);
+                await next();
+            }
+
+            return;
+        }
+
+        await next();
+    }
+
+    private async Task PopulateAsync(ResultExecutingContext context, ViewResult viewResult, string cultureCode)
+    {
+        var cancellationToken = context.HttpContext.RequestAborted;
+
+        try
+        {
+            viewResult.ViewData["Culture"] = cultureCode;
+
+            // Kendi layout'u olan bölümler (blog) ana sitenin header/footer içeriğini okumuyor.
+            if (!SkipsMainLayoutData(context) && !viewResult.ViewData.ContainsKey("LayoutData"))
+            {
+                // Kentico istek başına tek DB bağlantısı kullanıyor ve MARS kapalı.
+                var content = await _contentProvider.GetAsync(cultureCode, cancellationToken);
+                viewResult.ViewData["LayoutData"] = LayoutData.Create(content);
+            }
+
+            viewResult.ViewData["Languages"] = await _languageService.GetLanguagesAsync(
+                GetCurrentPageAliasPath(context.HttpContext),
+                cultureCode,
+                cancellationToken);
+        }
+        catch (Exception exception)
+        {
+            TryLog(context.HttpContext, exception);
+        }
+    }
+
+    private static void TryLog(HttpContext httpContext, Exception exception)
+    {
+        try
+        {
+            httpContext.RequestServices.GetService<IEventLogService>()?.LogException(
+                "YkbYapikredi.Web",
+                "LAYOUTDATA",
+                exception,
+                additionalMessage: "Header/footer içeriği okunamadı; sayfa bu bölümler olmadan gösterildi.");
+        }
+        catch
+        {
+            // Log yazılamadığında hata sayfası gösterilmeye devam eder.
+        }
+    }
+
+    private static bool SkipsMainLayoutData(ResultExecutingContext context) =>
+        context.ActionDescriptor.EndpointMetadata.Any(metadata => metadata is SkipMainLayoutDataAttribute);
+
+    private static string? GetCurrentPageAliasPath(HttpContext httpContext)
+    {
+        try
+        {
+            var pageDataContextRetriever = httpContext.RequestServices.GetService<IPageDataContextRetriever>();
+            return pageDataContextRetriever?.TryRetrieve<TreeNode>(out var pageDataContext) == true
+                ? pageDataContext.Page?.NodeAliasPath
+                : null;
+        }
+        catch
+        {
+            return null;
+        }
+    }
+
+    private string ResolveCultureCode(HttpContext httpContext)
+    {
+        var reExecute = httpContext.Features.Get<IStatusCodeReExecuteFeature>();
+        var path = reExecute is null ? httpContext.Request.Path : new PathString(reExecute.OriginalPath);
+        var pathBase = reExecute is null ? httpContext.Request.PathBase : new PathString(reExecute.OriginalPathBase);
+
+        if (path.StartsWithSegments("/en", StringComparison.OrdinalIgnoreCase) ||
+            pathBase.StartsWithSegments("/en", StringComparison.OrdinalIgnoreCase))
+        {
+            return EnglishCulture;
+        }
+
+        var resolvedCulture = _culture.GetCultureCode();
+        return string.IsNullOrWhiteSpace(resolvedCulture) ? DefaultCulture : resolvedCulture;
+    }
+
+    private static IDisposable BeginCultureScope(string cultureCode)
+    {
+        var previousLocalizationCulture = LocalizationContext.CurrentCulture;
+        var previousCulture = System.Globalization.CultureInfo.CurrentCulture;
+        var previousUiCulture = System.Globalization.CultureInfo.CurrentUICulture;
+
+        try
+        {
+            var targetCulture = System.Globalization.CultureInfo.GetCultureInfo(cultureCode);
+            var targetLocalizationCulture = CMS.Localization.CultureInfo.Provider.Get(cultureCode);
+
+            if (targetLocalizationCulture is not null)
+            {
+                LocalizationContext.CurrentCulture = targetLocalizationCulture;
+            }
+
+            System.Globalization.CultureInfo.CurrentCulture = targetCulture;
+            System.Globalization.CultureInfo.CurrentUICulture = targetCulture;
+        }
+        catch
+        {
+            // Kültür ayarlanamasa da istek akışı devam etsin.
+        }
+
+        return new CultureScope(previousLocalizationCulture, previousCulture, previousUiCulture);
+    }
+
+    private sealed class CultureScope(
+        CMS.Localization.CultureInfo? previousLocalizationCulture,
+        System.Globalization.CultureInfo previousCulture,
+        System.Globalization.CultureInfo previousUiCulture) : IDisposable
+    {
+        public void Dispose()
+        {
+            LocalizationContext.CurrentCulture = previousLocalizationCulture;
+            System.Globalization.CultureInfo.CurrentCulture = previousCulture;
+            System.Globalization.CultureInfo.CurrentUICulture = previousUiCulture;
+        }
+    }
+}
